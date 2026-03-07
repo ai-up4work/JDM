@@ -148,7 +148,7 @@ const sidebarSubItems: Record<string, { label: string; href: string }[]> = {
 
 const sidebarItems = [
   { label: 'All',           href: '/'                       },
-  { label: 'New Arrivals',  href: '/category/new-arrivals'  },
+  { label: 'New Arrivals',  href: '/new-arrivals'  },
   { label: 'West',          href: '/category/west'          },
   { label: 'Women',         href: '/category/women',  hasDrawer: true },
   { label: 'Men',           href: '/category/men',    hasDrawer: true },

@@ -12,7 +12,7 @@ export default function SellersPage() {
       <div className="mb-12">
         <h1 className="text-4xl font-bold mb-4">Our Sellers</h1>
         <p className="text-lg text-muted-foreground">
-          Discover premium fashion brands and sellers on LAAM
+          Discover premium fashion brands and sellers on JDM
         </p>
       </div>
 

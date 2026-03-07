@@ -14,7 +14,7 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">
               <span className="bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
-                LAAM
+                JDM
               </span>
             </h3>
             <p className="text-background/80 text-sm leading-relaxed">
@@ -104,11 +104,11 @@ export function Footer() {
             <div className="space-y-3 text-sm">
               <div className="flex items-center gap-3">
                 <Phone size={16} className="text-secondary" />
-                <span>+92 (0) 123-456789</span>
+                <span>4 (0) 123-456789</span>
               </div>
               <div className="flex items-center gap-3">
                 <Mail size={16} className="text-secondary" />
-                <span>support@laam.pk</span>
+                <span>support@jdm.lk</span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin size={16} className="text-secondary" />
@@ -148,7 +148,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-background/20 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-background/70">
-          <p>&copy; 2024 LAAM. All rights reserved.</p>
+          <p>&copy; 2024 JDM. All rights reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <Link href="#" className="hover:text-background transition-colors">
               Privacy Policy

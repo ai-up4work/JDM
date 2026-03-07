@@ -168,7 +168,7 @@ export default function CheckoutPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="+92 XXX XXXXXXX"
+                      placeholder="+94 XXX XXXXXXX"
                     />
                   </div>
                 </div>

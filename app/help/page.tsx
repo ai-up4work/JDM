@@ -97,7 +97,7 @@ const helpCategories = [
       {
         question: 'Are all products authentic?',
         answer:
-          '100% Yes! We guarantee that all products sold on LAAM are authentic. If you receive a counterfeit item, we will provide a full refund.',
+          '100% Yes! We guarantee that all products sold on JDM are authentic. If you receive a counterfeit item, we will provide a full refund.',
       },
       {
         question: 'How can I know the right size?',
@@ -194,10 +194,10 @@ export default function HelpPage() {
         </p>
         <div className="space-y-2">
           <p>
-            Email: <span className="font-semibold">support@laam.pk</span>
+            Email: <span className="font-semibold">support@JDM.lk</span>
           </p>
           <p>
-            Phone: <span className="font-semibold">+92 (0) 123-456789</span>
+            Phone: <span className="font-semibold">+94 (0) 123-456789</span>
           </p>
           <p className="text-sm text-muted-foreground">
             Available Monday - Friday, 9 AM - 6 PM PKT

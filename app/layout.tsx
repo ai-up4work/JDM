@@ -15,9 +15,9 @@ const jost = Jost({
 })
 
 export const metadata: Metadata = {
-  title: "LAAM - South Asia's Fashion Discovery Platform",
+  title: "JDM - South Asia's Fashion Discovery Platform",
   description:
-    "Shop premium fashion from Pakistani and South Asian designers on LAAM. Discover curated collections of women's, men's, and kids fashion.",
+    "Shop premium fashion from Pakistani and South Asian designers on JDM. Discover curated collections of women's, men's, and kids fashion.",
   generator: 'v0.app',
   icons: {
     icon: [

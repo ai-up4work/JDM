@@ -1,4 +1,4 @@
-// Mock data for LAAM marketplace
+// Mock data for JDM marketplace
 
 export interface Product {
   id: string;

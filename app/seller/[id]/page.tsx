@@ -112,7 +112,7 @@ export default function SellerStorePage() {
           <div>
             <h4 className="font-semibold mb-2">Store Quality</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>✓ Verified by LAAM</li>
+              <li>✓ Verified by JDM</li>
               <li>✓ {seller.followers.toLocaleString()}+ Happy Customers</li>
               <li>✓ Average Rating: {seller.rating}/5</li>
               <li>✓ {seller.products}+ Products Available</li>

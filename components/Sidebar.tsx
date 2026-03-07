@@ -154,7 +154,7 @@ const sidebarItems = [
   { label: 'Men',           href: '/category/men',    hasDrawer: true },
   { label: 'Beauty',        href: '/category/beauty', hasDrawer: true },
   { label: 'Kids',          href: '/category/kids',   hasDrawer: true },
-  { label: 'Brands',        href: '/category/brands'        },
+  { label: 'Brands',        href: '/brands'        },
   { label: 'Top Curations', href: '/category/top-curations' },
   { label: 'Orders',        href: '/orders'                 },
   { label: 'Rewards',       href: '/rewards'                },

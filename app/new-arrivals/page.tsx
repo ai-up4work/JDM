@@ -114,7 +114,7 @@ function CarouselSection({ title, items, timeFilter, onTimeFilterChange, renderC
           ><ChevronRight size={16} /></button>
         </div>
       </div>
-      <div ref={trackRef} onScroll={onScroll} className="flex gap-4 overflow-x-auto mx-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div ref={trackRef} onScroll={onScroll} className="flex gap-4 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {items.map((item, i) => (
           <div key={i} className="shrink-0" style={{ width: `calc(100% / ${visibleRatio})` }}>
             {renderCard(item, i)}

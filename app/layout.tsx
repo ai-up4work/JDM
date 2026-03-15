@@ -34,17 +34,86 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={jost.variable}>
-      <body className="font-sans antialiased bg-background text-foreground">
+      <body className="font-sans antialiased bg-background text-foreground overflow-x-hidden">
+
         <Header />
+
         <div className="flex">
-          <Sidebar />
-          <main className="flex-1 min-h-screen">
+
+          {/* ── Desktop Sidebar ──
+              fixed + top-16 + bottom-0 = always fills from below the header
+              all the way to the bottom of the screen, no gap ever.
+              overflow-y-auto lets sidebar content scroll independently.
+          ── */}
+          <aside className="hidden lg:flex lg:flex-col fixed top-16 left-0 bottom-0 w-60 border-r border-border bg-background overflow-y-auto overflow-x-hidden z-30">
+            <Sidebar />
+          </aside>
+
+          {/* ── Mobile Sidebar Drawer ── */}
+          <div
+            className="lg:hidden fixed inset-0 z-40 pointer-events-none"
+            id="mobile-sidebar-root"
+          >
+            <div
+              className="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300"
+              id="sidebar-backdrop"
+            />
+            <div
+              className="absolute top-0 left-0 h-full w-72 max-w-[85vw] bg-background shadow-2xl -translate-x-full transition-transform duration-300 ease-in-out overflow-y-auto"
+              id="sidebar-drawer"
+            >
+              <Sidebar />
+            </div>
+          </div>
+
+          {/* ── Main Content ── */}
+          <main className="flex-1 min-w-0 w-full lg:ml-60">
             {children}
           </main>
+
         </div>
+
         <Footer />
         <Toaster position="bottom-right" />
         <Analytics />
+
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                var btn      = document.getElementById('mobile-menu-btn');
+                var root     = document.getElementById('mobile-sidebar-root');
+                var backdrop = document.getElementById('sidebar-backdrop');
+                var drawer   = document.getElementById('sidebar-drawer');
+                if (!btn || !root || !backdrop || !drawer) return;
+
+                function openDrawer() {
+                  root.classList.remove('pointer-events-none');
+                  backdrop.classList.remove('opacity-0');
+                  backdrop.classList.add('opacity-100', 'pointer-events-auto');
+                  drawer.classList.remove('-translate-x-full');
+                  drawer.classList.add('translate-x-0');
+                  document.body.classList.add('overflow-hidden');
+                }
+
+                function closeDrawer() {
+                  root.classList.add('pointer-events-none');
+                  backdrop.classList.add('opacity-0');
+                  backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+                  drawer.classList.add('-translate-x-full');
+                  drawer.classList.remove('translate-x-0');
+                  document.body.classList.remove('overflow-hidden');
+                }
+
+                btn.addEventListener('click', function () {
+                  drawer.classList.contains('-translate-x-full') ? openDrawer() : closeDrawer();
+                });
+
+                backdrop.addEventListener('click', closeDrawer);
+              })();
+            `,
+          }}
+        />
       </body>
     </html>
   )

@@ -202,7 +202,7 @@ export function Sidebar() {
       {/* ── Sidebar ── */}
       <aside
         ref={sidebarRef}
-        className="hidden lg:block w-60 bg-background border-r border-border sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto shrink-0"
+        className="hidden lg:block w-60 bg-background border-r border-border sticky h-[calc(100vh-5rem)] overflow-y-auto shrink-0"
       >
         <nav className="px-4 py-6">
           {sidebarItems.map((item) => (

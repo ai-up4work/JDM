@@ -65,14 +65,26 @@ const mostPopular = [
 
 function NewInCarousel() {
   const [start, setStart] = useState(0);
-  const visible = 4;
+  const [colCount, setColCount] = useState(4);
+
+  useEffect(() => {
+    function update() {
+      if (window.innerWidth < 640)       setColCount(1);
+      else if (window.innerWidth < 1024) setColCount(2);
+      else                               setColCount(4);
+    }
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
   const canPrev = start > 0;
-  const canNext = start + visible < newIn.length;
+  const canNext = start + colCount < newIn.length;
 
   return (
-    <section className="mb-16">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-semibold text-foreground">New In - 2026</h2>
+    <section className="mb-10 sm:mb-16">
+      <div className="flex items-center justify-between mb-5 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-semibold text-foreground">New In - 2026</h2>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -84,7 +96,7 @@ function NewInCarousel() {
           </button>
           <button
             type="button"
-            onClick={() => setStart((s) => Math.min(newIn.length - visible, s + 1))}
+            onClick={() => setStart((s) => Math.min(newIn.length - colCount, s + 1))}
             disabled={!canNext}
             className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
@@ -92,9 +104,9 @@ function NewInCarousel() {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-5">
-        {newIn.slice(start, start + visible).map((item) => (
-          <Link key={item.collection} href={item.href} className="group flex flex-col gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        {newIn.slice(start, start + colCount).map((item) => (
+          <Link key={item.collection} href={item.href} className="group flex flex-col gap-2 min-w-0">
             <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
               <Image
                 src={item.image}
@@ -111,7 +123,7 @@ function NewInCarousel() {
               )}
             </div>
             <div className="px-0.5">
-              <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors leading-snug">
+              <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">
                 {item.collection}
               </p>
               <p className="text-sm text-muted-foreground mt-0.5">{item.brand}</p>
@@ -123,15 +135,17 @@ function NewInCarousel() {
   );
 }
 
+// ── Styling Videos ───────────────────────────────────────────────────────────
+
 const stylingVideos = [
-  { brand: 'Zoya&Zafar',      price: 28.46, originalPrice: 54.53, discount: 50, image: '/garments/product1.jpeg',  video: 'https://www.w3schools.com/html/mov_bbb.mp4',                                           thumbnail: '/garments/product1.jpeg'  },
-  { brand: 'Silk Leaf',       price: 10.00, originalPrice: 20.00, discount: 50, image: '/garments/product2.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',   thumbnail: '/garments/product2.jpeg'  },
-  { brand: 'Al-Harir Apparel',price: 61.67, originalPrice: 99.00, discount: 38, image: '/garments/product3.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', thumbnail: '/garments/product3.jpeg'  },
-  { brand: 'Rajdulari',       price: 51.42, originalPrice: 85.00, discount: 40, image: '/garments/product4.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', thumbnail: '/garments/product4.jpeg'  },
-  { brand: 'Qalamkar',        price: 45.00, originalPrice: 72.00, discount: 38, image: '/garments/product5.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', thumbnail: '/garments/product5.jpeg' },
-  { brand: 'Mushq',           price: 33.20, originalPrice: 55.00, discount: 40, image: '/garments/product6.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',    thumbnail: '/garments/product6.jpeg'  },
-  { brand: 'Maria B',         price: 78.90, originalPrice: 120.0, discount: 34, image: '/garments/product7.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', thumbnail: '/garments/product7.jpeg' },
-  { brand: 'Sana Safinaz',    price: 42.10, originalPrice: 68.00, discount: 38, image: '/garments/product8.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4', thumbnail: '/garments/product8.jpeg' },
+  { brand: 'Zoya&Zafar',       price: 28.46, originalPrice: 54.53, discount: 50, image: '/garments/product1.jpeg',  video: 'https://www.w3schools.com/html/mov_bbb.mp4',                                                    thumbnail: '/garments/product1.jpeg'  },
+  { brand: 'Silk Leaf',        price: 10.00, originalPrice: 20.00, discount: 50, image: '/garments/product2.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',            thumbnail: '/garments/product2.jpeg'  },
+  { brand: 'Al-Harir Apparel', price: 61.67, originalPrice: 99.00, discount: 38, image: '/garments/product3.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',          thumbnail: '/garments/product3.jpeg'  },
+  { brand: 'Rajdulari',        price: 51.42, originalPrice: 85.00, discount: 40, image: '/garments/product4.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',         thumbnail: '/garments/product4.jpeg'  },
+  { brand: 'Qalamkar',         price: 45.00, originalPrice: 72.00, discount: 38, image: '/garments/product5.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',        thumbnail: '/garments/product5.jpeg'  },
+  { brand: 'Mushq',            price: 33.20, originalPrice: 55.00, discount: 40, image: '/garments/product6.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',             thumbnail: '/garments/product6.jpeg'  },
+  { brand: 'Maria B',          price: 78.90, originalPrice: 120.0, discount: 34, image: '/garments/product7.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',       thumbnail: '/garments/product7.jpeg'  },
+  { brand: 'Sana Safinaz',     price: 42.10, originalPrice: 68.00, discount: 38, image: '/garments/product8.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4', thumbnail: '/garments/product8.jpeg' },
 ];
 
 function StylingVideos() {
@@ -141,15 +155,21 @@ function StylingVideos() {
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
-  const visible = 4;
-  const canPrev = start > 0;
-  const canNext = start + visible < stylingVideos.length;
 
-  const openVideo = (item: typeof stylingVideos[0]) => {
-    setActiveVideo(item);
-    setIsPaused(false);
-    setIsMuted(true);
-  };
+  const [colCount, setColCount] = useState(4);
+  useEffect(() => {
+    function update() {
+      if (window.innerWidth < 640)       setColCount(2);
+      else if (window.innerWidth < 1024) setColCount(3);
+      else                               setColCount(4);
+    }
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  const canPrev = start > 0;
+  const canNext = start + colCount < stylingVideos.length;
 
   const closeVideo = () => {
     if (videoRef.current) videoRef.current.pause();
@@ -158,7 +178,7 @@ function StylingVideos() {
 
   const togglePause = () => {
     if (!videoRef.current) return;
-    if (isPaused) { videoRef.current.play(); } else { videoRef.current.pause(); }
+    isPaused ? videoRef.current.play() : videoRef.current.pause();
     setIsPaused((p) => !p);
   };
 
@@ -170,11 +190,11 @@ function StylingVideos() {
 
   return (
     <>
-      <section className="mb-16">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-semibold text-foreground">Styling Videos</h2>
-          <div className="flex items-center gap-3">
-            <Link href="/videos" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+      <section className="mb-10 sm:mb-16">
+        <div className="flex items-center justify-between mb-5 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Styling Videos</h2>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/videos" className="text-sm font-medium text-foreground hover:text-primary transition-colors hidden sm:block">
               View All
             </Link>
             <button
@@ -187,7 +207,7 @@ function StylingVideos() {
             </button>
             <button
               type="button"
-              onClick={() => setStart((s) => Math.min(stylingVideos.length - visible, s + 1))}
+              onClick={() => setStart((s) => Math.min(stylingVideos.length - colCount, s + 1))}
               disabled={!canNext}
               className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
@@ -196,15 +216,14 @@ function StylingVideos() {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-5">
-          {stylingVideos.slice(start, start + visible).map((item) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+          {stylingVideos.slice(start, start + colCount).map((item) => (
             <button
               key={item.brand}
               type="button"
               onClick={() => setActiveVideo(item)}
-              className="group relative flex flex-col text-left"
+              className="group relative flex flex-col text-left min-w-0 w-full"
             >
-              {/* Card image */}
               <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
                 <Image
                   src={item.image}
@@ -212,17 +231,12 @@ function StylingVideos() {
                   fill
                   className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
                 />
-                {/* Dark gradient at bottom */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl" />
-                {/* Play button */}
                 <div className="absolute top-3 left-3 z-10 bg-white/20 backdrop-blur-sm rounded-full p-2">
-                  <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
+                  <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4"><path d="M8 5v14l11-7z" /></svg>
                 </div>
-                {/* Brand + price bottom overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
-                  <p className="text-white text-sm font-semibold">{item.brand}</p>
+                  <p className="text-white text-sm font-semibold truncate">{item.brand}</p>
                   <p className="text-white text-sm font-medium">$ {item.price.toFixed(2)}</p>
                 </div>
               </div>
@@ -231,23 +245,25 @@ function StylingVideos() {
         </div>
       </section>
 
-      {/* ── Video Modal ── */}
+      {/* Video Modal */}
       {activeVideo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          {/* Close — top right of viewport */}
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          onClick={closeVideo}
+        >
           <button
             type="button"
             onClick={closeVideo}
-            className="fixed top-6 right-6 bg-white text-black text-sm font-medium px-4 py-2 rounded-full hover:bg-gray-100 transition-colors z-50"
+            className="fixed top-4 right-4 sm:top-6 sm:right-6 bg-white text-black text-sm font-medium px-4 py-2 rounded-full hover:bg-gray-100 transition-colors z-50"
           >
             Close
           </button>
 
-          {/* Modal — tall, narrow, no top rounding, clips to screen */}
-          <div className="relative flex flex-col bg-black overflow-hidden rounded-b-2xl"
-               style={{ width: 390, height: '90vh' }}>
-
-            {/* Video fills entire modal */}
+          <div
+            className="relative flex flex-col bg-black overflow-hidden rounded-2xl w-full"
+            style={{ maxWidth: 390, height: '90vh' }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="relative flex-1 overflow-hidden" onClick={togglePause}>
               <video
                 ref={videoRef}
@@ -259,7 +275,6 @@ function StylingVideos() {
                 className="w-full h-full object-cover"
               />
 
-              {/* Mute — top right */}
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); toggleMute(); }}
@@ -276,7 +291,6 @@ function StylingVideos() {
                 )}
               </button>
 
-              {/* Share — bottom right, above product bar */}
               <button
                 type="button"
                 onClick={async (e) => {
@@ -300,7 +314,6 @@ function StylingVideos() {
                 </svg>
               </button>
 
-              {/* Product info card — clicking navigates to product page */}
               <div
                 className="absolute bottom-4 left-4 right-4 z-20 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl shadow-lg cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={(e) => {
@@ -314,7 +327,7 @@ function StylingVideos() {
                   <Image src={activeVideo.thumbnail} alt={activeVideo.brand} fill className="object-cover object-top" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground">{activeVideo.brand}</p>
+                  <p className="text-sm font-semibold text-foreground truncate">{activeVideo.brand}</p>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-foreground">$ {activeVideo.price.toFixed(2)}</span>
                     {activeVideo.originalPrice !== activeVideo.price && (
@@ -335,9 +348,7 @@ function StylingVideos() {
   );
 }
 
-
-
-// ── Trending Products data ────────────────────────────────────────────────────
+// ── Trending Products ────────────────────────────────────────────────────────
 
 const trendingProductsData = Array.from({ length: 48 }, (_, i) => ({
   id: i + 1,
@@ -394,23 +405,26 @@ function FilterDropdown({ label, options, value, onChange }: {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
   const active = value !== 'All' && value !== 'Recommended' && value !== '';
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-colors whitespace-nowrap
+        className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full border text-xs sm:text-sm font-medium transition-colors whitespace-nowrap
           ${active ? 'border-foreground bg-foreground text-background' : 'border-border bg-background text-foreground hover:bg-secondary'}`}
       >
-        {active ? value : label} <ChevronRight size={14} className={`transition-transform ${open ? 'rotate-90' : ''}`} />
+        {active ? value : label}
+        <ChevronRight size={14} className={`transition-transform ${open ? 'rotate-90' : ''}`} />
       </button>
       {open && (
-        <div className="absolute top-full mt-2 left-0 z-30 bg-background border border-border rounded-xl shadow-lg py-1 min-w-[160px]">
+        <div className="absolute top-full mt-2 left-0 z-30 bg-background border border-border rounded-xl shadow-lg py-1 min-w-[140px] sm:min-w-[160px]">
           {options.map((opt) => (
             <button
               key={opt}
@@ -440,35 +454,31 @@ function TrendingProducts() {
   const setFilter = (key: keyof FilterState) => (val: string | boolean) =>
     setFilters((f) => ({ ...f, [key]: val }));
 
-  // Apply filters
   const filtered = trendingProductsData.filter((p) => {
     if (filters.category !== 'All' && p.category !== filters.category) return false;
-    if (filters.fabric !== 'All' && p.fabric !== filters.fabric) return false;
-    if (filters.size !== 'All' && p.size !== filters.size) return false;
-    if (filters.color !== 'All' && p.color !== filters.color) return false;
-    if (filters.brand !== 'All' && p.brand !== filters.brand) return false;
-    if (filters.inStock && Math.random() > 0.7) return false; // simulate stock filter
+    if (filters.fabric   !== 'All' && p.fabric   !== filters.fabric)   return false;
+    if (filters.size     !== 'All' && p.size     !== filters.size)     return false;
+    if (filters.color    !== 'All' && p.color    !== filters.color)    return false;
+    if (filters.brand    !== 'All' && p.brand    !== filters.brand)    return false;
     if (filters.price !== 'All') {
-      if (filters.price === 'Under $25' && p.price >= 25) return false;
-      if (filters.price === '$25–$75' && (p.price < 25 || p.price > 75)) return false;
-      if (filters.price === '$75–$125' && (p.price < 75 || p.price > 125)) return false;
-      if (filters.price === 'Over $125' && p.price <= 125) return false;
+      if (filters.price === 'Under $25'   && p.price >= 25)               return false;
+      if (filters.price === '$25–$75'     && (p.price < 25 || p.price > 75))  return false;
+      if (filters.price === '$75–$125'    && (p.price < 75 || p.price > 125)) return false;
+      if (filters.price === 'Over $125'   && p.price <= 125)              return false;
     }
     return true;
   }).sort((a, b) => {
     if (filters.sortBy === 'Price: Low to High') return a.price - b.price;
     if (filters.sortBy === 'Price: High to Low') return b.price - a.price;
-    if (filters.sortBy === 'Top Rated') return b.rating - a.rating;
+    if (filters.sortBy === 'Top Rated')          return b.rating - a.rating;
     return 0;
   });
 
   const visible = filtered.slice(0, page * PAGE_SIZE);
   const hasMore = visible.length < filtered.length;
 
-  // Reset page on filter change
   useEffect(() => { setPage(1); }, [filters]);
 
-  // Infinite scroll via IntersectionObserver
   useEffect(() => {
     if (!sentinelRef.current) return;
     const obs = new IntersectionObserver((entries) => {
@@ -486,26 +496,23 @@ function TrendingProducts() {
   ).length;
 
   return (
-    <section className="mb-16">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-foreground">Trending Products</h2>
+    <section className="mb-10 sm:mb-16">
+      <div className="flex items-center justify-between mb-5 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Trending Products</h2>
       </div>
 
-      {/* Filter bar */}
-      <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-        {/* Category */}
+      {/* Filter bar — scrollable, bleeds to edges on mobile */}
+      <div className="flex items-center gap-2 mb-6 sm:mb-8 overflow-x-auto pb-2 scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
         <FilterDropdown label="Category" options={FILTER_OPTIONS.category} value={filters.category} onChange={setFilter('category')} />
 
-        {/* Settings icon */}
         <button
           type="button"
-          className={`flex items-center justify-center w-10 h-10 rounded-full border transition-colors shrink-0
+          className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border transition-colors shrink-0
             ${activeFilterCount > 0 ? 'border-foreground bg-foreground text-background' : 'border-border bg-background hover:bg-secondary'}`}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
             <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
-            <circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/>
+            <circle cx="8"  cy="6"  r="2" fill="currentColor" stroke="none"/>
             <circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/>
             <circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>
           </svg>
@@ -513,43 +520,40 @@ function TrendingProducts() {
 
         <FilterDropdown label="Sort By" options={FILTER_OPTIONS.sortBy} value={filters.sortBy} onChange={setFilter('sortBy')} />
 
-        {/* In-stock toggle */}
         <button
           type="button"
           onClick={() => setFilter('inStock')(!filters.inStock)}
-          className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background text-sm font-medium hover:bg-secondary transition-colors shrink-0"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full border border-border bg-background text-xs sm:text-sm font-medium hover:bg-secondary transition-colors shrink-0"
         >
           In-stock
-          <div className={`relative w-9 h-5 rounded-full transition-colors ${filters.inStock ? 'bg-green-500' : 'bg-gray-200'}`}>
-            <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${filters.inStock ? 'translate-x-4' : 'translate-x-0.5'}`} />
+          <div className={`relative w-8 sm:w-9 h-4 sm:h-5 rounded-full transition-colors ${filters.inStock ? 'bg-green-500' : 'bg-gray-200'}`}>
+            <div className={`absolute top-0.5 w-3 sm:w-4 h-3 sm:h-4 bg-white rounded-full shadow transition-transform ${filters.inStock ? 'translate-x-4' : 'translate-x-0.5'}`} />
           </div>
         </button>
 
         <FilterDropdown label="Fabric" options={FILTER_OPTIONS.fabric} value={filters.fabric} onChange={setFilter('fabric')} />
-        <FilterDropdown label="Price" options={FILTER_OPTIONS.price} value={filters.price} onChange={setFilter('price')} />
-        <FilterDropdown label="Size" options={FILTER_OPTIONS.size} value={filters.size} onChange={setFilter('size')} />
-        <FilterDropdown label="Color" options={FILTER_OPTIONS.color} value={filters.color} onChange={setFilter('color')} />
-        <FilterDropdown label="Brands" options={FILTER_OPTIONS.brand} value={filters.brand} onChange={setFilter('brand')} />
+        <FilterDropdown label="Price"  options={FILTER_OPTIONS.price}  value={filters.price}  onChange={setFilter('price')}  />
+        <FilterDropdown label="Size"   options={FILTER_OPTIONS.size}   value={filters.size}   onChange={setFilter('size')}   />
+        <FilterDropdown label="Color"  options={FILTER_OPTIONS.color}  value={filters.color}  onChange={setFilter('color')}  />
+        <FilterDropdown label="Brands" options={FILTER_OPTIONS.brand}  value={filters.brand}  onChange={setFilter('brand')}  />
 
-        {/* Clear filters */}
         {activeFilterCount > 0 && (
           <button
             type="button"
             onClick={() => setFilters({ category: 'All', sortBy: 'Recommended', inStock: false, fabric: 'All', price: 'All', size: 'All', color: 'All', brand: 'All' })}
-            className="px-4 py-2 rounded-full border border-red-300 text-red-500 text-sm font-medium hover:bg-red-50 transition-colors shrink-0"
+            className="px-3 sm:px-4 py-2 rounded-full border border-red-300 text-red-500 text-xs sm:text-sm font-medium hover:bg-red-50 transition-colors shrink-0"
           >
             Clear ({activeFilterCount})
           </button>
         )}
       </div>
 
-      {/* Product grid */}
       {visible.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">No products match your filters.</div>
       ) : (
-        <div className="grid grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
           {visible.map((product) => (
-            <Link key={product.id} href={`/product/${product.id}`} className="group flex flex-col gap-2">
+            <Link key={product.id} href={`/product/${product.id}`} className="group flex flex-col gap-2 min-w-0">
               <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
                 <Image
                   src={product.image}
@@ -557,62 +561,57 @@ function TrendingProducts() {
                   fill
                   className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
                 />
-                {/* Discount badge */}
-                <div className="absolute top-3 left-3 z-10">
+                <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
                   <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">
                     -{product.discount}%
                   </span>
                 </div>
-                {/* Wishlist */}
                 <button
                   type="button"
                   onClick={(e) => e.preventDefault()}
-                  className="absolute top-3 right-3 z-10 bg-white/80 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 bg-white/80 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                   </svg>
                 </button>
-                {/* Video play indicator */}
                 {product.hasVideo && (
-                  <div className="absolute bottom-3 left-3 z-10 bg-black/50 rounded-full p-1.5">
+                  <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 z-10 bg-black/50 rounded-full p-1.5">
                     <svg viewBox="0 0 24 24" fill="white" className="w-3 h-3"><path d="M8 5v14l11-7z"/></svg>
                   </div>
                 )}
               </div>
 
-              {/* Info */}
-              <div className="flex items-start justify-between gap-2 px-0.5">
+              <div className="flex items-start justify-between gap-1 sm:gap-2 px-0.5">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-base font-bold text-foreground">$ {product.price.toFixed(2)}</span>
-                    <span className="text-xs text-muted-foreground line-through">$ {product.originalPrice.toFixed(2)}</span>
+                  <div className="flex items-baseline gap-1 sm:gap-2 flex-wrap">
+                    <span className="text-sm sm:text-base font-bold text-foreground">$ {product.price.toFixed(2)}</span>
+                    <span className="text-xs text-muted-foreground line-through hidden sm:inline">$ {product.originalPrice.toFixed(2)}</span>
                   </div>
-                  <p className="text-sm text-muted-foreground truncate mt-0.5">
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate mt-0.5">
                     {product.brand} • {product.name}
                   </p>
-                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                    {product.express && (
-                      <span className="flex items-center gap-1 bg-blue-50 text-blue-600 text-xs font-semibold px-2 py-0.5 rounded-full border border-blue-200">
+                  <div className="flex items-center gap-1 sm:gap-2 mt-1 sm:mt-1.5 flex-wrap">
+                    {product.express ? (
+                      <span className="flex items-center gap-1 bg-blue-50 text-blue-600 text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full border border-blue-200">
                         ⚡ Express
                       </span>
-                    )}
-                    {!product.express && (
-                      <span className="flex items-center gap-1 bg-gray-50 text-gray-500 text-xs font-medium px-2 py-0.5 rounded-full border border-gray-200">
+                    ) : (
+                      <span className="flex items-center gap-1 bg-gray-50 text-gray-500 text-xs font-medium px-1.5 sm:px-2 py-0.5 rounded-full border border-gray-200">
                         ➜ 7 Days
                       </span>
                     )}
-                    <span className="text-xs text-muted-foreground">★ {product.rating} ({product.reviews})</span>
+                    <span className="text-xs text-muted-foreground hidden sm:inline">★ {product.rating} ({product.reviews})</span>
                   </div>
                 </div>
-                {/* Add to bag */}
                 <button
                   type="button"
                   onClick={(e) => e.preventDefault()}
-                  className="shrink-0 p-2 rounded-xl border border-border hover:bg-secondary transition-colors mt-0.5"
+                  className="shrink-0 p-1.5 sm:p-2 rounded-xl border border-border hover:bg-secondary transition-colors mt-0.5 hidden xs:flex"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4">
-                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
                     <path d="M16 10a4 4 0 0 1-8 0"/>
                   </svg>
                 </button>
@@ -622,7 +621,6 @@ function TrendingProducts() {
         </div>
       )}
 
-      {/* Infinite scroll sentinel */}
       <div ref={sentinelRef} className="mt-8 flex justify-center">
         {loading && (
           <div className="flex items-center gap-3 text-muted-foreground text-sm">
@@ -638,6 +636,8 @@ function TrendingProducts() {
   );
 }
 
+// ── Page ─────────────────────────────────────────────────────────────────────
+
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -652,10 +652,14 @@ export default function Home() {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
 
   return (
-    <div className="w-full px-40">
+    <div className="w-full min-w-0 overflow-x-hidden px-3 sm:px-6 lg:px-10">
 
-      {/* ── Hero Slider ── */}
-      <section className="relative w-full h-72 overflow-hidden rounded-3xl my-8">
+      {/* ── Hero Slider ──
+          Mobile:  -mx-3 + w-[calc(100%+1.5rem)] cancels px-3 → full bleed,
+                   no rounded corners, no top margin.
+          sm+:     reset to normal width, rounded corners, vertical margin.
+      ── */}
+      <section className="relative h-44 sm:h-64 lg:h-80 overflow-hidden -mx-3 w-[calc(100%+1.5rem)] rounded-none mt-0 mb-4 sm:mx-0 sm:w-full sm:rounded-3xl sm:my-6">
         {heroSlides.map((slide, index) => (
           <div
             key={slide.id}
@@ -672,34 +676,35 @@ export default function Home() {
             />
           </div>
         ))}
-        <button onClick={prevSlide} className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full transition-all z-20">
-          <ChevronLeft size={24} className="text-black" />
+        <button onClick={prevSlide} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-1.5 sm:p-2 rounded-full transition-all z-20">
+          <ChevronLeft size={18} className="text-black" />
         </button>
-        <button onClick={nextSlide} className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full transition-all z-20">
-          <ChevronRight size={24} className="text-black" />
+        <button onClick={nextSlide} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-1.5 sm:p-2 rounded-full transition-all z-20">
+          <ChevronRight size={18} className="text-black" />
         </button>
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
           {heroSlides.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`h-2 rounded-full transition-all ${
-                index === currentSlide ? 'bg-white w-8' : 'bg-white/50 w-2 hover:bg-white/75'
+              className={`h-1.5 rounded-full transition-all ${
+                index === currentSlide ? 'bg-white w-6' : 'bg-white/50 w-1.5 hover:bg-white/75'
               }`}
             />
           ))}
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
+      {/* All other sections keep the px-3 padding */}
+      <div className="max-w-7xl mx-auto py-2 sm:py-4 min-w-0">
 
         {/* ── Shop Our Stores ── */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-8 text-foreground">Shop Our Stores</h2>
-          <div className="grid grid-cols-6 gap-5">
+        <section className="mb-10 sm:mb-16">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-5 sm:mb-8 text-foreground">Shop Our Stores</h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4 lg:gap-5">
             {categories.map((cat, i) => (
-              <Link key={i} href={cat.href} className="group flex flex-col items-center gap-2.5 my-2">
-                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
+              <Link key={i} href={cat.href} className="group flex flex-col items-center gap-1.5 sm:gap-2 min-w-0">
+                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xl sm:rounded-2xl bg-muted">
                   <Image
                     src={cat.image}
                     alt={cat.label}
@@ -707,7 +712,7 @@ export default function Home() {
                     className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <span className="text-md font-medium text-foreground text-center leading-tight">
+                <span className="text-xs sm:text-sm font-medium text-foreground text-center leading-tight line-clamp-2">
                   {cat.label}
                 </span>
               </Link>
@@ -719,34 +724,34 @@ export default function Home() {
         <NewInCarousel />
 
         {/* ── Most Popular ── */}
-        <section className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-semibold text-foreground">Most Popular</h2>
-            <Link href="/brands" className="flex items-center text-primary hover:text-primary/80 font-medium text-sm">
+        <section className="mb-10 sm:mb-16">
+          <div className="flex items-center justify-between mb-5 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Most Popular</h2>
+            <Link href="/brands" className="flex items-center text-primary hover:text-primary/80 font-medium text-sm shrink-0">
               View All <ChevronRight size={18} className="ml-1" />
             </Link>
           </div>
-          <div className="grid grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {mostPopular.map((brand) => (
-              <Link key={brand.name} href={brand.href} className="group flex flex-col gap-2">
-                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
+              <Link key={brand.name} href={brand.href} className="group flex flex-col gap-2 min-w-0">
+                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xl sm:rounded-2xl bg-muted">
                   <Image
                     src={brand.image}
                     alt={brand.name}
                     fill
                     className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute bottom-3 left-3 z-10">
-                    <span className="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                  <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 z-10">
+                    <span className="bg-red-500 text-white text-xs font-semibold px-2 sm:px-3 py-1 rounded-full">
                       Upto {brand.discount}% off
                     </span>
                   </div>
                 </div>
                 <div className="px-0.5">
-                  <p className="text-md font-normal text-foreground group-hover:text-primary transition-colors">
+                  <p className="text-sm font-normal text-foreground group-hover:text-primary transition-colors truncate">
                     {brand.name}
                   </p>
-                  <p className="text-sm text-muted-foreground">{brand.items} items</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{brand.items} items</p>
                 </div>
               </Link>
             ))}
@@ -758,8 +763,6 @@ export default function Home() {
 
         {/* ── Trending Products ── */}
         <TrendingProducts />
-
-        
 
       </div>
     </div>

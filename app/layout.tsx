@@ -45,7 +45,7 @@ export default function RootLayout({
               all the way to the bottom of the screen, no gap ever.
               overflow-y-auto lets sidebar content scroll independently.
           ── */}
-          <aside className="hidden lg:flex lg:flex-col fixed top-16 left-0 bottom-0 w-60 border-r border-border bg-background overflow-y-auto overflow-x-hidden z-30">
+          <aside className="hidden lg:flex lg:flex-col fixed top-16 left-0 bottom-0 w-64 border-r border-border bg-background overflow-y-auto overflow-x-hidden z-30">
             <Sidebar />
           </aside>
 

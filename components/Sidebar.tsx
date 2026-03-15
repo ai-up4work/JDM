@@ -202,7 +202,7 @@ export function Sidebar() {
       {/* ── Sidebar ── */}
       <aside
         ref={sidebarRef}
-        className="hidden lg:block w-60 bg-background border-r border-border sticky h-[calc(100vh-5rem)] overflow-y-auto shrink-0"
+        className="hidden lg:block w-64 bg-background pt-6 border-r border-border sticky h-[calc(100vh-5rem)] overflow-y-auto shrink-0"
       >
         <nav className="px-4 py-6">
           {sidebarItems.map((item) => (
@@ -211,7 +211,7 @@ export function Sidebar() {
                 <Link
                   href={item.href}
                   onClick={() => setOpenDrawer(null)}
-                  className="flex-1 px-6 py-3 text-lg font-medium text-foreground hover:bg-secondary transition-colors"
+                  className="flex-1 px-6 py-3 text-lg font-medium text-foreground hover:bg-secondary hover:pl-8 transition-all duration-200"
                 >
                   {item.label}
                 </Link>
@@ -244,10 +244,10 @@ export function Sidebar() {
                         );
                         if (match) setOpenSections([match.title]);
                       }}
-                      className={`w-full text-left block px-10 py-2 text-sm font-medium transition-colors ${
+                      className={`w-full text-left block px-10 py-2 text-sm font-medium transition-all duration-200 ${
                         openSections.includes(sub.label)
                           ? 'text-foreground'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary hover:pl-12'
                       }`}
                     >
                       {sub.label}

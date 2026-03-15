@@ -524,7 +524,7 @@ export default function NewArrivalsPage() {
       <div className="max-w-7xl mx-auto py-2 sm:py-4 min-w-0">
 
         {/* Hero banner */}
-        <div className="flex justify-center mb-8 sm:mb-12">
+        <div className="flex justify-center my-8 sm:mb-12">
           <div className="border-2 border-dashed rounded-2xl px-8 sm:px-16 lg:px-24 py-4 sm:py-6" style={{ borderColor: '#C8912A' }}>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-widest uppercase" style={{ color: '#C8912A' }}>
               New On JDM

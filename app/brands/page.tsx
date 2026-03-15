@@ -3,19 +3,19 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Search, SlidersHorizontal } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from 'lucide-react';
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const newBrands = [
-  { id: 1, name: 'Khani Wears',      logo: '/garments/product1.jpeg',  href: '/brands/khani-wears'       },
-  { id: 2, name: 'Afroz by Charcoal',logo: '/garments/product2.jpeg',  href: '/brands/afroz'             },
-  { id: 3, name: 'Ayat Closet',      logo: '/garments/product3.jpeg',  href: '/brands/ayat-closet'       },
-  { id: 4, name: 'Surmeen',          logo: '/garments/product4.jpeg',  href: '/brands/surmeen'           },
-  { id: 5, name: 'Al-Bakhat',        logo: '/garments/product5.jpeg',  href: '/brands/al-bakhat'         },
-  { id: 6, name: 'Mnar',             logo: '/garments/product6.jpeg',  href: '/brands/mnar'              },
-  { id: 7, name: 'Rang-e-Haya',      logo: '/garments/product7.jpeg',  href: '/brands/rang-e-haya'       },
-  { id: 8, name: 'Silk Leaf',        logo: '/garments/product8.jpeg',  href: '/brands/silk-leaf'         },
+  { id: 1, name: 'Khani Wears',       logo: '/garments/product1.jpeg',  href: '/brands/khani-wears'  },
+  { id: 2, name: 'Afroz by Charcoal', logo: '/garments/product2.jpeg',  href: '/brands/afroz'        },
+  { id: 3, name: 'Ayat Closet',       logo: '/garments/product3.jpeg',  href: '/brands/ayat-closet'  },
+  { id: 4, name: 'Surmeen',           logo: '/garments/product4.jpeg',  href: '/brands/surmeen'      },
+  { id: 5, name: 'Al-Bakhat',         logo: '/garments/product5.jpeg',  href: '/brands/al-bakhat'    },
+  { id: 6, name: 'Mnar',              logo: '/garments/product6.jpeg',  href: '/brands/mnar'         },
+  { id: 7, name: 'Rang-e-Haya',       logo: '/garments/product7.jpeg',  href: '/brands/rang-e-haya'  },
+  { id: 8, name: 'Silk Leaf',         logo: '/garments/product8.jpeg',  href: '/brands/silk-leaf'    },
 ];
 
 const CATEGORIES = ['Women', 'Men', 'Beauty', 'Kids'];
@@ -31,14 +31,14 @@ const ALPHABET = ['L','S','#','A','B','C','D','E','F','G','H','I','J','K',
 const ALL_BRANDS_DATA: Record<string, Record<string, { name: string; logo: string; items: number }[]>> = {
   Women: {
     L: [
-      { name: 'Libaas-e-Resham', logo: '/garments/product1.jpeg',  items: 44 },
-      { name: 'Lulusar',         logo: '/garments/product2.jpeg',  items: 99 },
+      { name: 'Libaas-e-Resham', logo: '/garments/product1.jpeg',  items: 44  },
+      { name: 'Lulusar',         logo: '/garments/product2.jpeg',  items: 99  },
     ],
     S: [
-      { name: 'Saheliyan Pret',  logo: '/garments/product3.jpeg',  items: 34 },
+      { name: 'Saheliyan Pret',  logo: '/garments/product3.jpeg',  items: 34  },
       { name: 'Sana Safinaz',    logo: '/garments/product4.jpeg',  items: 212 },
-      { name: 'Silk & Stones',   logo: '/garments/product5.jpeg',  items: 18 },
-      { name: 'Surmeen',         logo: '/garments/product6.jpeg',  items: 42 },
+      { name: 'Silk & Stones',   logo: '/garments/product5.jpeg',  items: 18  },
+      { name: 'Surmeen',         logo: '/garments/product6.jpeg',  items: 42  },
     ],
     A: [
       { name: 'Afroz by Charcoal', logo: '/garments/product7.jpeg',  items: 56 },
@@ -47,81 +47,63 @@ const ALL_BRANDS_DATA: Record<string, Record<string, { name: string; logo: strin
       { name: 'Al-Bakhat',         logo: '/garments/product10.jpeg', items: 31 },
     ],
     B: [
-      { name: 'Bahar Arts',      logo: '/garments/product11.jpeg', items: 29 },
-      { name: 'Bonanza Satrangi',logo: '/garments/product12.jpeg', items: 145 },
+      { name: 'Bahar Arts',       logo: '/garments/product11.jpeg', items: 29  },
+      { name: 'Bonanza Satrangi', logo: '/garments/product12.jpeg', items: 145 },
     ],
     G: [
-      { name: 'Gulman',          logo: '/garments/product13.jpeg', items: 14 },
-      { name: 'Gul Ahmed',       logo: '/garments/product14.jpeg', items: 310 },
+      { name: 'Gulman',    logo: '/garments/product13.jpeg', items: 14  },
+      { name: 'Gul Ahmed', logo: '/garments/product14.jpeg', items: 310 },
     ],
     K: [
-      { name: 'Khaadi',          logo: '/garments/product15.jpeg', items: 280 },
-      { name: 'Khani Wears',     logo: '/garments/product16.jpeg', items: 8 },
+      { name: 'Khaadi',      logo: '/garments/product15.jpeg', items: 280 },
+      { name: 'Khani Wears', logo: '/garments/product16.jpeg', items: 8   },
     ],
     M: [
-      { name: 'Maria B',         logo: '/garments/product1.jpeg',  items: 195 },
-      { name: 'Malhaar',         logo: '/garments/product2.jpeg',  items: 67 },
-      { name: 'Mushq',           logo: '/garments/product3.jpeg',  items: 53 },
-      { name: 'Mnar',            logo: '/garments/product4.jpeg',  items: 38 },
+      { name: 'Maria B', logo: '/garments/product1.jpeg', items: 195 },
+      { name: 'Malhaar', logo: '/garments/product2.jpeg', items: 67  },
+      { name: 'Mushq',   logo: '/garments/product3.jpeg', items: 53  },
+      { name: 'Mnar',    logo: '/garments/product4.jpeg', items: 38  },
     ],
   },
   Men: {
     A: [
-      { name: 'Amir Adnan',      logo: '/garments/product5.jpeg',  items: 72 },
-      { name: 'Almirah',         logo: '/garments/product6.jpeg',  items: 49 },
+      { name: 'Amir Adnan', logo: '/garments/product5.jpeg', items: 72 },
+      { name: 'Almirah',    logo: '/garments/product6.jpeg', items: 49 },
     ],
-    B: [
-      { name: 'Basix',           logo: '/garments/product7.jpeg',  items: 33 },
-    ],
-    K: [
-      { name: 'Khaadi Men',      logo: '/garments/product8.jpeg',  items: 120 },
-    ],
-    M: [
-      { name: 'Menfolk',         logo: '/garments/product9.jpeg',  items: 88 },
-    ],
+    B: [{ name: 'Basix',      logo: '/garments/product7.jpeg', items: 33  }],
+    K: [{ name: 'Khaadi Men', logo: '/garments/product8.jpeg', items: 120 }],
+    M: [{ name: 'Menfolk',    logo: '/garments/product9.jpeg', items: 88  }],
   },
   Beauty: {
-    B: [
-      { name: 'Beautify',        logo: '/garments/product10.jpeg', items: 55 },
-    ],
-    H: [
-      { name: 'Hunza Beauty',    logo: '/garments/product11.jpeg', items: 22 },
-    ],
-    S: [
-      { name: 'Skin Story',      logo: '/garments/product12.jpeg', items: 41 },
-    ],
+    B: [{ name: 'Beautify',     logo: '/garments/product10.jpeg', items: 55 }],
+    H: [{ name: 'Hunza Beauty', logo: '/garments/product11.jpeg', items: 22 }],
+    S: [{ name: 'Skin Story',   logo: '/garments/product12.jpeg', items: 41 }],
   },
   Kids: {
-    B: [
-      { name: 'Baby World',      logo: '/garments/product13.jpeg', items: 67 },
-    ],
-    G: [
-      { name: 'Girls Tag',       logo: '/garments/product14.jpeg', items: 39 },
-    ],
-    K: [
-      { name: 'Khaadi Kids',     logo: '/garments/product15.jpeg', items: 95 },
-    ],
+    B: [{ name: 'Baby World',  logo: '/garments/product13.jpeg', items: 67 }],
+    G: [{ name: 'Girls Tag',   logo: '/garments/product14.jpeg', items: 39 }],
+    K: [{ name: 'Khaadi Kids', logo: '/garments/product15.jpeg', items: 95 }],
   },
 };
 
-// ── Skeleton ──────────────────────────────────────────────────────────────────
+// ── Skeletons ─────────────────────────────────────────────────────────────────
 
 function BrandCardSkeleton() {
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="w-full aspect-square rounded-2xl bg-muted animate-pulse" />
-      <div className="h-3.5 w-20 rounded bg-muted animate-pulse" />
+      <div className="h-3.5 w-16 rounded bg-muted animate-pulse" />
     </div>
   );
 }
 
 function BrandRowSkeleton() {
   return (
-    <div className="flex items-center gap-4 py-4 px-3">
-      <div className="w-12 h-12 rounded-xl bg-muted animate-pulse shrink-0" />
+    <div className="flex items-center gap-4 py-3.5 px-2">
+      <div className="w-11 h-11 rounded-xl bg-muted animate-pulse shrink-0" />
       <div className="flex-1 space-y-2">
-        <div className="h-3.5 w-36 rounded bg-muted animate-pulse" />
-        <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+        <div className="h-3.5 w-32 rounded bg-muted animate-pulse" />
+        <div className="h-3 w-16 rounded bg-muted animate-pulse" />
       </div>
     </div>
   );
@@ -129,48 +111,27 @@ function BrandRowSkeleton() {
 
 function PageSkeleton() {
   return (
-    <div className="w-full py-8 px-40">
-      <div>
-        {/* New Brands skeleton */}
+    <div className="w-full min-w-0 overflow-x-hidden px-4 sm:px-10 lg:px-40">
+      <div className="max-w-7xl mx-auto py-2 sm:py-4 min-w-0">
         <div className="mb-5 flex items-center justify-between">
-          <div className="h-7 w-36 rounded-lg bg-muted animate-pulse" />
+          <div className="h-7 w-32 rounded-lg bg-muted animate-pulse" />
           <div className="flex gap-2">
             <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
             <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
           </div>
         </div>
-        <div className="overflow-hidden mb-10">
-          <div className="flex gap-4 pr-10">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="shrink-0" style={{ width: 'calc(100% / 6.5)' }}>
-                <BrandCardSkeleton />
-              </div>
-            ))}
-          </div>
+        <div className="flex gap-3 mb-10 overflow-hidden">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="shrink-0 w-[28vw] sm:w-[18vw] lg:w-32">
+              <BrandCardSkeleton />
+            </div>
+          ))}
         </div>
-
-        {/* All Brands skeleton */}
         <div className="flex items-center justify-between mb-5">
-          <div className="h-7 w-28 rounded-lg bg-muted animate-pulse" />
-          <div className="h-10 w-72 rounded-lg bg-muted animate-pulse" />
+          <div className="h-7 w-24 rounded-lg bg-muted animate-pulse" />
+          <div className="h-10 w-48 sm:w-72 rounded-lg bg-muted animate-pulse" />
         </div>
-        <div className="flex gap-4 border-b border-border pb-3 mb-5">
-          {['Women','Men','Beauty','Kids'].map(c => (
-            <div key={c} className="h-4 w-16 rounded bg-muted animate-pulse" />
-          ))}
-        </div>
-        <div className="flex gap-2 mb-5">
-          {[80,140,130,80,90,110,120].map((w,i) => (
-            <div key={i} className="h-9 rounded-full bg-muted animate-pulse shrink-0" style={{ width: w }} />
-          ))}
-        </div>
-        <div className="flex gap-1 mb-8 flex-wrap">
-          {Array.from({ length: 27 }).map((_, i) => (
-            <div key={i} className="w-8 h-8 rounded-lg bg-muted animate-pulse" />
-          ))}
-        </div>
-        <div className="h-5 w-8 rounded bg-muted animate-pulse mb-3" />
-        {Array.from({ length: 3 }).map((_, i) => <BrandRowSkeleton key={i} />)}
+        {Array.from({ length: 4 }).map((_, i) => <BrandRowSkeleton key={i} />)}
       </div>
     </div>
   );
@@ -179,28 +140,15 @@ function PageSkeleton() {
 // ── New Brands Carousel ───────────────────────────────────────────────────────
 
 function NewBrandsCarousel() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
-  const [atEnd, setAtEnd] = useState(false);
-  const [cardWidth, setCardWidth] = useState(0);
-
-  // Measure container and compute card width on mount + resize
-  useEffect(() => {
-    const measure = () => {
-      if (!containerRef.current) return;
-      const w = containerRef.current.clientWidth;
-      // 6 full cards + 0.5 peek, with gap-4 (16px) between 6.5 slots
-      setCardWidth((w - 16 * 6) / 6.5);
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, []);
+  const [atEnd,   setAtEnd]   = useState(false);
 
   const scroll = (dir: 'prev' | 'next') => {
     const t = trackRef.current; if (!t) return;
-    t.scrollBy({ left: dir === 'next' ? cardWidth + 16 : -(cardWidth + 16), behavior: 'smooth' });
+    const card = t.querySelector('a') as HTMLElement | null;
+    const step = card ? card.offsetWidth + 12 : 160;
+    t.scrollBy({ left: dir === 'next' ? step : -step, behavior: 'smooth' });
   };
 
   const onScroll = () => {
@@ -210,42 +158,80 @@ function NewBrandsCarousel() {
   };
 
   return (
-    <section className="mb-10">
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="text-2xl font-semibold text-foreground">New Brands</h2>
+    <section className="mb-10 sm:mb-16">
+      <div className="flex items-center justify-between mb-5 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-semibold text-foreground">New Brands</h2>
         <div className="flex items-center gap-2">
           <button onClick={() => scroll('prev')} disabled={atStart}
-            className="p-2 rounded-full border border-border hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          ><ChevronLeft size={16} /></button>
+            className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          ><ChevronLeft size={18} /></button>
           <button onClick={() => scroll('next')} disabled={atEnd}
-            className="p-2 rounded-full border border-border hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          ><ChevronRight size={16} /></button>
+            className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          ><ChevronRight size={18} /></button>
         </div>
       </div>
 
-      <div ref={containerRef} className="overflow-hidden">
-        <div
-          ref={trackRef}
-          onScroll={onScroll}
-          className="flex gap-4 overflow-x-auto"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {newBrands.map(brand => (
-            <Link key={brand.id} href={brand.href}
-              className="shrink-0 flex flex-col items-center gap-2.5 group"
-              style={{ width: cardWidth || 'calc((100% - 96px) / 6.5)' }}
-            >
-              <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-muted border border-border group-hover:border-primary transition-colors">
-                <Image src={brand.logo} alt={brand.name} fill
-                  className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <span className="text-sm font-medium text-foreground text-center leading-snug line-clamp-2 px-1">{brand.name}</span>
-            </Link>
+      {/* Swipeable — bleeds to screen edge on mobile/tablet, contained on desktop */}
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 sm:-mx-10 sm:px-10 lg:mx-0 lg:px-0 pb-1"
+      >
+        {newBrands.map(brand => (
+          <Link key={brand.id} href={brand.href}
+            className="shrink-0 snap-start flex flex-col items-center gap-2.5 group w-[28vw] sm:w-[18vw] lg:w-32"
+          >
+            <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-muted border border-border group-hover:border-primary transition-colors">
+              <Image src={brand.logo} alt={brand.name} fill
+                className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <span className="text-xs sm:text-sm font-medium text-foreground text-center leading-snug line-clamp-2 px-1">
+              {brand.name}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Filter Sheet (mobile) ─────────────────────────────────────────────────────
+
+function FilterSheet({
+  activeSubcat,
+  setActiveSubcat,
+  onClose,
+}: {
+  activeSubcat: string | null;
+  setActiveSubcat: (s: string | null) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end bg-black/40" onClick={onClose}>
+      <div
+        className="w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-4 py-4 border-b border-border">
+          <span className="text-base font-semibold">Filter by Subcategory</span>
+          <button type="button" onClick={onClose} className="p-1.5 rounded-full hover:bg-secondary transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="p-4 flex flex-wrap gap-2 max-h-64 overflow-y-auto">
+          {SUBCATEGORIES.map(sub => (
+            <button key={sub} type="button"
+              onClick={() => { setActiveSubcat(activeSubcat === sub ? null : sub); onClose(); }}
+              className={`px-3 py-2 rounded-full border text-sm font-medium transition-colors
+                ${activeSubcat === sub
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'border-border text-foreground hover:bg-secondary'}`}
+            >{sub}</button>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -253,14 +239,14 @@ function NewBrandsCarousel() {
 
 function AllBrands() {
   const [activeCategory, setActiveCategory] = useState('Women');
-  const [activeLetter, setActiveLetter] = useState<string | null>(null);
-  const [activeSubcat, setActiveSubcat] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
+  const [activeLetter,   setActiveLetter]   = useState<string | null>(null);
+  const [activeSubcat,   setActiveSubcat]   = useState<string | null>(null);
+  const [search,         setSearch]         = useState('');
+  const [filterOpen,     setFilterOpen]     = useState(false);
 
-  const brandsByLetter = ALL_BRANDS_DATA[activeCategory] ?? {};
+  const brandsByLetter   = ALL_BRANDS_DATA[activeCategory] ?? {};
   const availableLetters = Object.keys(brandsByLetter);
 
-  // Build filtered list
   const filtered: Record<string, { name: string; logo: string; items: number }[]> = {};
   Object.entries(brandsByLetter).forEach(([letter, brands]) => {
     if (activeLetter && letter !== activeLetter) return;
@@ -269,26 +255,28 @@ function AllBrands() {
   });
   const sortedLetters = Object.keys(filtered).sort();
 
+  const activeFilterCount = [activeLetter, activeSubcat].filter(Boolean).length;
+
   return (
-    <section>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="text-2xl font-semibold text-foreground">All Brands</h2>
-        <div className="relative w-80">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input type="text" placeholder="Search for brands" value={search}
+    <section className="mb-10 sm:mb-16">
+      {/* Header row */}
+      <div className="flex items-center justify-between gap-3 mb-5 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-semibold text-foreground shrink-0">All Brands</h2>
+        <div className="relative flex-1 sm:flex-none sm:w-72">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input type="text" placeholder="Search brands" value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-border bg-background text-sm focus:outline-none focus:border-primary transition-colors"
           />
         </div>
       </div>
 
-      {/* Category tabs */}
-      <div className="flex border-b border-border mb-5">
+      {/* Category tabs — bleeds to screen edge on mobile/tablet */}
+      <div className="flex border-b border-border mb-5 sm:mb-8 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:-mx-10 sm:px-10 lg:mx-0 lg:px-0">
         {CATEGORIES.map(cat => (
           <button key={cat} type="button"
             onClick={() => { setActiveCategory(cat); setActiveLetter(null); setSearch(''); }}
-            className={`relative px-8 py-3 text-sm font-medium transition-colors
+            className={`relative shrink-0 px-5 sm:px-8 py-3 text-sm font-medium transition-colors whitespace-nowrap
               ${activeCategory === cat
                 ? 'text-foreground after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:h-[2px] after:bg-foreground'
                 : 'text-muted-foreground hover:text-foreground'}`}
@@ -296,33 +284,68 @@ function AllBrands() {
         ))}
       </div>
 
-      {/* Subcategory pills */}
-      <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-        <button type="button" className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-border hover:bg-muted transition-colors">
-          <SlidersHorizontal size={15} />
-        </button>
-        {SUBCATEGORIES.map(sub => (
-          <button key={sub} type="button"
-            onClick={() => setActiveSubcat(s => s === sub ? null : sub)}
-            className={`shrink-0 px-4 py-2 rounded-full border text-sm font-medium transition-colors whitespace-nowrap
-              ${activeSubcat === sub ? 'bg-foreground text-background border-foreground' : 'border-border text-foreground hover:bg-muted'}`}
-          >{sub}</button>
-        ))}
+      {/* Subcategory row */}
+      <div className="mb-5 sm:mb-6">
+        {/* Mobile: filter button only */}
+        <div className="flex sm:hidden items-center gap-2 mb-2">
+          <button type="button"
+            onClick={() => setFilterOpen(true)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-full border text-xs font-medium transition-colors
+              ${activeFilterCount > 0 ? 'bg-foreground text-background border-foreground' : 'border-border hover:bg-secondary'}`}
+          >
+            <SlidersHorizontal size={14} />
+            Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+          </button>
+          {activeSubcat && (
+            <button type="button" onClick={() => setActiveSubcat(null)}
+              className="flex items-center gap-1 px-3 py-2 rounded-full border border-border text-xs text-muted-foreground hover:bg-secondary transition-colors"
+            >
+              {activeSubcat} <X size={12} />
+            </button>
+          )}
+        </div>
+
+        {/* sm+: scrollable pill row — same style as home TrendingProducts filter bar */}
+        <div className="hidden sm:flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <button type="button"
+            className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border transition-colors shrink-0
+              ${activeFilterCount > 0 ? 'border-foreground bg-foreground text-background' : 'border-border bg-background hover:bg-secondary'}`}
+          >
+            <SlidersHorizontal size={15} />
+          </button>
+          {SUBCATEGORIES.map(sub => (
+            <button key={sub} type="button"
+              onClick={() => setActiveSubcat(s => s === sub ? null : sub)}
+              className={`shrink-0 px-3 sm:px-4 py-2 rounded-full border text-xs sm:text-sm font-medium transition-colors whitespace-nowrap
+                ${activeSubcat === sub
+                  ? 'border-foreground bg-foreground text-background'
+                  : 'border-border bg-background text-foreground hover:bg-secondary'}`}
+            >{sub}</button>
+          ))}
+          {activeFilterCount > 0 && (
+            <button type="button"
+              onClick={() => { setActiveSubcat(null); setActiveLetter(null); }}
+              className="px-3 sm:px-4 py-2 rounded-full border border-red-300 text-red-500 text-xs sm:text-sm font-medium hover:bg-red-50 transition-colors shrink-0"
+            >
+              Clear ({activeFilterCount})
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Alphabet index */}
-      <div className="flex items-center gap-0.5 mb-8 flex-wrap">
+      <div className="flex items-center gap-0.5 mb-6 sm:mb-8 flex-wrap">
         {ALPHABET.map(letter => {
           const hasData = availableLetters.includes(letter);
           const isActive = activeLetter === letter;
           return (
             <button key={letter} type="button"
               onClick={() => hasData && setActiveLetter(l => l === letter ? null : letter)}
-              className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-medium transition-colors
+              className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md text-xs sm:text-sm font-medium transition-colors
                 ${isActive
                   ? 'bg-foreground text-background'
                   : hasData
-                    ? 'text-foreground hover:bg-muted cursor-pointer'
+                    ? 'text-foreground hover:bg-secondary cursor-pointer'
                     : 'text-muted-foreground/30 cursor-default'}`}
             >{letter}</button>
           );
@@ -333,17 +356,17 @@ function AllBrands() {
       {sortedLetters.length === 0 ? (
         <div className="py-16 text-center text-muted-foreground text-sm">No brands found</div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           {sortedLetters.map(letter => (
             <div key={letter}>
-              <h3 className="text-base font-semibold text-muted-foreground mb-1 px-1">{letter}</h3>
+              <h3 className="text-sm sm:text-base font-semibold text-muted-foreground mb-1 px-1">{letter}</h3>
               <div className="divide-y divide-border">
                 {filtered[letter].map(brand => (
                   <Link key={brand.name}
                     href={`/brands/${brand.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
-                    className="flex items-center gap-4 py-3.5 group hover:bg-muted/50 rounded-xl px-2 -mx-2 transition-colors"
+                    className="flex items-center gap-3 sm:gap-4 py-3 sm:py-3.5 group hover:bg-secondary rounded-xl px-2 -mx-2 transition-colors"
                   >
-                    <div className="relative w-11 h-11 rounded-xl overflow-hidden bg-muted border border-border shrink-0">
+                    <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden bg-muted border border-border shrink-0">
                       <Image src={brand.logo} alt={brand.name} fill className="object-cover object-center" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -357,6 +380,14 @@ function AllBrands() {
             </div>
           ))}
         </div>
+      )}
+
+      {filterOpen && (
+        <FilterSheet
+          activeSubcat={activeSubcat}
+          setActiveSubcat={setActiveSubcat}
+          onClose={() => setFilterOpen(false)}
+        />
       )}
     </section>
   );
@@ -375,9 +406,11 @@ export default function BrandsPage() {
   if (loading) return <PageSkeleton />;
 
   return (
-    <div className="py-8 px-40 max-w-7xl mx-auto">
-      <NewBrandsCarousel />
-      <AllBrands />
+    <div className="w-full min-w-0 overflow-x-hidden px-4 sm:px-10 lg:px-40">
+      <div className="max-w-7xl mx-auto py-2 sm:py-4 min-w-0">
+        <NewBrandsCarousel />
+        <AllBrands />
+      </div>
     </div>
   );
 }

@@ -125,7 +125,7 @@ export function Header() {
         </div>
 
         {/* Search + right content */}
-        <div className="flex items-center flex-1 h-full px-10 gap-8">
+        <div className="flex items-center flex-1 h-full px-10 gap-8 mx-30">
 
           {/* Search bar */}
           <div className="flex-1">

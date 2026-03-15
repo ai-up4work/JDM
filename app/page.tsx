@@ -716,7 +716,7 @@ export default function Home() {
     <div className="w-full min-w-0 overflow-x-hidden max-w-7xl sm:px-6 lg:px-40 px-4">
 
       {/* ── Hero Slider ── */}
-      <section className="relative h-44 sm:h-64 lg:h-80 overflow-hidden w-[calc(100%+1.5rem)] rounded-none mt-0 mb-4 sm:mx-0 sm:w-full sm:rounded-3xl sm:my-6">
+      <section className="relative h-44 sm:h-64 lg:h-80 overflow-hidden -mx-4 w-[calc(100%+2rem)] rounded-none mt-0 mb-4 sm:mx-0 sm:w-full sm:rounded-3xl sm:my-6">
         {heroSlides.map((slide, index) => (
           <div
             key={slide.id}

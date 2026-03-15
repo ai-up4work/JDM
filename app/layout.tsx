@@ -73,7 +73,7 @@ export default function RootLayout({
 
         </div>
 
-        <Footer />
+        {/* <Footer /> */}
         <Toaster position="bottom-right" />
         <Analytics />
 

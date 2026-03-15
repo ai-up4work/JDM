@@ -621,13 +621,24 @@ function TrendingProducts() {
         </div>
       )}
 
+      {loading && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 mt-3 sm:mt-5">
+          {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-2 min-w-0 animate-pulse">
+              {/* Image skeleton */}
+              <div className="w-full aspect-[3/4] rounded-2xl bg-muted" />
+              {/* Text skeletons */}
+              <div className="px-0.5 flex flex-col gap-1.5">
+                <div className="h-4 w-16 rounded bg-muted" />
+                <div className="h-3 w-3/4 rounded bg-muted" />
+                <div className="h-5 w-20 rounded-full bg-muted mt-0.5" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div ref={sentinelRef} className="mt-8 flex justify-center">
-        {loading && (
-          <div className="flex items-center gap-3 text-muted-foreground text-sm">
-            <div className="w-5 h-5 border-2 border-border border-t-foreground rounded-full animate-spin" />
-            Loading more products…
-          </div>
-        )}
         {!hasMore && visible.length > 0 && (
           <p className="text-sm text-muted-foreground">You've seen all {filtered.length} products</p>
         )}
@@ -652,7 +663,7 @@ export default function Home() {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden px-3 sm:px-6 lg:px-10">
+    <div className="w-full min-w-0 overflow-x-hidden max-w-7xl sm:px-6 lg:px-40">
 
       {/* ── Hero Slider ──
           Mobile:  -mx-3 + w-[calc(100%+1.5rem)] cancels px-3 → full bleed,

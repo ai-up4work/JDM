@@ -6,28 +6,31 @@ import { Search, ChevronDown, X } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import ReactCountryFlag from 'react-country-flag';
 
 // ── Currency / country data ──────────────────────────────────────────────────
 
 const currencies = [
-  { code: 'USD', country: 'United States',   flag: '🇺🇸' },
-  { code: 'GBP', country: 'United Kingdom',  flag: '🇬🇧' },
-  { code: 'EUR', country: 'Europe',          flag: '🇪🇺' },
-  { code: 'PKR', country: 'Pakistan',        flag: '🇵🇰' },
-  { code: 'AED', country: 'UAE',             flag: '🇦🇪' },
-  { code: 'SAR', country: 'Saudi Arabia',    flag: '🇸🇦' },
-  { code: 'CAD', country: 'Canada',          flag: '🇨🇦' },
-  { code: 'AUD', country: 'Australia',       flag: '🇦🇺' },
-  { code: 'LKR', country: 'Sri Lanka',       flag: '🇱🇰' },
-  { code: 'INR', country: 'India',           flag: '🇮🇳' },
-  { code: 'BDT', country: 'Bangladesh',      flag: '🇧🇩' },
-  { code: 'QAR', country: 'Qatar',           flag: '🇶🇦' },
-  { code: 'KWD', country: 'Kuwait',          flag: '🇰🇼' },
-  { code: 'OMR', country: 'Oman',            flag: '🇴🇲' },
-  { code: 'BHD', country: 'Bahrain',         flag: '🇧🇭' },
-  { code: 'MYR', country: 'Malaysia',        flag: '🇲🇾' },
-  { code: 'SGD', country: 'Singapore',       flag: '🇸🇬' },
+  { code: 'LKR', country: 'Sri Lanka',      countryCode: 'LK' },
+  { code: 'USD', country: 'United States',  countryCode: 'US' },
+  { code: 'GBP', country: 'United Kingdom', countryCode: 'GB' },
+  { code: 'EUR', country: 'Europe',         countryCode: 'EU' },
+  { code: 'PKR', country: 'Pakistan',       countryCode: 'PK' },
+  { code: 'AED', country: 'UAE',            countryCode: 'AE' },
+  { code: 'SAR', country: 'Saudi Arabia',   countryCode: 'SA' },
+  { code: 'CAD', country: 'Canada',         countryCode: 'CA' },
+  { code: 'AUD', country: 'Australia',      countryCode: 'AU' },
+  { code: 'INR', country: 'India',          countryCode: 'IN' },
+  { code: 'BDT', country: 'Bangladesh',     countryCode: 'BD' },
+  { code: 'QAR', country: 'Qatar',          countryCode: 'QA' },
+  { code: 'KWD', country: 'Kuwait',         countryCode: 'KW' },
+  { code: 'OMR', country: 'Oman',           countryCode: 'OM' },
+  { code: 'BHD', country: 'Bahrain',        countryCode: 'BH' },
+  { code: 'MYR', country: 'Malaysia',       countryCode: 'MY' },
+  { code: 'SGD', country: 'Singapore',      countryCode: 'SG' },
 ];
+
+type Currency = typeof currencies[0];
 
 // ── Currency picker modal ────────────────────────────────────────────────────
 
@@ -36,11 +39,12 @@ function CurrencyPicker({
   onSelect,
   onClose,
 }: {
-  selected: typeof currencies[0];
-  onSelect: (c: typeof currencies[0]) => void;
+  selected: Currency;
+  onSelect: (c: Currency) => void;
   onClose: () => void;
 }) {
   const [query, setQuery] = useState('');
+
   const filtered = currencies.filter(
     (c) =>
       c.code.toLowerCase().includes(query.toLowerCase()) ||
@@ -90,10 +94,15 @@ function CurrencyPicker({
               key={c.code}
               type="button"
               onClick={() => { onSelect(c); onClose(); }}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-secondary transition-colors
-                ${selected.code === c.code ? 'bg-secondary' : ''}`}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-secondary transition-colors ${
+                selected.code === c.code ? 'bg-secondary' : ''
+              }`}
             >
-              <span className="text-xl leading-none">{c.flag}</span>
+              <ReactCountryFlag
+                countryCode={c.countryCode}
+                svg
+                style={{ width: '1.6em', height: '1.6em', borderRadius: '3px' }}
+              />
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-medium text-foreground">{c.country}</span>
               </div>
@@ -116,7 +125,7 @@ export function Header() {
   const { getItemCount } = useCartStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState(currencies[0]); // USD default
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(currencies[0]);
   const cartCount = getItemCount();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -127,18 +136,33 @@ export function Header() {
     }
   };
 
-  const CurrencyButton = ({ compact = false }: { compact?: boolean }) => (
+  const CurrencyButton = () => (
     <button
       type="button"
       onClick={() => setPickerOpen(true)}
       className="flex items-center gap-1.5 bg-transparent border-none p-0 cursor-pointer outline-none"
     >
-      <span className="text-lg leading-none">{selectedCurrency.flag}</span>
-      <span className={`font-semibold text-foreground leading-none tracking-wide ${compact ? 'text-sm' : 'text-sm'}`}>
+      <ReactCountryFlag
+        countryCode={selectedCurrency.countryCode}
+        svg
+        style={{ width: '1.4em', height: '1.4em', borderRadius: '3px' }}
+      />
+      <span className="text-sm font-semibold text-foreground leading-none tracking-wide">
         {selectedCurrency.code}
       </span>
       <ChevronDown size={11} strokeWidth={2.5} className="text-muted-foreground" />
     </button>
+  );
+
+  const BagIcon = ({ size = 24, strokeWidth = 1.5 }: { size?: number; strokeWidth?: number }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path
+        d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z"
+        stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+      />
+      <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" />
+      <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 
   return (
@@ -147,8 +171,11 @@ export function Header() {
 
         {/* ── MOBILE LAYOUT (< lg) ── */}
         <div className="lg:hidden">
+
           {/* Row 1 */}
           <div className="flex items-center justify-between h-14 px-4">
+
+            {/* Logo */}
             <Link href="/" className="flex items-center gap-2 no-underline">
               <Image
                 src="/brand/logo.png"
@@ -162,18 +189,14 @@ export function Header() {
               </span>
             </Link>
 
+            {/* Right: currency + bag */}
             <div className="flex items-center gap-4">
-              <CurrencyButton compact />
-
+              <CurrencyButton />
               <Link
                 href="/cart"
                 className="relative flex items-center justify-center no-underline text-foreground"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <BagIcon size={24} strokeWidth={1.5} />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1.5 bg-foreground text-background text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center leading-none px-[3px]">
                     {cartCount}
@@ -203,6 +226,8 @@ export function Header() {
 
         {/* ── DESKTOP LAYOUT (≥ lg) ── */}
         <div className="hidden lg:flex items-center w-full h-20">
+
+          {/* Logo */}
           <div className="flex items-center w-60 px-4 flex-shrink-0 h-full">
             <Link href="/" className="flex items-center gap-3 no-underline">
               <Image
@@ -218,7 +243,9 @@ export function Header() {
             </Link>
           </div>
 
+          {/* Search + right */}
           <div className="flex items-center flex-1 h-full px-10 gap-8 mx-30">
+
             {/* Search bar */}
             <div className="flex-1">
               <div className="flex items-center w-full h-10 bg-muted rounded-md overflow-hidden">
@@ -255,11 +282,7 @@ export function Header() {
                 href="/cart"
                 className="relative flex items-center justify-center no-underline text-foreground"
               >
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                  <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-                  <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <BagIcon size={26} strokeWidth={1.4} />
                 {cartCount > 0 && (
                   <span className="absolute -top-[5px] -right-[6px] bg-foreground text-background text-[9px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center leading-none px-[3px]">
                     {cartCount}
@@ -269,9 +292,10 @@ export function Header() {
             </div>
           </div>
         </div>
+
       </header>
 
-      {/* Currency picker modal — rendered outside header so it overlays everything */}
+      {/* Currency picker — outside header to overlay everything */}
       {pickerOpen && (
         <CurrencyPicker
           selected={selectedCurrency}

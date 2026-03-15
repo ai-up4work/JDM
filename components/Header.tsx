@@ -161,9 +161,11 @@ export function Header() {
                 type="button"
                 className="flex items-center gap-[5px] bg-transparent border-none p-0 cursor-pointer outline-none"
               >
-                <span className="text-[13.5px] font-semibold text-foreground leading-none whitespace-nowrap tracking-[0.01em]">
-                  LK / USD
-                </span>
+              {/* Sri Lanka flag emoji — swap for <Image> if you have an asset */}
+              <span className="text-lg leading-none">🇱🇰</span>
+              <span className="text-sm font-semibold text-foreground leading-none tracking-wide">
+                USD
+              </span>
                 <ChevronDown size={12} strokeWidth={2.5} className="text-muted-foreground" />
               </button>
             </div>

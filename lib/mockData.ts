@@ -84,13 +84,12 @@ export const categories: Category[] = [
   },
 ];
 
-// Sellers
 export const sellers: Seller[] = [
   {
     id: 's1',
     name: 'Sapphire Couture',
-    logo: 'https://images.unsplash.com/photo-1612036782180-69c73116e76f?w=100',
-    image: 'https://images.unsplash.com/photo-1535707066069-51cb676b0200?w=400&h=400&fit=crop',
+    logo: '/garments/product1.jpeg',
+    image: '/garments/product1.jpeg',
     rating: 4.8,
     followers: 15420,
     products: 342,
@@ -100,8 +99,8 @@ export const sellers: Seller[] = [
   {
     id: 's2',
     name: 'Elegance Threads',
-    logo: 'https://images.unsplash.com/photo-1614613535308-eb5fbd8b4fcd?w=100',
-    image: 'https://images.unsplash.com/photo-1530268729831-4be0ea6deaad?w=400&h=400&fit=crop',
+    logo: '/garments/product3.jpeg',
+    image: '/garments/product3.jpeg',
     rating: 4.7,
     followers: 12300,
     products: 289,
@@ -111,8 +110,8 @@ export const sellers: Seller[] = [
   {
     id: 's3',
     name: 'Artisan Designs',
-    logo: 'https://images.unsplash.com/photo-1618519388829-7cbb87bef9b4?w=100',
-    image: 'https://images.unsplash.com/photo-1488902907313-552eef1b01b3?w=400&h=400&fit=crop',
+    logo: '/garments/product5.jpeg',
+    image: '/garments/product5.jpeg',
     rating: 4.9,
     followers: 18900,
     products: 567,
@@ -122,8 +121,8 @@ export const sellers: Seller[] = [
   {
     id: 's4',
     name: 'Urban Style Hub',
-    logo: 'https://images.unsplash.com/photo-1575428774223-8a0764b4f902?w=100',
-    image: 'https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=400&fit=crop',
+    logo: '/garments/product8.jpeg',
+    image: '/garments/product8.jpeg',
     rating: 4.6,
     followers: 9800,
     products: 198,
@@ -133,8 +132,8 @@ export const sellers: Seller[] = [
   {
     id: 's5',
     name: 'Luxe Boutique',
-    logo: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=100',
-    image: 'https://images.unsplash.com/photo-1544958917-8b35ca8c0b26?w=400&h=400&fit=crop',
+    logo: '/garments/product11.jpeg',
+    image: '/garments/product11.jpeg',
     rating: 4.9,
     followers: 22100,
     products: 456,

@@ -85,7 +85,8 @@ function NewInCarousel() {
     <section className="mb-10 sm:mb-16">
       <div className="flex items-center justify-between mb-5 sm:mb-8">
         <h2 className="text-xl sm:text-2xl font-semibold text-foreground">New In - 2026</h2>
-        <div className="flex items-center gap-2">
+        {/* Arrows: hidden on mobile, visible on sm+ */}
+        <div className="hidden sm:flex items-center gap-2">
           <button
             type="button"
             onClick={() => setStart((s) => Math.max(0, s - 1))}
@@ -104,7 +105,42 @@ function NewInCarousel() {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+
+      {/* Mobile: native horizontal swipe with snap */}
+      <div className="sm:hidden flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-3 px-3 pb-1">
+        {newIn.map((item) => (
+          <Link
+            key={item.collection}
+            href={item.href}
+            className="group flex flex-col gap-2 shrink-0 w-[72vw] snap-start"
+          >
+            <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
+              <Image
+                src={item.image}
+                alt={item.collection}
+                fill
+                className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+              />
+              {item.discount && (
+                <div className="absolute bottom-3 left-3 z-10">
+                  <span className="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                    Upto {item.discount}% off
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="px-0.5">
+              <p className="text-sm font-medium text-foreground leading-snug line-clamp-2">
+                {item.collection}
+              </p>
+              <p className="text-sm text-muted-foreground mt-0.5">{item.brand}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* sm+: arrow-controlled grid */}
+      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {newIn.slice(start, start + colCount).map((item) => (
           <Link key={item.collection} href={item.href} className="group flex flex-col gap-2 min-w-0">
             <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
@@ -138,14 +174,14 @@ function NewInCarousel() {
 // ── Styling Videos ───────────────────────────────────────────────────────────
 
 const stylingVideos = [
-  { brand: 'Zoya&Zafar',       price: 28.46, originalPrice: 54.53, discount: 50, image: '/garments/product1.jpeg',  video: 'https://www.w3schools.com/html/mov_bbb.mp4',                                                    thumbnail: '/garments/product1.jpeg'  },
-  { brand: 'Silk Leaf',        price: 10.00, originalPrice: 20.00, discount: 50, image: '/garments/product2.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',            thumbnail: '/garments/product2.jpeg'  },
-  { brand: 'Al-Harir Apparel', price: 61.67, originalPrice: 99.00, discount: 38, image: '/garments/product3.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',          thumbnail: '/garments/product3.jpeg'  },
-  { brand: 'Rajdulari',        price: 51.42, originalPrice: 85.00, discount: 40, image: '/garments/product4.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',         thumbnail: '/garments/product4.jpeg'  },
-  { brand: 'Qalamkar',         price: 45.00, originalPrice: 72.00, discount: 38, image: '/garments/product5.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',        thumbnail: '/garments/product5.jpeg'  },
-  { brand: 'Mushq',            price: 33.20, originalPrice: 55.00, discount: 40, image: '/garments/product6.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',             thumbnail: '/garments/product6.jpeg'  },
-  { brand: 'Maria B',          price: 78.90, originalPrice: 120.0, discount: 34, image: '/garments/product7.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',       thumbnail: '/garments/product7.jpeg'  },
-  { brand: 'Sana Safinaz',     price: 42.10, originalPrice: 68.00, discount: 38, image: '/garments/product8.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4', thumbnail: '/garments/product8.jpeg' },
+  { brand: 'Zoya&Zafar',       price: 28.46, originalPrice: 54.53, discount: 50, image: '/garments/product1.jpeg',  video: 'https://www.w3schools.com/html/mov_bbb.mp4',                                                        thumbnail: '/garments/product1.jpeg'  },
+  { brand: 'Silk Leaf',        price: 10.00, originalPrice: 20.00, discount: 50, image: '/garments/product2.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',                thumbnail: '/garments/product2.jpeg'  },
+  { brand: 'Al-Harir Apparel', price: 61.67, originalPrice: 99.00, discount: 38, image: '/garments/product3.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',              thumbnail: '/garments/product3.jpeg'  },
+  { brand: 'Rajdulari',        price: 51.42, originalPrice: 85.00, discount: 40, image: '/garments/product4.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',             thumbnail: '/garments/product4.jpeg'  },
+  { brand: 'Qalamkar',         price: 45.00, originalPrice: 72.00, discount: 38, image: '/garments/product5.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',            thumbnail: '/garments/product5.jpeg'  },
+  { brand: 'Mushq',            price: 33.20, originalPrice: 55.00, discount: 40, image: '/garments/product6.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',                thumbnail: '/garments/product6.jpeg'  },
+  { brand: 'Maria B',          price: 78.90, originalPrice: 120.0, discount: 34, image: '/garments/product7.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',           thumbnail: '/garments/product7.jpeg'  },
+  { brand: 'Sana Safinaz',     price: 42.10, originalPrice: 68.00, discount: 38, image: '/garments/product8.jpeg',  video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4', thumbnail: '/garments/product8.jpeg'  },
 ];
 
 function StylingVideos() {
@@ -188,6 +224,33 @@ function StylingVideos() {
     setIsMuted((m) => !m);
   };
 
+  // Shared card renderer to avoid duplication
+  const VideoCard = ({ item }: { item: typeof stylingVideos[0] }) => (
+    <button
+      key={item.brand}
+      type="button"
+      onClick={() => setActiveVideo(item)}
+      className="group relative flex flex-col text-left min-w-0 w-full"
+    >
+      <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
+        <Image
+          src={item.image}
+          alt={item.brand}
+          fill
+          className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl" />
+        <div className="absolute top-3 left-3 z-10 bg-white/20 backdrop-blur-sm rounded-full p-2">
+          <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4"><path d="M8 5v14l11-7z" /></svg>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
+          <p className="text-white text-sm font-semibold truncate">{item.brand}</p>
+          <p className="text-white text-sm font-medium">$ {item.price.toFixed(2)}</p>
+        </div>
+      </div>
+    </button>
+  );
+
   return (
     <>
       <section className="mb-10 sm:mb-16">
@@ -197,11 +260,12 @@ function StylingVideos() {
             <Link href="/videos" className="text-sm font-medium text-foreground hover:text-primary transition-colors hidden sm:block">
               View All
             </Link>
+            {/* Arrows: hidden on mobile */}
             <button
               type="button"
               onClick={() => setStart((s) => Math.max(0, s - 1))}
               disabled={!canPrev}
-              className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="hidden sm:flex p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft size={18} />
             </button>
@@ -209,38 +273,26 @@ function StylingVideos() {
               type="button"
               onClick={() => setStart((s) => Math.min(stylingVideos.length - colCount, s + 1))}
               disabled={!canNext}
-              className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="hidden sm:flex p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronRight size={18} />
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+        {/* Mobile: native swipe */}
+        <div className="sm:hidden flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-3 px-3 pb-1">
+          {stylingVideos.map((item) => (
+            <div key={item.brand} className="shrink-0 w-[48vw] snap-start">
+              <VideoCard item={item} />
+            </div>
+          ))}
+        </div>
+
+        {/* sm+: arrow-controlled grid */}
+        <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
           {stylingVideos.slice(start, start + colCount).map((item) => (
-            <button
-              key={item.brand}
-              type="button"
-              onClick={() => setActiveVideo(item)}
-              className="group relative flex flex-col text-left min-w-0 w-full"
-            >
-              <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
-                <Image
-                  src={item.image}
-                  alt={item.brand}
-                  fill
-                  className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl" />
-                <div className="absolute top-3 left-3 z-10 bg-white/20 backdrop-blur-sm rounded-full p-2">
-                  <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4"><path d="M8 5v14l11-7z" /></svg>
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
-                  <p className="text-white text-sm font-semibold truncate">{item.brand}</p>
-                  <p className="text-white text-sm font-medium">$ {item.price.toFixed(2)}</p>
-                </div>
-              </div>
-            </button>
+            <VideoCard key={item.brand} item={item} />
           ))}
         </div>
       </section>
@@ -461,10 +513,10 @@ function TrendingProducts() {
     if (filters.color    !== 'All' && p.color    !== filters.color)    return false;
     if (filters.brand    !== 'All' && p.brand    !== filters.brand)    return false;
     if (filters.price !== 'All') {
-      if (filters.price === 'Under $25'   && p.price >= 25)               return false;
+      if (filters.price === 'Under $25'   && p.price >= 25)                   return false;
       if (filters.price === '$25–$75'     && (p.price < 25 || p.price > 75))  return false;
       if (filters.price === '$75–$125'    && (p.price < 75 || p.price > 125)) return false;
-      if (filters.price === 'Over $125'   && p.price <= 125)              return false;
+      if (filters.price === 'Over $125'   && p.price <= 125)                  return false;
     }
     return true;
   }).sort((a, b) => {
@@ -625,9 +677,7 @@ function TrendingProducts() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 mt-3 sm:mt-5">
           {Array.from({ length: PAGE_SIZE }).map((_, i) => (
             <div key={i} className="flex flex-col gap-2 min-w-0 animate-pulse">
-              {/* Image skeleton */}
               <div className="w-full aspect-[3/4] rounded-2xl bg-muted" />
-              {/* Text skeletons */}
               <div className="px-0.5 flex flex-col gap-1.5">
                 <div className="h-4 w-16 rounded bg-muted" />
                 <div className="h-3 w-3/4 rounded bg-muted" />
@@ -665,11 +715,7 @@ export default function Home() {
   return (
     <div className="w-full min-w-0 overflow-x-hidden max-w-7xl sm:px-6 lg:px-40">
 
-      {/* ── Hero Slider ──
-          Mobile:  -mx-3 + w-[calc(100%+1.5rem)] cancels px-3 → full bleed,
-                   no rounded corners, no top margin.
-          sm+:     reset to normal width, rounded corners, vertical margin.
-      ── */}
+      {/* ── Hero Slider ── */}
       <section className="relative h-44 sm:h-64 lg:h-80 overflow-hidden -mx-3 w-[calc(100%+1.5rem)] rounded-none mt-0 mb-4 sm:mx-0 sm:w-full sm:rounded-3xl sm:my-6">
         {heroSlides.map((slide, index) => (
           <div
@@ -706,13 +752,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* All other sections keep the px-3 padding */}
       <div className="max-w-7xl mx-auto py-2 sm:py-4 min-w-0">
 
         {/* ── Shop Our Stores ── */}
         <section className="mb-10 sm:mb-16">
           <h2 className="text-xl sm:text-2xl font-semibold mb-5 sm:mb-8 text-foreground">Shop Our Stores</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4 lg:gap-5 mx-4">
             {categories.map((cat, i) => (
               <Link key={i} href={cat.href} className="group flex flex-col items-center gap-1.5 sm:gap-2 min-w-0">
                 <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xl sm:rounded-2xl bg-muted">

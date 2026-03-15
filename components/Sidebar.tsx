@@ -211,7 +211,7 @@ export function Sidebar() {
                 <Link
                   href={item.href}
                   onClick={() => setOpenDrawer(null)}
-                  className="flex-1 px-6 py-3 text-lg font-medium text-foreground hover:bg-secondary hover:pl-8 transition-all duration-200"
+                  className="flex-1 px-6 py-3 text-lg font-normal text-foreground hover:bg-secondary hover:pl-8 transition-all duration-200"
                 >
                   {item.label}
                 </Link>

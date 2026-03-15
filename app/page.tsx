@@ -107,7 +107,7 @@ function NewInCarousel() {
       </div>
 
       {/* Mobile: native horizontal swipe with snap */}
-      <div className="sm:hidden flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-3 px-3 pb-1">
+      <div className="sm:hidden flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-3 pb-1">
         {newIn.map((item) => (
           <Link
             key={item.collection}
@@ -281,7 +281,7 @@ function StylingVideos() {
         </div>
 
         {/* Mobile: native swipe */}
-        <div className="sm:hidden flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-3 px-3 pb-1">
+        <div className="sm:hidden flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-3 pb-1">
           {stylingVideos.map((item) => (
             <div key={item.brand} className="shrink-0 w-[48vw] snap-start">
               <VideoCard item={item} />
@@ -554,7 +554,7 @@ function TrendingProducts() {
       </div>
 
       {/* Filter bar — scrollable, bleeds to edges on mobile */}
-      <div className="flex items-center gap-2 mb-6 sm:mb-8 overflow-x-auto pb-2 scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
+      <div className="flex items-center gap-2 mb-6 sm:mb-8 overflow-x-auto pb-2 scrollbar-hide px-3 sm:mx-0 sm:px-0">
         <FilterDropdown label="Category" options={FILTER_OPTIONS.category} value={filters.category} onChange={setFilter('category')} />
 
         <button
@@ -713,10 +713,10 @@ export default function Home() {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden max-w-7xl sm:px-6 lg:px-40">
+    <div className="w-full min-w-0 overflow-x-hidden max-w-7xl sm:px-6 lg:px-40 px-4">
 
       {/* ── Hero Slider ── */}
-      <section className="relative h-44 sm:h-64 lg:h-80 overflow-hidden -mx-3 w-[calc(100%+1.5rem)] rounded-none mt-0 mb-4 sm:mx-0 sm:w-full sm:rounded-3xl sm:my-6">
+      <section className="relative h-44 sm:h-64 lg:h-80 overflow-hidden w-[calc(100%+1.5rem)] rounded-none mt-0 mb-4 sm:mx-0 sm:w-full sm:rounded-3xl sm:my-6">
         {heroSlides.map((slide, index) => (
           <div
             key={slide.id}

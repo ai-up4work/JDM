@@ -350,7 +350,7 @@ function StylingVideos() {
                   const shareData = {
                     title: activeVideo.brand,
                     text: `Check out ${activeVideo.brand} — $${activeVideo.price.toFixed(2)}`,
-                    url: `${window.location.origin}/product/${activeVideo.brand.toLowerCase().replace(/\s+/g, '-')}`,
+                    url: `${window.location.origin}/shop/${activeVideo.brand.toLowerCase().replace(/\s+/g, '-')}`,
                   };
                   if (navigator.share) {
                     try { await navigator.share(shareData); } catch (_) {}
@@ -372,7 +372,7 @@ function StylingVideos() {
                   e.stopPropagation();
                   const slug = activeVideo.brand.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
                   closeVideo();
-                  router.push(`/product/${slug}`);
+                  router.push(`/shop/${slug}`);
                 }}
               >
                 <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-muted shrink-0">
@@ -605,7 +605,7 @@ function TrendingProducts() {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
           {visible.map((product) => (
-            <Link key={product.id} href={`/product/${product.id}`} className="group flex flex-col gap-2 min-w-0">
+            <Link key={product.id} href={`/shop/${product.id}`} className="group flex flex-col gap-2 min-w-0">
               <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
                 <Image
                   src={product.image}

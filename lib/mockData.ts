@@ -19,15 +19,18 @@ export interface Product {
 }
 
 export interface Seller {
-  id: string;
+  id: number;
+  slug: string;
   name: string;
   logo: string;
-  image: string;
+  image?: string;
   rating: number;
   followers: number;
   products: number;
+  totalSales?: number;
   verified: boolean;
   description: string;
+  location?: string;
 }
 
 export interface Category {
@@ -84,61 +87,84 @@ export const categories: Category[] = [
   },
 ];
 
-export const sellers: Seller[] = [
+export const sellers = [
   {
-    id: 's1',
-    name: 'Sapphire Couture',
-    logo: '/garments/product1.jpeg',
-    image: '/garments/product1.jpeg',
-    rating: 4.8,
-    followers: 15420,
-    products: 342,
-    verified: true,
-    description: 'Premium Pakistani fashion brand specializing in wedding wear and formal attire',
-  },
-  {
-    id: 's2',
-    name: 'Elegance Threads',
+    id: 1,
+    slug: 'colombo-oud',
+    name: 'Colombo Oud',
     logo: '/garments/product3.jpeg',
-    image: '/garments/product3.jpeg',
-    rating: 4.7,
-    followers: 12300,
-    products: 289,
+    description: 'Premium hand-distilled oud and attar from the heart of Colombo.',
+    rating: 4.9,
+    followers: 1240,
+    products: 31,
+    totalSales: 312,
     verified: true,
-    description: 'Contemporary casual wear and everyday fashion for all occasions',
+    location: 'Colombo, Sri Lanka',
   },
   {
-    id: 's3',
-    name: 'Artisan Designs',
+    id: 2,
+    slug: 'ceylon-scents',
+    name: 'Ceylon Scents',
+    logo: '/garments/product2.jpeg',
+    description: 'Authentic Sri Lankan botanical attars and floral perfumes.',
+    rating: 4.8,
+    followers: 890,
+    products: 18,
+    totalSales: 198,
+    verified: true,
+    location: 'Kandy, Sri Lanka',
+  },
+  {
+    id: 3,
+    slug: 'lanka-attar-house',
+    name: 'Lanka Attar House',
+    logo: '/garments/product4.jpeg',
+    description: 'Traditional attar makers using recipes passed down for generations.',
+    rating: 4.9,
+    followers: 760,
+    products: 15,
+    totalSales: 143,
+    verified: true,
+    location: 'Galle, Sri Lanka',
+  },
+  {
+    id: 4,
+    slug: 'spice-isle',
+    name: 'Spice Isle',
     logo: '/garments/product5.jpeg',
-    image: '/garments/product5.jpeg',
-    rating: 4.9,
-    followers: 18900,
-    products: 567,
-    verified: true,
-    description: 'Handcrafted designs with traditional South Asian embroidery and patterns',
-  },
-  {
-    id: 's4',
-    name: 'Urban Style Hub',
-    logo: '/garments/product8.jpeg',
-    image: '/garments/product8.jpeg',
+    description: 'Exotic blends inspired by the spice trade routes of the Indian Ocean.',
     rating: 4.6,
-    followers: 9800,
-    products: 198,
-    verified: true,
-    description: 'Modern streetwear and urban fashion for the trendy crowd',
+    followers: 540,
+    products: 22,
+    totalSales: 211,
+    verified: false,
+    location: 'Negombo, Sri Lanka',
   },
   {
-    id: 's5',
-    name: 'Luxe Boutique',
-    logo: '/garments/product11.jpeg',
-    image: '/garments/product11.jpeg',
-    rating: 4.9,
-    followers: 22100,
-    products: 456,
+    id: 5,
+    slug: 'pure-ceylon',
+    name: 'Pure Ceylon',
+    logo: '/garments/product6.jpeg',
+    description: 'Minimalist, clean-label attars made with single-origin Sri Lankan ingredients.',
+    rating: 4.8,
+    followers: 670,
+    products: 19,
+    totalSales: 182,
     verified: true,
-    description: 'Luxury fashion pieces and exclusive designer collections',
+    location: 'Colombo, Sri Lanka',
+  },
+  {
+    id: 6,
+    slug: 'island-musk',
+    name: 'Island Musk',
+    logo: '/garments/product7.jpeg',
+    description: 'Soft, tropical musk blends made exclusively for warm climates.',
+    rating: 4.7,
+    followers: 430,
+    products: 12,
+    totalSales: 97,
+    verified: false,
+    location: 'Matara, Sri Lanka',
   },
 ];
 
@@ -456,8 +482,8 @@ export function searchProducts(query: string): Product[] {
   );
 }
 
-export function getSellerById(id: string): Seller | undefined {
-  return sellers.find((s) => s.id === id);
+export function getSellerBySlug(slug: string): Seller | undefined {
+  return sellers.find((s) => s.slug === slug);
 }
 
 export function getCategoryBySlug(slug: string): Category | undefined {

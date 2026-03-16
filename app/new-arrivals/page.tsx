@@ -315,7 +315,7 @@ function MobileFilterSheet({
 
 function NewlyLaunchedCard({ item }: { item: typeof newProducts[0] }) {
   return (
-    <Link href={`/product/${item.id}`} className="group flex flex-col gap-1.5">
+    <Link href={`/shop/${item.id}`} className="group flex flex-col gap-1.5">
       <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
         <Image src={item.image} alt={item.name} fill className="object-cover object-top group-hover:scale-105 transition-transform duration-300" />
         <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">

@@ -291,7 +291,7 @@ function SearchContent() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {visible.map((product) => (
-              <Link key={product.id} href={`/product/${product.id}`} className="group flex flex-col gap-2 min-w-0">
+              <Link key={product.id} href={`/shop/${product.id}`} className="group flex flex-col gap-2 min-w-0">
                 <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
                   <Image
                     src={(product as any).image || `/garments/product${(Number(product.id) % 16) + 1}.jpeg`}

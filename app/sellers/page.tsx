@@ -52,7 +52,6 @@ function FilterDropdown({ label, options, value, onChange }: {
 }
 
 // ── Seller Card ───────────────────────────────────────────────────────────────
-
 function SellerCard({ seller }: { seller: typeof sellers[0] }) {
   return (
     <Link

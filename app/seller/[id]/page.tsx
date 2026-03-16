@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { Star, Users, Package, CheckCircle, Share2, ChevronRight } from 'lucide-react';
-import { getSellerById, getProductsBySeller } from '@/lib/mockData';
+import { getSellerBySlug, getProductsBySeller } from '@/lib/mockData';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -10,7 +10,7 @@ export default function SellerStorePage() {
   const params  = useParams();
   const sellerId = params.id as string;
 
-  const seller   = getSellerById(sellerId);
+  const seller   = getSellerBySlug(sellerId);
   const products = getProductsBySeller(sellerId);
 
   if (!seller) {

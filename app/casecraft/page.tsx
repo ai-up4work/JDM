@@ -280,9 +280,9 @@ export default function CustomCasePage() {
             <ChevronRight size={11} />
             <span className="text-foreground">Custom Case</span>
           </div>
-          <div className="hidden sm:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-hide">
             {STEPS.map((s, i) => (
-              <div key={s.n} className="flex items-center gap-1">
+              <div key={s.n} className="flex items-center gap-1 shrink-0">
                 <button type="button"
                   onClick={() => {
                     if (s.n === 1) setStep(1);
@@ -291,7 +291,7 @@ export default function CustomCasePage() {
                     if (s.n === 4 && model) setStep(4);
                     if (s.n === 5 && model && photoUrl) setStep(5);
                   }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap
                     ${step === s.n ? 'bg-foreground text-background'
                     : s.done ? 'text-foreground hover:bg-secondary'
                     : 'text-muted-foreground hover:text-foreground'}`}
@@ -299,7 +299,7 @@ export default function CustomCasePage() {
                   <StepDot n={s.n} done={s.done} active={step === s.n} />
                   {s.label}
                 </button>
-                {i < 4 && <ChevronRight size={10} className="text-border" />}
+                {i < 4 && <ChevronRight size={10} className="text-border shrink-0" />}
               </div>
             ))}
           </div>
@@ -533,7 +533,7 @@ export default function CustomCasePage() {
                     <div onClick={() => fileRef.current?.click()}
                       onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f); }}
                       onDragOver={e => e.preventDefault()}
-                      className="border-2 border-dashed border-border rounded-2xl p-10 flex flex-col items-center gap-4 cursor-pointer
+                      className="border-2 border-dashed border-border rounded-2xl p-6 sm:p-10 flex flex-col items-center gap-3 sm:gap-4 cursor-pointer
                         hover:border-foreground/30 hover:bg-secondary/20 transition-all duration-200 group">
                       <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center group-hover:bg-foreground/5 transition-colors">
                         <Upload size={22} className="text-muted-foreground" />
@@ -545,18 +545,24 @@ export default function CustomCasePage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900">
-                      <img src={photoUrl} alt="uploaded" className="w-50 fill rounded-lg object-cover shrink-0 ring-1 ring-border" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground">Photo ready</p>
-                        <p className="text-xs text-muted-foreground">Use the preview to position it</p>
+                    <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 overflow-hidden">
+                      {/* Top: thumbnail + text */}
+                      <div className="flex items-center gap-3 p-3">
+                        <img src={photoUrl} alt="uploaded" className="w-40 fill rounded-lg object-cover shrink-0 ring-1 ring-border" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-foreground">Photo ready</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Use the preview to position it</p>
+                        </div>
                       </div>
-                      <div className="flex gap-2 shrink-0">
+                      {/* Bottom: full-width buttons */}
+                      <div className="grid grid-cols-2 border-t border-emerald-200 dark:border-emerald-900">
                         <button type="button" onClick={() => fileRef.current?.click()}
-                          className="text-xs px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-secondary transition-colors font-medium">Change</button>
+                          className="py-2.5 text-xs font-semibold text-foreground border-r border-emerald-200 dark:border-emerald-900 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors">
+                          Change photo
+                        </button>
                         <button type="button" onClick={() => setStep(5)}
-                          className="text-xs px-3 py-1.5 rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors font-semibold flex items-center gap-1">
-                          Order <ArrowRight size={11} />
+                          className="py-2.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors flex items-center justify-center gap-1">
+                          Order now <ArrowRight size={11} />
                         </button>
                       </div>
                     </div>
@@ -575,30 +581,30 @@ export default function CustomCasePage() {
                 <p className="text-xs text-muted-foreground mb-5 ml-9">Print and deliver island-wide within 5–7 working days.</p>
 
                 <div className="rounded-xl border border-border overflow-hidden mb-4">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-secondary/30">
-                    <span className="text-xs text-muted-foreground font-medium">Case type</span>
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border bg-secondary/30">
+                    <span className="text-xs text-muted-foreground font-medium shrink-0">Case type</span>
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
                       {caseType.badge && (
                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${BADGE_COLORS[caseType.badge]}`}>
                           {BADGE_LABELS[caseType.badge]}
                         </span>
                       )}
-                      <span className="text-xs font-semibold text-foreground">{caseType.label}</span>
+                      <span className="text-xs font-semibold text-foreground text-right">{caseType.label}</span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                    <span className="text-xs text-muted-foreground font-medium">Model</span>
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
+                    <span className="text-xs text-muted-foreground font-medium shrink-0">Model</span>
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
                       <SeriesBadge series={model.series} />
-                      <span className="text-xs font-semibold text-foreground">{model.label}</span>
+                      <span className="text-xs font-semibold text-foreground text-right">{model.label}</span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                    <span className="text-xs text-muted-foreground font-medium">Style</span>
+                  <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
+                    <span className="text-xs text-muted-foreground font-medium shrink-0">Style</span>
                     <span className="text-xs font-semibold text-foreground">{getTemplate(template).label}</span>
                   </div>
-                  <div className="flex items-center justify-between px-4 py-3 bg-secondary/10">
-                    <span className="text-sm font-semibold text-foreground">Total</span>
+                  <div className="flex items-center justify-between gap-2 px-4 py-3 bg-secondary/10">
+                    <span className="text-sm font-semibold text-foreground shrink-0">Total</span>
                     <span className="text-base font-bold text-foreground">LKR {price.toLocaleString()}</span>
                   </div>
                 </div>
@@ -665,13 +671,13 @@ export default function CustomCasePage() {
             </div>
 
             {photoUrl && (
-              <div className="flex items-center gap-2 bg-secondary/60 rounded-2xl px-3 py-2 border border-border">
+              <div className="flex items-center gap-1.5 bg-secondary/60 rounded-2xl px-2 sm:px-3 py-2 border border-border flex-wrap justify-center">
                 <button type="button" onClick={() => setZoom(z => Math.max(0.5, parseFloat((z - 0.1).toFixed(1))))} className="p-1.5 rounded-xl hover:bg-border transition-colors"><ZoomOut size={14} /></button>
                 <span className="text-xs text-muted-foreground w-10 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
                 <button type="button" onClick={() => setZoom(z => Math.min(3, parseFloat((z + 0.1).toFixed(1))))} className="p-1.5 rounded-xl hover:bg-border transition-colors"><ZoomIn size={14} /></button>
-                <div className="w-px h-4 bg-border mx-1" />
-                <button type="button" onClick={() => { setZoom(1); setOffset({ x: 0, y: 0 }); }} className="p-1.5 rounded-xl hover:bg-border transition-colors"><RotateCw size={14} /></button>
-                <button type="button" onClick={() => { setPhotoUrl(null); setZoom(1); setOffset({ x: 0, y: 0 }); }} className="p-1.5 rounded-xl hover:bg-red-100 dark:hover:bg-red-950/40 text-red-500 transition-colors"><X size={14} /></button>
+                <div className="w-px h-4 bg-border mx-0.5" />
+                <button type="button" onClick={() => { setZoom(1); setOffset({ x: 0, y: 0 }); }} className="p-1.5 rounded-xl hover:bg-border transition-colors" title="Reset"><RotateCw size={14} /></button>
+                <button type="button" onClick={() => { setPhotoUrl(null); setZoom(1); setOffset({ x: 0, y: 0 }); }} className="p-1.5 rounded-xl hover:bg-red-100 dark:hover:bg-red-950/40 text-red-500 transition-colors" title="Remove"><X size={14} /></button>
               </div>
             )}
 
@@ -695,7 +701,7 @@ export default function CustomCasePage() {
                     </div>
                   </div>
                   {model && (
-                    <div className="flex items-center justify-between pt-2 border-t border-border">
+                    <div className="flex items-start justify-between gap-2 pt-2 border-t border-border flex-wrap">
                       <p className="text-[10px] text-muted-foreground">{model.label}</p>
                       <SeriesBadge series={model.series} />
                     </div>
@@ -713,13 +719,13 @@ export default function CustomCasePage() {
       {/* Mobile CTA */}
       {photoUrl && step !== 5 && (
         <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-background/90 backdrop-blur-lg border-t border-border px-4 py-3 flex items-center gap-3 shadow-[0_-8px_24px_rgba(0,0,0,0.06)]">
-          <div className="min-w-0">
-            <p className="text-[10px] text-muted-foreground truncate">{model?.label}</p>
-            <p className="text-base font-bold text-foreground">LKR {price.toLocaleString()}</p>
+          <div className="min-w-0 flex-shrink">
+            <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{model?.label ?? 'Custom case'}</p>
+            <p className="text-sm font-bold text-foreground whitespace-nowrap">LKR {price.toLocaleString()}</p>
           </div>
           <button type="button" onClick={() => setStep(5)}
-            className="flex-1 py-3 rounded-xl bg-foreground text-background text-sm font-bold hover:bg-foreground/90 transition-colors flex items-center justify-center gap-2">
-            Preview & order <ArrowRight size={14} />
+            className="flex-1 py-3 rounded-xl bg-foreground text-background text-sm font-bold hover:bg-foreground/90 transition-colors flex items-center justify-center gap-2 min-w-0">
+            <span className="truncate">Preview & order</span> <ArrowRight size={14} className="shrink-0" />
           </button>
         </div>
       )}

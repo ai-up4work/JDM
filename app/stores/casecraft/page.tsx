@@ -387,7 +387,7 @@ export default function CustomCasePage() {
 
                 {step === 2 && (
                   <div className="border-t border-border">
-                    <div className="flex gap-1 p-3 pb-0 border-b border-border bg-secondary/20">
+                    <div className="flex gap-1 px-3 py-2 border-b border-border">
                       {availableBrandTabs.map(b => (
                         <button key={b.id} type="button"
                           onClick={() => { setBrandId(b.id); setSearch(''); }}

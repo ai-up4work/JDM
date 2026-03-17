@@ -2,105 +2,89 @@
  * lib/phoneCases/index.ts
  *
  * Barrel export — import everything from here:
- *   import { BRANDS, TEMPLATES, getTemplate, ... } from '@/lib/phoneCases'
+ *   import { BRANDS_TPC, BRANDS_TC, TEMPLATES, ... } from '@/lib/phoneCases'
  *
- * Architecture:
- *   types.ts              → shared types + helpers
- *   toughPhoneCases.meta  → original series (32 models, print-template assets)
- *   toughCases.meta       → expanded series (51 models, mockup overlay assets)
- *   index.ts (this file)  → assembles brands, exposes unified API
+ * KEY ARCHITECTURE DECISION (based on visual confirmation):
+ * ──────────────────────────────────────────────────────────
+ * ToughPhoneCases and ToughCases are TWO SEPARATE PRODUCTS with
+ * different physical moulds. The 24 models that appear in both
+ * series use DIFFERENT cut templates. They are NOT interchangeable.
  *
- * The two series use DIFFERENT case templates (confirmed visually):
- *   - Camera cutout position, size, and border style differ
- *   - "Tough Phone Cases" has a port notch; "ToughCases" does not
- *   → Never mix files across series for the same model
+ * Therefore the index exposes TWO brand lists — one per series.
+ * The page selects which list to show based on which case type
+ * (product) the customer picked in Step 1.
+ *
+ * File breakdown on disk:
+ *   Tough Phone Cases: 32 files (8 exclusive + 24 shared models)
+ *   ToughCases:        51 files (27 exclusive + 24 shared models)
+ *   Total unique files: 83
  */
 
-export type { CaseModel, Brand, BrandId, CaseSeries, TemplateId, CaseTemplate } from './types';
+export type {
+  CaseModel, Brand, BrandId, CaseSeries,
+  TemplateId, CaseTemplate,
+} from './types';
 export { getPriceLKR, TEMPLATES, getTemplate } from './types';
+export { SERIES_META } from './SeriesMeta';
 
 import { TOUGH_PHONE_CASES } from './Toughphonecases.meta';
 import { TOUGH_CASES        } from './Toughcases.meta';
 import type { Brand, BrandId, CaseModel } from './types';
 
-// ─── Brand assembly ──────────────────────────────────────────────────────────
-//
-// Each brand groups models from BOTH series so the UI can present them
-// together while preserving which file/series each model belongs to.
-// We use the ToughCases (modern) version wherever both exist, and fall
-// back to ToughPhoneCases for legacy-only models.
-//
-// Series breakdown per brand:
-//   iPhone  → TPC: 27 models | TC: 24 models | overlap: 23 (TC preferred)
-//   Samsung → TPC:  5 models | TC: 21 models | overlap:  4 (TC preferred)
-//   Google  → TPC:  0 models | TC:  6 models | TC only
-
-const tcByLabel  = new Map(TOUGH_CASES.map(m => [m.label, m]));
-const tpcByLabel = new Map(TOUGH_PHONE_CASES.map(m => [m.label, m]));
-
-/** All unique models — TC preferred when overlap exists */
-const ALL_TC_LABELS  = new Set(TOUGH_CASES.map(m => m.label));
-const LEGACY_ONLY    = TOUGH_PHONE_CASES.filter(m => !ALL_TC_LABELS.has(m.label));
-
-function iphoneModels(): CaseModel[] {
-  const tc  = TOUGH_CASES.filter(m => !m.label.startsWith('Galaxy') && !m.label.startsWith('Pixel'));
-  const leg = LEGACY_ONLY.filter(m => !m.label.startsWith('Galaxy'));
-  // order: legacy bundles first (5/6/7 era), then modern by generation
-  return [...leg, ...tc].sort((a, b) => generationSort(a.label, b.label));
+// ─── Sort helper ──────────────────────────────────────────────────────────────
+function numSort(a: CaseModel, b: CaseModel) {
+  const n = (s: string) => parseInt(s.match(/\d+/)?.[0] ?? '0', 10);
+  return n(a.label) - n(b.label);
 }
 
-function samsungModels(): CaseModel[] {
-  const tc  = TOUGH_CASES.filter(m => m.label.startsWith('Galaxy'));
-  const leg = LEGACY_ONLY.filter(m => m.label.startsWith('Galaxy'));
-  return [...leg, ...tc].sort((a, b) => generationSort(a.label, b.label));
-}
+// ─── BRANDS for "Tough Phone Cases" (SPOKE) ───────────────────────────────────
+// 32 models: iPhone (27) + Samsung (5)
+// Google NOT available in this series.
 
-function googleModels(): CaseModel[] {
-  return TOUGH_CASES.filter(m => m.label.startsWith('Pixel'))
-    .sort((a, b) => generationSort(a.label, b.label));
-}
+const tpc_iphone  = TOUGH_PHONE_CASES.filter(m => m.label.startsWith('iPhone')).sort(numSort);
+const tpc_samsung = TOUGH_PHONE_CASES.filter(m => m.label.startsWith('Galaxy')).sort(numSort);
 
-/** Numeric sort on the first number found in the label */
-function generationSort(a: string, b: string): number {
-  const numA = parseInt(a.match(/\d+/)?.[0] ?? '0', 10);
-  const numB = parseInt(b.match(/\d+/)?.[0] ?? '0', 10);
-  return numA - numB;
-}
-
-export const BRANDS: Brand[] = [
-  { id: 'iphone',  label: 'iPhone',  vendor: 'Apple',   models: iphoneModels()  },
-  { id: 'samsung', label: 'Samsung', vendor: 'Samsung', models: samsungModels() },
-  { id: 'google',  label: 'Google',  vendor: 'Google',  models: googleModels()  },
+export const BRANDS_TPC: Brand[] = [
+  { id: 'iphone',  label: 'iPhone',  vendor: 'Apple',   models: tpc_iphone  },
+  { id: 'samsung', label: 'Samsung', vendor: 'Samsung', models: tpc_samsung },
 ];
 
-// ─── Convenience helpers ──────────────────────────────────────────────────────
+// ─── BRANDS for "ToughCases" (WOYC) ──────────────────────────────────────────
+// 51 models: iPhone (24) + Samsung (21) + Google Pixel (6)
 
-export const ALL_MODELS: CaseModel[] =
-  BRANDS.flatMap(b => b.models);
+const tc_iphone  = TOUGH_CASES.filter(m => m.label.startsWith('iPhone')).sort(numSort);
+const tc_samsung = TOUGH_CASES.filter(m => m.label.startsWith('Galaxy')).sort(numSort);
+const tc_google  = TOUGH_CASES.filter(m => m.label.startsWith('Pixel')).sort(numSort);
 
-export const getBrand = (id: BrandId) =>
-  BRANDS.find(b => b.id === id);
+export const BRANDS_TC: Brand[] = [
+  { id: 'iphone',  label: 'iPhone',  vendor: 'Apple',   models: tc_iphone  },
+  { id: 'samsung', label: 'Samsung', vendor: 'Samsung', models: tc_samsung },
+  { id: 'google',  label: 'Google',  vendor: 'Google',  models: tc_google  },
+];
 
-export const getModelByFile = (file: string) =>
-  ALL_MODELS.find(m => m.file === file);
+// ─── Convenience: get the right brand list for a case type's mockupFolder ────
+export function getBrandsForFolder(mockupFolder: string | null): Brand[] {
+  if (mockupFolder === 'toughPhoneCases') return BRANDS_TPC;
+  if (mockupFolder === 'toughCases')      return BRANDS_TC;
+  return BRANDS_TC; // default to TC (larger set) for future types
+}
 
-/** Models unique to the original "Tough Phone Cases" series */
-export const LEGACY_MODELS = LEGACY_ONLY;
+export function getBrand(brands: Brand[], id: BrandId): Brand | undefined {
+  return brands.find(b => b.id === id);
+}
 
-/** Models from the expanded "ToughCases" series */
-export const EXPANDED_MODELS = TOUGH_CASES;
+// ─── Flat lists for reference / admin ────────────────────────────────────────
+export const ALL_TPC_MODELS: CaseModel[] = TOUGH_PHONE_CASES;
+export const ALL_TC_MODELS:  CaseModel[] = TOUGH_CASES;
 
-// ─── Series metadata (for UI badges, tooltips, etc.) ─────────────────────────
+export const TPC_EXCLUSIVE = TOUGH_PHONE_CASES.filter(m => {
+  const tcLabels = new Set(TOUGH_CASES.map(x => x.label));
+  return !tcLabels.has(m.label);
+});
 
-export const SERIES_META = {
-  'tough-phone-cases': {
-    label:   'Classic series',
-    desc:    'Original print-template assets · heavy border · port notch',
-    count:   TOUGH_PHONE_CASES.length,
-  },
-  'toughcases': {
-    label:   'Modern series',
-    desc:    'Mockup overlay assets · slim border · concentric camera ring',
-    count:   TOUGH_CASES.length,
-  },
-} as const;
+export const TC_EXCLUSIVE = TOUGH_CASES.filter(m => {
+  const tpcLabels = new Set(TOUGH_PHONE_CASES.map(x => x.label));
+  return !tpcLabels.has(m.label);
+});
+
+export const SHARED_MODELS_COUNT = 24; // iPhone 11–15, X/XR/XS, Samsung S21–S24

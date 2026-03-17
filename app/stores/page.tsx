@@ -198,7 +198,7 @@ export default function StoresPage() {
   return (
     <>
       {/* ── Sticky Nav ── */}
-      <div className="sticky top-0 z-30 bg-background/80">
+      <div className="sticky top-0 z-30 bg-background/80 mt-4">
         <div className="max-w-7xl mx-auto h-14 flex items-center justify-between gap-4 px-4 sm:px-10 lg:px-40">
 
           {/* Breadcrumb */}
@@ -207,7 +207,7 @@ export default function StoresPage() {
               Home
             </Link>
             <ChevronRight size={11} />
-            <span className="text-foreground">Stores</span>
+            <span className="text-foreground font-medium">Stores</span>
           </div>
 
           {/* Filter pills */}

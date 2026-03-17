@@ -147,18 +147,18 @@ const sidebarSubItems: Record<string, { label: string; href: string }[]> = {
 };
 
 const sidebarItems = [
-  { label: 'All',           href: '/shop'                       },
-  { label: 'New Arrivals',  href: '/new-arrivals'  },
-  { label: 'West',          href: '/category/west'          },
+  { label: 'All',           href: '/shop'                             },
+  { label: 'New Arrivals',  href: '/new-arrivals'                     },
+  { label: 'West',          href: '/category/west'                    },
   { label: 'Women',         href: '/category/women',  hasDrawer: true },
   { label: 'Men',           href: '/category/men',    hasDrawer: true },
   { label: 'Beauty',        href: '/category/beauty', hasDrawer: true },
   { label: 'Kids',          href: '/category/kids',   hasDrawer: true },
-  { label: 'Brands',        href: '/brands'        },
-  { label: 'Top Curations', href: '/category/top-curations' },
-  { label: 'Orders',        href: '/orders'                 },
-  { label: 'Rewards',       href: '/rewards'                },
-  { label: 'Wishlist',      href: '/wishlist'               },
+  { label: 'Brands',        href: '/brands'                           },
+  { label: 'Stores',        href: '/stores'                           },
+  { label: 'Orders',        href: '/orders'                           },
+  { label: 'Rewards',       href: '/rewards'                          },
+  { label: 'Wishlist',      href: '/wishlist'                         },
 ];
 
 export function Sidebar() {

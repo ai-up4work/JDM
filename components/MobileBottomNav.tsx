@@ -131,7 +131,7 @@ const extraLinks = [
   { label: 'All',           href: '/'                       },
   { label: 'New Arrivals',  href: '/new-arrivals'           },
   { label: 'West',          href: '/category/west'          },
-  { label: 'Top Curations', href: '/category/top-curations' },
+  { label: 'Stores',        href: '/stores'                 },
   { label: 'Orders',        href: '/orders'                 },
   { label: 'Rewards',       href: '/rewards'                },
   { label: 'Wishlist',      href: '/wishlist'               },

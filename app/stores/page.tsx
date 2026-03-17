@@ -1,216 +1,398 @@
 // app/stores/page.tsx
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type StoreType = "custom" | "template";
+type StoreType = 'custom' | 'template';
+type FilterKey = 'all' | 'custom' | 'template' | 'new';
 
 interface Store {
   slug: string;
   name: string;
   type: StoreType;
   isNew?: boolean;
+  logo: string;
   bannerStyle: React.CSSProperties;
-  bannerText: string;
   category: string;
   description: string;
   shipping: string;
   payment: string;
   tags: string[];
+  itemCount: number;
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
-const STORES: Store[] = [
+const ALL_STORES: Store[] = [
   {
-    slug: "casecraft",
-    name: "CaseCraft",
-    type: "custom",
+    slug: 'casecraft',
+    name: 'CaseCraft',
+    type: 'custom',
     isNew: true,
-    bannerStyle: { background: "#1a1a1a", color: "#fff" },
-    bannerText: "CASECRAFT",
-    category: "Phone cases",
-    description:
-      "Design your own printed phone case — pick your model, upload your photo, preview it live.",
-    shipping: "Ships island-wide",
-    payment: "COD",
-    tags: ["Custom print", "iPhone", "Samsung"],
+    logo: '/garments/product1.jpeg',
+    bannerStyle: { background: '#1a1a1a' },
+    category: 'Phone Cases',
+    description: 'Design your own printed phone case — pick your model, upload your photo, preview it live.',
+    shipping: 'Ships island-wide',
+    payment: 'COD',
+    tags: ['Custom print', 'iPhone', 'Samsung'],
+    itemCount: 24,
   },
   {
-    slug: "bloom-and-co",
-    name: "Bloom & Co.",
-    type: "template",
-    bannerStyle: { background: "#f5f0e8", color: "#2c2c1a", fontFamily: "Georgia, serif" },
-    bannerText: "Bloom & Co.",
-    category: "Flowers",
-    description:
-      "Fresh flower arrangements and bouquets for every occasion, delivered same-day in Colombo.",
-    shipping: "Colombo only",
-    payment: "COD",
-    tags: ["Bouquets", "Gifting", "Same-day"],
-  },
-  {
-    slug: "zylon",
-    name: "Zylon Apparel",
-    type: "template",
+    slug: 'bloom-and-co',
+    name: 'Bloom & Co.',
+    type: 'template',
     isNew: true,
-    bannerStyle: { background: "#0f2027", color: "#c9a96e", letterSpacing: "4px" },
-    bannerText: "ZYLON",
-    category: "Clothing",
-    description:
-      "Minimal streetwear made in Sri Lanka. Small-batch drops, direct from the designer.",
-    shipping: "Ships island-wide",
-    payment: "COD",
-    tags: ["Streetwear", "Unisex", "Local brand"],
+    logo: '/garments/product2.jpeg',
+    bannerStyle: { background: '#f5f0e8' },
+    category: 'Flowers',
+    description: 'Fresh flower arrangements and bouquets for every occasion, delivered same-day in Colombo.',
+    shipping: 'Colombo only',
+    payment: 'COD',
+    tags: ['Bouquets', 'Gifting', 'Same-day'],
+    itemCount: 18,
   },
   {
-    slug: "scent-lab",
-    name: "Scent Lab",
-    type: "custom",
-    bannerStyle: { background: "#1b3a2f", color: "#7ecfa0", fontFamily: "Georgia, serif", letterSpacing: "1px" },
-    bannerText: "Scent Lab",
-    category: "Fragrance",
-    description:
-      "Build your own attar blend — choose base, heart and top notes, name your scent, order it bottled.",
-    shipping: "Ships island-wide",
-    payment: "Bank transfer",
-    tags: ["Attar", "Custom blend", "Artisan"],
+    slug: 'zylon',
+    name: 'Zylon Apparel',
+    type: 'template',
+    isNew: true,
+    logo: '/garments/product3.jpeg',
+    bannerStyle: { background: '#0f2027' },
+    category: 'Clothing',
+    description: 'Minimal streetwear made in Sri Lanka. Small-batch drops, direct from the designer.',
+    shipping: 'Ships island-wide',
+    payment: 'COD',
+    tags: ['Streetwear', 'Unisex', 'Local brand'],
+    itemCount: 41,
   },
   {
-    slug: "kade-crafts",
-    name: "Kade Crafts",
-    type: "template",
-    bannerStyle: { background: "#faf5f0", color: "#5c3d2e" },
-    bannerText: "KADE CRAFTS",
-    category: "Handmade",
-    description:
-      "Handmade resin art, earrings and home décor by local artisans across Sri Lanka.",
-    shipping: "Ships island-wide",
-    payment: "COD",
-    tags: ["Resin art", "Jewellery", "Home décor"],
+    slug: 'scent-lab',
+    name: 'Scent Lab',
+    type: 'custom',
+    logo: '/garments/product4.jpeg',
+    bannerStyle: { background: '#1b3a2f' },
+    category: 'Fragrance',
+    description: 'Build your own attar blend — choose base, heart and top notes, name your scent, order it bottled.',
+    shipping: 'Ships island-wide',
+    payment: 'Bank transfer',
+    tags: ['Attar', 'Custom blend', 'Artisan'],
+    itemCount: 12,
+  },
+  {
+    slug: 'kade-crafts',
+    name: 'Kade Crafts',
+    type: 'template',
+    logo: '/garments/product5.jpeg',
+    bannerStyle: { background: '#faf5f0' },
+    category: 'Handmade',
+    description: 'Handmade resin art, earrings and home décor by local artisans across Sri Lanka.',
+    shipping: 'Ships island-wide',
+    payment: 'COD',
+    tags: ['Resin art', 'Jewellery', 'Home décor'],
+    itemCount: 67,
+  },
+  {
+    slug: 'the-clay-co',
+    name: 'The Clay Co.',
+    type: 'template',
+    logo: '/garments/product6.jpeg',
+    bannerStyle: { background: '#e8e0d4' },
+    category: 'Pottery',
+    description: 'Handthrown ceramic mugs, bowls and planters made right here in Colombo.',
+    shipping: 'Ships island-wide',
+    payment: 'COD',
+    tags: ['Ceramics', 'Homewares', 'Handmade'],
+    itemCount: 33,
+  },
+  {
+    slug: 'luminary',
+    name: 'Luminary',
+    type: 'custom',
+    logo: '/garments/product7.jpeg',
+    bannerStyle: { background: '#0d0d1a' },
+    category: 'Candles',
+    description: 'Luxury soy candles with custom labels. Build your own gift box online.',
+    shipping: 'Ships island-wide',
+    payment: 'COD',
+    tags: ['Candles', 'Gift sets', 'Custom labels'],
+    itemCount: 15,
+  },
+  {
+    slug: 'fresh-press',
+    name: 'Fresh Press',
+    type: 'template',
+    logo: '/garments/product8.jpeg',
+    bannerStyle: { background: '#f0f7ee' },
+    category: 'Food & Drink',
+    description: 'Cold-pressed juices and wellness shots delivered to your door in Colombo.',
+    shipping: 'Colombo only',
+    payment: 'COD',
+    tags: ['Juice', 'Wellness', 'Same-day'],
+    itemCount: 22,
   },
 ];
-
-type FilterKey = "all" | "custom" | "template" | "new";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: "all",      label: "All"           },
-  { key: "custom",   label: "Custom builds" },
-  { key: "template", label: "Templates"     },
-  { key: "new",      label: "New arrivals"  },
+  { key: 'all',      label: 'All'           },
+  { key: 'custom',   label: 'Custom builds' },
+  { key: 'template', label: 'Templates'     },
+  { key: 'new',      label: 'New arrivals'  },
 ];
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Skeletons ────────────────────────────────────────────────────────────────
 
-function Badge({ type }: { type: StoreType }) {
-  return type === "custom" ? (
-    <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#EEEDFE] text-[#3C3489] shrink-0">
-      Custom build
-    </span>
-  ) : (
-    <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#E1F5EE] text-[#085041] shrink-0">
-      Template
-    </span>
+function CarouselCardSkeleton() {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="w-full aspect-square rounded-2xl bg-muted animate-pulse" />
+      <div className="h-3.5 w-20 rounded bg-muted animate-pulse" />
+    </div>
   );
 }
 
-function StoreCard({ store }: { store: Store }) {
+function RowSkeleton() {
   return (
-    <Link
-      href={`/stores/${store.slug}`}
-      className="group block bg-background border border-border rounded-xl overflow-hidden
-                 transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/20"
-    >
-      {/* Banner */}
-      <div
-        className="h-24 w-full flex items-center justify-center text-2xl font-semibold tracking-widest"
-        style={store.bannerStyle}
-      >
-        {store.bannerText}
+    <div className="flex items-center gap-4 py-3.5 px-2">
+      <div className="w-11 h-11 rounded-xl bg-muted animate-pulse shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-3.5 w-32 rounded bg-muted animate-pulse" />
+        <div className="h-3 w-16 rounded bg-muted animate-pulse" />
       </div>
+    </div>
+  );
+}
 
-      {/* Body */}
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <span className="text-sm font-medium text-foreground">{store.name}</span>
-          <Badge type={store.type} />
+function PageSkeleton() {
+  return (
+    <div className="w-full min-w-0 overflow-x-hidden px-4 sm:px-10 lg:px-40">
+      <div className="max-w-7xl mx-auto py-2 sm:py-4 min-w-0">
+        <div className="mb-5 flex items-center justify-between">
+          <div className="h-7 w-36 rounded-lg bg-muted animate-pulse" />
+          <div className="flex gap-2">
+            <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
+            <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
+          </div>
         </div>
-
-        <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-          {store.description}
-        </p>
-
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground mb-3">
-          <span>{store.category}</span>
-          <span className="w-1 h-1 rounded-full bg-border" />
-          <span>{store.shipping}</span>
-          <span className="w-1 h-1 rounded-full bg-border" />
-          <span>{store.payment}</span>
-        </div>
-
-        <div className="flex flex-wrap gap-1.5">
-          {store.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-[11px] px-2 py-0.5 rounded-full border border-border text-muted-foreground"
-            >
-              {tag}
-            </span>
+        <div className="flex gap-3 mb-10 overflow-hidden">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="shrink-0 w-[28vw] sm:w-[18vw] lg:w-32">
+              <CarouselCardSkeleton />
+            </div>
           ))}
         </div>
+        <div className="flex items-center justify-between mb-5">
+          <div className="h-7 w-28 rounded-lg bg-muted animate-pulse" />
+          <div className="h-10 w-48 sm:w-72 rounded-lg bg-muted animate-pulse" />
+        </div>
+        {Array.from({ length: 5 }).map((_, i) => <RowSkeleton key={i} />)}
       </div>
-    </Link>
+    </div>
   );
 }
 
-function EmptySlot() {
+// ─── New Stores Carousel ──────────────────────────────────────────────────────
+
+function NewStoresCarousel() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd,   setAtEnd]   = useState(false);
+
+  const scroll = (dir: 'prev' | 'next') => {
+    const t = trackRef.current; if (!t) return;
+    const card = t.querySelector('a') as HTMLElement | null;
+    const step = card ? card.offsetWidth + 12 : 160;
+    t.scrollBy({ left: dir === 'next' ? step : -step, behavior: 'smooth' });
+  };
+
+  const onScroll = () => {
+    const t = trackRef.current; if (!t) return;
+    setAtStart(t.scrollLeft <= 4);
+    setAtEnd(t.scrollLeft + t.clientWidth >= t.scrollWidth - 4);
+  };
+
+  const newStores = ALL_STORES.filter(s => s.isNew);
+
   return (
-    <Link
-      href="/stores/apply"
-      className="flex flex-col items-center justify-center gap-2 min-h-[200px]
-                 border border-dashed border-border rounded-xl bg-muted/30
-                 text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-muted/50"
-    >
-      <div className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-lg">
-        +
+    <section className="mb-10 sm:mb-16">
+      <div className="flex items-center justify-between mb-5 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-semibold text-foreground">New Stores</h2>
+        <div className="flex items-center gap-2">
+          <button onClick={() => scroll('prev')} disabled={atStart}
+            className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          ><ChevronLeft size={18} /></button>
+          <button onClick={() => scroll('next')} disabled={atEnd}
+            className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          ><ChevronRight size={18} /></button>
+        </div>
       </div>
-      <p className="text-sm">Open your store here</p>
-      <span className="text-xs opacity-60">Apply for a spot — we verify every seller</span>
-    </Link>
+
+      {/* Bleeds to screen edge on mobile/tablet, contained on desktop — mirrors brands carousel */}
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:-mx-10 sm:px-10 lg:mx-0 lg:px-0 pb-1"
+      >
+        {newStores.map(store => (
+          <Link
+            key={store.slug}
+            href={`/stores/${store.slug}`}
+            className="shrink-0 snap-start flex flex-col items-center gap-2.5 group w-[28vw] sm:w-[18vw] lg:w-32"
+          >
+            <div
+              className="relative w-full aspect-square overflow-hidden rounded-2xl border border-border group-hover:border-primary transition-colors"
+              style={store.bannerStyle}
+            >
+              <Image
+                src={store.logo}
+                alt={store.name}
+                fill
+                className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <span className="text-xs sm:text-sm font-medium text-foreground text-center leading-snug line-clamp-2 px-1">
+              {store.name}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── All Stores List ──────────────────────────────────────────────────────────
+
+function AllStores({ activeFilter }: { activeFilter: FilterKey }) {
+  const [search, setSearch] = useState('');
+
+  const filtered = ALL_STORES.filter(s => {
+    const matchesFilter =
+      activeFilter === 'all'      ? true :
+      activeFilter === 'new'      ? !!s.isNew :
+      s.type === activeFilter;
+
+    const matchesSearch =
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.category.toLowerCase().includes(search.toLowerCase());
+
+    return matchesFilter && matchesSearch;
+  });
+
+  return (
+    <section className="mb-10 sm:mb-16">
+
+      {/* Header row — mirrors AllBrands */}
+      <div className="flex items-center justify-between gap-3 mb-5 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-semibold text-foreground shrink-0">All Stores</h2>
+        <div className="relative flex-1 sm:flex-none sm:w-72">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search stores"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-border bg-background text-sm focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+      </div>
+
+      {/* Store list rows — mirrors brand list rows exactly */}
+      {filtered.length === 0 ? (
+        <div className="py-16 text-center text-muted-foreground text-sm">No stores found</div>
+      ) : (
+        <div className="divide-y divide-border">
+          {filtered.map(store => (
+            <Link
+              key={store.slug}
+              href={`/stores/${store.slug}`}
+              className="flex items-center gap-3 sm:gap-4 py-3 sm:py-3.5 group hover:bg-secondary rounded-xl px-2 -mx-2 transition-colors"
+            >
+              <div
+                className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-border shrink-0"
+                style={store.bannerStyle}
+              >
+                <Image src={store.logo} alt={store.name} fill className="object-cover object-center" />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                    {store.name}
+                  </p>
+                  {store.isNew && (
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300 uppercase tracking-wider shrink-0">
+                      New
+                    </span>
+                  )}
+                  <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0
+                    ${store.type === 'custom'
+                      ? 'bg-[#EEEDFE] text-[#3C3489]'
+                      : 'bg-[#E1F5EE] text-[#085041]'}`}>
+                    {store.type === 'custom' ? 'Custom build' : 'Template'}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {store.category} · {store.itemCount} items · {store.shipping}
+                </p>
+              </div>
+
+              <ChevronRight size={15} className="text-muted-foreground shrink-0" />
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Apply CTA row */}
+      <Link
+        href="/stores/apply"
+        className="flex items-center gap-3 sm:gap-4 py-3 sm:py-3.5 group hover:bg-secondary rounded-xl px-2 -mx-2 transition-colors mt-0 border-t border-border"
+      >
+        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-dashed border-border flex items-center justify-center shrink-0 text-muted-foreground text-xl leading-none">
+          +
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+            Open your store here
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">Apply for a spot — we verify every seller</p>
+        </div>
+        <ChevronRight size={15} className="text-muted-foreground shrink-0" />
+      </Link>
+
+    </section>
   );
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function StoresPage() {
-  const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
+  const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
+  const [loading, setLoading] = useState(true);
 
-  const filtered = STORES.filter((s) => {
-    if (activeFilter === "all") return true;
-    if (activeFilter === "new") return s.isNew;
-    return s.type === activeFilter;
-  });
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (loading) return <PageSkeleton />;
 
   return (
     <>
       {/* ── Sticky Nav ── */}
-      <div className="sticky top-0 z-30 bg-background/80 mt-4">
+      <div className="sticky top-0 z-30 bg-background/80">
         <div className="max-w-7xl mx-auto h-14 flex items-center justify-between gap-4 px-4 sm:px-10 lg:px-40">
 
-          {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
-            <Link href="/" className="hover:text-foreground transition-colors font-medium">
-              Home
-            </Link>
+            <Link href="/" className="hover:text-foreground transition-colors font-medium">Home</Link>
             <ChevronRight size={11} />
             <span className="text-foreground font-medium">Stores</span>
           </div>
 
-          {/* Filter pills */}
           <div className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-hide">
             {FILTERS.map(({ key, label }) => (
               <button
@@ -219,8 +401,8 @@ export default function StoresPage() {
                 onClick={() => setActiveFilter(key)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap
                   ${activeFilter === key
-                    ? "bg-foreground text-background"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    ? 'bg-foreground text-background'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                   }`}
               >
                 {label}
@@ -228,38 +410,27 @@ export default function StoresPage() {
             ))}
           </div>
 
-          {/* Store count */}
           <p className="text-xs text-muted-foreground hidden sm:block shrink-0">
-            <span className="text-foreground font-semibold">{STORES.length}</span> verified stores
+            <span className="text-foreground font-semibold">{ALL_STORES.length}</span> verified stores
           </p>
         </div>
       </div>
 
       {/* ── Page content ── */}
       <div className="w-full min-w-0 overflow-x-hidden px-4 sm:px-10 lg:px-40">
-        <div className="max-w-7xl mx-auto py-4 sm:py-6 min-w-0">
-
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight">
-              Browse the Mall
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1.5">
-              Every store is verified and curated — shop with confidence.
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto py-2 sm:py-4 min-w-0">
 
           {/* Mobile filter pills */}
-          <div className="flex md:hidden items-center gap-1 overflow-x-auto scrollbar-hide mb-5">
+          <div className="flex md:hidden items-center gap-1 overflow-x-auto scrollbar-hide py-3 -mx-4 px-4 sm:-mx-10 sm:px-10 border-b border-border mb-6">
             {FILTERS.map(({ key, label }) => (
               <button
                 key={key}
                 type="button"
                 onClick={() => setActiveFilter(key)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap border
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap border
                   ${activeFilter === key
-                    ? "bg-foreground text-background border-foreground"
-                    : "border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'border-border text-muted-foreground hover:text-foreground hover:bg-secondary'
                   }`}
               >
                 {label}
@@ -267,13 +438,8 @@ export default function StoresPage() {
             ))}
           </div>
 
-          {/* Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((store) => (
-              <StoreCard key={store.slug} store={store} />
-            ))}
-            <EmptySlot />
-          </div>
+          <NewStoresCarousel />
+          <AllStores activeFilter={activeFilter} />
 
         </div>
       </div>

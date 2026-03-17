@@ -97,7 +97,7 @@ export default function StoresApplyPage() {
   // ── Nav — shared between both states ────────────────────────────────────
 
   const Nav = () => (
-    <div className="sticky top-0 z-30 bg-background/80">
+    <div className="sticky top-0 z-30 bg-background/80 mt-4">
       <div className="max-w-7xl mx-auto h-14 flex items-center justify-between gap-4 px-4 sm:px-10 lg:px-40">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
           <Link href="/" className="hover:text-foreground transition-colors font-medium">Home</Link>

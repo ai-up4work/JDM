@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutGrid, Tag, Sparkles, User, X, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
+import { Home, LayoutGrid, Tag, Sparkles, User, X, ChevronDown, ChevronRight } from 'lucide-react';
 
 // ── Category data ────────────────────────────────────────────────────────────
 
@@ -83,9 +83,9 @@ const categoryData: Record<string, {
       {
         title: 'Western',
         items: [
-          { label: 'Shop All', image: '/categories/men.jpg',    href: '/category/men/western' },
-          { label: 'Shirts',   image: '/categories/west.jpg',   href: '/category/men/shirts'  },
-          { label: 'Trousers', image: '/categories/retail.jpg', href: '/category/men/trousers'},
+          { label: 'Shop All', image: '/categories/men.jpg',    href: '/category/men/western'  },
+          { label: 'Shirts',   image: '/categories/west.jpg',   href: '/category/men/shirts'   },
+          { label: 'Trousers', image: '/categories/retail.jpg', href: '/category/men/trousers' },
         ],
       },
     ],
@@ -128,23 +128,58 @@ const categoryData: Record<string, {
 };
 
 const extraLinks = [
-  { label: 'All',           href: '/'                       },
-  { label: 'New Arrivals',  href: '/new-arrivals'           },
-  { label: 'West',          href: '/category/west'          },
-  { label: 'Stores',        href: '/stores'                 },
-  { label: 'Orders',        href: '/orders'                 },
-  { label: 'Rewards',       href: '/rewards'                },
-  { label: 'Wishlist',      href: '/wishlist'               },
+  { label: 'All',          href: '/'              },
+  { label: 'New Arrivals', href: '/new-arrivals'  },
+  { label: 'West',         href: '/category/west' },
+  { label: 'Stores',       href: '/stores'        },
+  { label: 'Orders',       href: '/orders'        },
+  { label: 'Rewards',      href: '/rewards'       },
+  { label: 'Wishlist',     href: '/wishlist'      },
 ];
 
-// ── Category sheet ───────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
 
-function CategorySheet({ onClose }: { onClose: () => void }) {
+const NAV_HEIGHT = 62; // keep in sync with nav height below
+
+// ── Category sheet ────────────────────────────────────────────────────────────
+
+function CategorySheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const allTabs = ['Women', 'Men', 'Kids', 'Beauty'];
   const [activeTab, setActiveTab] = useState('Women');
   const [openSections, setOpenSections] = useState<string[]>([
     categoryData['Women'].sections[0].title,
   ]);
+
+  /**
+   * Two-state animation pattern:
+   *   `mounted`  — DOM presence (node exists but may be off-screen)
+   *   `visible`  — CSS animated value (drives transform & opacity)
+   *
+   * Enter flow:
+   *   1. setMounted(true)  → node appears with transform: translateY(110%)
+   *   2. double-RAF        → browser paints the off-screen frame
+   *   3. setVisible(true)  → CSS transition fires, sheet slides up
+   *
+   * Exit flow:
+   *   1. setVisible(false) → CSS transition fires, sheet slides down
+   *   2. setTimeout(420ms) → setMounted(false), node removed from DOM
+   */
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      const id = requestAnimationFrame(() =>
+        requestAnimationFrame(() => setVisible(true))
+      );
+      return () => cancelAnimationFrame(id);
+    } else {
+      setVisible(false);
+      const t = setTimeout(() => setMounted(false), 420);
+      return () => clearTimeout(t);
+    }
+  }, [open]);
 
   const switchTab = (tab: string) => {
     setActiveTab(tab);
@@ -156,116 +191,186 @@ function CategorySheet({ onClose }: { onClose: () => void }) {
       prev.includes(title) ? prev.filter((s) => s !== title) : [...prev, title]
     );
 
+  if (!mounted) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-        <span className="text-base font-semibold text-foreground">Categories</span>
-        <button
-          type="button"
-          onClick={onClose}
-          className="p-2 rounded-full hover:bg-secondary transition-colors"
-        >
-          <X size={20} />
-        </button>
-      </div>
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          bottom: `${NAV_HEIGHT}px`,
+          zIndex: 40,
+          background: 'rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(3px)',
+          WebkitBackdropFilter: 'blur(3px)',
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 0.38s cubic-bezier(0.4, 0, 0.2, 1)',
+          pointerEvents: visible ? 'auto' : 'none',
+        }}
+      />
 
-      {/* Tab bar */}
-      <div className="flex border-b border-border shrink-0">
-        {allTabs.map((tab) => (
+      {/* Sheet */}
+      <div
+        style={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          bottom: `${NAV_HEIGHT}px`,
+          zIndex: 45,
+          maxHeight: '70dvh',
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: '20px 20px 0 0',
+          overflow: 'hidden',
+          background: 'var(--background)',
+          boxShadow: '0 -8px 40px rgba(0,0,0,0.14), 0 -1px 0 rgba(0,0,0,0.06)',
+          transform: visible ? 'translateY(0)' : 'translateY(110%)',
+          transition: visible
+            ? 'transform 0.44s cubic-bezier(0.32, 0.72, 0, 1)'   // spring in
+            : 'transform 0.36s cubic-bezier(0.4, 0, 0.2, 1)',    // ease out
+          willChange: 'transform',
+        }}
+      >
+        {/* Drag handle */}
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px', flexShrink: 0 }}>
+          <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'var(--border)', opacity: 0.7 }} />
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
+          <span className="text-base font-semibold text-foreground tracking-tight">Categories</span>
           <button
-            key={tab}
             type="button"
-            onClick={() => switchTab(tab)}
-            className={`flex-1 py-3 text-sm font-medium transition-colors
-              ${activeTab === tab
-                ? 'text-foreground border-b-2 border-foreground'
-                : 'text-muted-foreground hover:text-foreground'
-              }`}
+            onClick={onClose}
+            className="p-1.5 rounded-full hover:bg-secondary transition-colors"
           >
-            {tab}
+            <X size={18} className="text-muted-foreground" />
           </button>
-        ))}
-      </div>
+        </div>
 
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
-        {categoryData[activeTab].sections.map((section) => {
-          const isOpen = openSections.includes(section.title);
-          return (
-            <div key={section.title} className="border-b border-border">
-              <button
-                type="button"
-                onClick={() => toggleSection(section.title)}
-                className="w-full flex items-center justify-between px-4 py-4 hover:bg-secondary transition-colors"
-              >
-                <span className="text-sm font-medium text-foreground">{section.title}</span>
-                {isOpen
-                  ? <ChevronUp   size={16} className="text-muted-foreground shrink-0" />
-                  : <ChevronDown size={16} className="text-muted-foreground shrink-0" />
-                }
-              </button>
-              {isOpen && (
-                <div className="px-4 pb-5 grid grid-cols-3 gap-3">
-                  {section.items.map((item) => (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      onClick={onClose}
-                      className="group flex flex-col items-center gap-1.5"
-                    >
-                      <div className="w-full aspect-square overflow-hidden rounded-xl bg-muted">
-                        <img
-                          src={item.image}
-                          alt={item.label}
-                          className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground text-center leading-tight">
-                        {item.label}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {/* Extra links */}
-        <div className="px-4 py-2">
-          {extraLinks.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              onClick={onClose}
-              className="flex items-center justify-between py-3 border-b border-border/50 text-sm font-medium text-foreground hover:text-primary transition-colors"
+        {/* Tab bar */}
+        <div className="flex border-b border-border shrink-0">
+          {allTabs.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => switchTab(tab)}
+              className={`flex-1 py-2.5 text-sm font-medium transition-colors relative
+                ${activeTab === tab ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             >
-              {item.label}
-              <ChevronRight size={16} className="text-muted-foreground" />
-            </Link>
+              {tab}
+              {activeTab === tab && (
+                <span style={{
+                  position: 'absolute', bottom: 0, left: '15%', right: '15%',
+                  height: 2, borderRadius: 9999, background: 'var(--foreground)',
+                }} />
+              )}
+            </button>
           ))}
         </div>
+
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          {categoryData[activeTab].sections.map((section) => {
+            const isOpen = openSections.includes(section.title);
+            return (
+              <div key={section.title} className="border-b border-border">
+                <button
+                  type="button"
+                  onClick={() => toggleSection(section.title)}
+                  className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-secondary/60 transition-colors"
+                >
+                  <span className="text-sm font-medium text-foreground">{section.title}</span>
+                  <span style={{
+                    display: 'flex', alignItems: 'center',
+                    transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                  }}>
+                    <ChevronDown size={16} className="text-muted-foreground shrink-0" />
+                  </span>
+                </button>
+
+                {/* Accordion — grid-template-rows trick for smooth height */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateRows: isOpen ? '1fr' : '0fr',
+                  transition: 'grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}>
+                  <div style={{ overflow: 'hidden' }}>
+                    <div className="px-4 pb-5 pt-1 grid grid-cols-3 gap-3">
+                      {section.items.map((item, i) => (
+                        <Link
+                          key={item.label}
+                          href={item.href}
+                          onClick={onClose}
+                          className="group flex flex-col items-center gap-1.5"
+                          style={{
+                            opacity: isOpen ? 1 : 0,
+                            transform: isOpen ? 'translateY(0)' : 'translateY(6px)',
+                            transition: `opacity 0.22s ease ${i * 0.028}s, transform 0.22s ease ${i * 0.028}s`,
+                          }}
+                        >
+                          <div className="w-full aspect-square overflow-hidden rounded-xl bg-muted">
+                            <img
+                              src={item.image}
+                              alt={item.label}
+                              className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                          <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground text-center leading-tight">
+                            {item.label}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Extra links */}
+          <div className="px-4 py-2">
+            {extraLinks.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={onClose}
+                className="flex items-center justify-between py-3 border-b border-border/50 text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                {item.label}
+                <ChevronRight size={15} className="text-muted-foreground" />
+              </Link>
+            ))}
+          </div>
+          <div className="h-4" />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
-// ── Bottom nav ───────────────────────────────────────────────────────────────
+// ── Bottom nav ────────────────────────────────────────────────────────────────
 
 const navItems = [
-  { label: 'Home',         href: '/',            icon: Home       },
-  { label: 'Brands',       href: '/brands',      icon: Tag        },
-  { label: 'Categories',   href: '#categories',  icon: LayoutGrid },
-  { label: 'Stores',       href: '/stores',      icon: Sparkles   },
-  { label: 'Account',      href: '/account',     icon: User       },
+  { label: 'Home',       href: '/',           icon: Home       },
+  { label: 'Brands',     href: '/brands',     icon: Tag        },
+  { label: 'Categories', href: '#categories', icon: LayoutGrid },
+  { label: 'Stores',     href: '/stores',     icon: Sparkles   },
+  { label: 'Account',    href: '/account',    icon: User       },
 ];
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  // Lock scroll when sheet is open
+  useEffect(() => {
+    document.documentElement.style.setProperty('--nav-height', `${NAV_HEIGHT}px`);
+  }, []);
+
   useEffect(() => {
     document.body.style.overflow = sheetOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -273,9 +378,15 @@ export function MobileBottomNav() {
 
   return (
     <>
+      {/* Sheet renders before nav so nav z-index always wins */}
+      <CategorySheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+
       {/* Bottom bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
-        <div className="flex items-center justify-around px-1 py-2">
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border"
+        style={{ zIndex: 50, height: `${NAV_HEIGHT}px` }}
+      >
+        <div className="flex items-center justify-around px-1 py-2 h-full">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isCategories = item.label === 'Categories';
@@ -286,11 +397,26 @@ export function MobileBottomNav() {
                 <button
                   key={item.label}
                   type="button"
-                  onClick={() => setSheetOpen(true)}
+                  onClick={() => setSheetOpen((v) => !v)}
                   className="flex flex-col items-center gap-0.5 px-3 py-1"
                 >
-                  <Icon size={22} strokeWidth={1.6} className="text-muted-foreground" />
-                  <span className="text-[10px] text-muted-foreground font-medium">{item.label}</span>
+                  <Icon
+                    size={22}
+                    strokeWidth={sheetOpen ? 2.2 : 1.6}
+                    style={{
+                      color: sheetOpen ? 'var(--foreground)' : 'var(--muted-foreground)',
+                      transition: 'color 0.2s ease',
+                    }}
+                  />
+                  <span
+                    className="text-[10px] font-medium"
+                    style={{
+                      color: sheetOpen ? 'var(--foreground)' : 'var(--muted-foreground)',
+                      transition: 'color 0.2s ease',
+                    }}
+                  >
+                    {item.label}
+                  </span>
                 </button>
               );
             }
@@ -314,9 +440,6 @@ export function MobileBottomNav() {
           })}
         </div>
       </nav>
-
-      {/* Category sheet */}
-      {sheetOpen && <CategorySheet onClose={() => setSheetOpen(false)} />}
     </>
   );
 }

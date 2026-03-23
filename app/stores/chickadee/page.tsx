@@ -7,23 +7,22 @@ import {
   ChevronRight, ChevronLeft, ShoppingBag, Heart, Star,
   X, ArrowUpDown, Truck, Sparkles, AlertCircle, Search, Gift,
 } from 'lucide-react';
-import type { ChickadeeProduct, ChickadeeApiResponse } from '@/lib/chikadee.types';
-
+import type { CKProduct, CKApiResponse } from '@/lib/chikadee.types';
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  { key: '',                   label: 'All'               },
-  { key: 'earrings',           label: 'Earrings'          },
-  { key: 'necklaces',          label: 'Necklaces'         },
-  { key: 'rings',              label: 'Rings'             },
-  { key: 'bracelets',          label: 'Bracelets'         },
-  { key: 'anklets',            label: 'Anklets'           },
-  { key: 'chains',             label: 'Chains'            },
-  { key: 'jewelry-set',        label: 'Sets'              },
-  { key: '925-sterling-silver',label: '925 Silver'        },
-  { key: 'mens-jewellery',     label: 'Men\'s'            },
-  { key: 'couple-bestie',      label: 'Couple & Bestie'   },
-  { key: 'jewellery-gift-box', label: 'Gift Boxes'        },
+  { key: '',                   label: 'All'             },
+  { key: 'earrings',           label: 'Earrings'        },
+  { key: 'necklaces',          label: 'Necklaces'       },
+  { key: 'rings',              label: 'Rings'           },
+  { key: 'bracelets',          label: 'Bracelets'       },
+  { key: 'anklets',            label: 'Anklets'         },
+  { key: 'chains',             label: 'Chains'          },
+  { key: 'jewelry-set',        label: 'Sets'            },
+  { key: '925-sterling-silver',label: '925 Silver'      },
+  { key: 'mens-jewellery',     label: "Men's"           },
+  { key: 'couple-bestie',      label: 'Couple & Bestie' },
+  { key: 'jewellery-gift-box', label: 'Gift Boxes'      },
 ];
 
 type SortKey = 'popularity' | 'price-asc' | 'price-desc' | 'sale';
@@ -35,7 +34,7 @@ function fmtPrice(lkr: number) {
 }
 
 const CART_KEY = 'chickadee_cart';
-type CartItem = ChickadeeProduct & { qty: number };
+type CartItem = CKProduct & { selectedSize?: string | null; selectedColor?: string | null; qty: number };
 
 function readCart(): CartItem[] {
   if (typeof window === 'undefined') return [];
@@ -61,7 +60,7 @@ function ProductSkeleton() {
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
 
-function ProductCard({ product }: { product: ChickadeeProduct }) {
+function ProductCard({ product }: { product: CKProduct }) {
   const [wishlisted, setWishlisted] = useState(false);
   const discount = product.originalPrice && product.onSale
     ? Math.round((1 - product.price / product.originalPrice) * 100)
@@ -127,9 +126,9 @@ function ProductCard({ product }: { product: ChickadeeProduct }) {
         </p>
 
         {/* Material tags */}
-        {product.material.length > 0 && (
+        {product.materials.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-1.5">
-            {product.material.slice(0, 2).map(m => (
+            {product.materials.slice(0, 2).map(m => (
               <span key={m} className="text-[9px] px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground font-medium">
                 {m}
               </span>
@@ -243,7 +242,7 @@ export default function ChickadeePage() {
   const [search,      setSearch]      = useState('');
   const [searchInput, setSearchInput] = useState('');
 
-  const [products,    setProducts]    = useState<ChickadeeProduct[]>([]);
+  const [products,    setProducts]    = useState<CKProduct[]>([]);
   const [total,       setTotal]       = useState(0);
   const [totalPages,  setTotalPages]  = useState(1);
   const [loading,     setLoading]     = useState(true);
@@ -279,7 +278,7 @@ export default function ChickadeePage() {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error ?? `HTTP ${res.status}`);
       }
-      const data: ChickadeeApiResponse = await res.json();
+      const data: CKApiResponse = await res.json();
 
       let sorted = [...data.products];
       if (sortBy === 'price-asc')  sorted.sort((a, b) => a.price - b.price);
@@ -355,12 +354,15 @@ export default function ChickadeePage() {
           {/* ── Hero ── */}
           <div className="mb-10 sm:mb-14">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center shrink-0">
-                <Sparkles size={16} className="text-background" />
-              </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-lg font-black text-foreground tracking-tight">CHICKADEE</h1>
+                  <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center shrink-0 overflow-hidden">
+                  <img 
+                      src="/store-icon/chickadee.png" 
+                      alt="Chickadee Logo" 
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
                   <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-foreground/10 text-foreground uppercase tracking-wider">
                     Live inventory
                   </span>
@@ -379,12 +381,11 @@ export default function ChickadeePage() {
               Live catalogue from Chickadee Sri Lanka's full collection.
             </p>
 
-            {/* Trust badges */}
             <div className="flex items-center gap-6 flex-wrap">
               {[
-                { icon: <Truck size={13} />,    label: 'Island-wide delivery'         },
-                { icon: <Gift size={13} />,     label: 'Free ship over LKR 10,000'    },
-                { icon: <Sparkles size={13} />, label: 'Gold plated & 925 Silver'     },
+                { icon: <Truck size={13} />,    label: 'Island-wide delivery'      },
+                { icon: <Gift size={13} />,     label: 'Free ship over LKR 10,000' },
+                { icon: <Sparkles size={13} />, label: 'Gold plated & 925 Silver'  },
               ].map(b => (
                 <div key={b.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <span className="text-foreground">{b.icon}</span>{b.label}
@@ -480,7 +481,6 @@ export default function ChickadeePage() {
               )}
             </div>
           ) : (
-            // 5-column grid on large screens — jewellery pieces are small
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-8">
               {products.map(p => <ProductCard key={p.id} product={p} />)}
             </div>
@@ -515,9 +515,9 @@ export default function ChickadeePage() {
           {/* ── Footer ── */}
           <div className="mt-16 pt-8 border-t border-border grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
-              { title: 'About Chickadee',   body: 'Original Chickadee pieces resold locally. Bold, minimalistic gold plated and 925 sterling silver jewellery for every occasion — delivered to your door.' },
-              { title: 'Free shipping',     body: 'Free island-wide delivery on orders above LKR 10,000. All orders dispatched within 1–2 working days. Cash on delivery available.' },
-              { title: 'How it works',      body: 'Browse here, add to bag, order via WhatsApp. We confirm stock with Chickadee and deliver locally — the same day if possible.' },
+              { title: 'About Chickadee', body: 'Original Chickadee pieces resold locally. Bold, minimalistic gold plated and 925 sterling silver jewellery for every occasion — delivered to your door.' },
+              { title: 'Free shipping',   body: 'Free island-wide delivery on orders above LKR 10,000. All orders dispatched within 1–2 working days. Cash on delivery available.' },
+              { title: 'How it works',    body: 'Browse here, add to bag, order via WhatsApp. We confirm stock with Chickadee and deliver locally — the same day if possible.' },
             ].map(s => (
               <div key={s.title}>
                 <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{s.title}</p>

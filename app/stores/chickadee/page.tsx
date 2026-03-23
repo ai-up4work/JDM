@@ -3,26 +3,28 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ChevronRight, ChevronLeft, ShoppingBag, Heart, Star,
   X, ArrowUpDown, Truck, Sparkles, AlertCircle, Search, Gift,
 } from 'lucide-react';
 import type { CKProduct, CKApiResponse } from '@/lib/chikadee.types';
+
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  { key: '',                   label: 'All'             },
-  { key: 'earrings',           label: 'Earrings'        },
-  { key: 'necklaces',          label: 'Necklaces'       },
-  { key: 'rings',              label: 'Rings'           },
-  { key: 'bracelets',          label: 'Bracelets'       },
-  { key: 'anklets',            label: 'Anklets'         },
-  { key: 'chains',             label: 'Chains'          },
-  { key: 'jewelry-set',        label: 'Sets'            },
-  { key: '925-sterling-silver',label: '925 Silver'      },
-  { key: 'mens-jewellery',     label: "Men's"           },
-  { key: 'couple-bestie',      label: 'Couple & Bestie' },
-  { key: 'jewellery-gift-box', label: 'Gift Boxes'      },
+  { key: '',                    label: 'All'             },
+  { key: 'earrings',            label: 'Earrings'        },
+  { key: 'necklaces',           label: 'Necklaces'       },
+  { key: 'rings',               label: 'Rings'           },
+  { key: 'bracelets',           label: 'Bracelets'       },
+  { key: 'anklets',             label: 'Anklets'         },
+  { key: 'chains',              label: 'Chains'          },
+  { key: 'jewelry-set',         label: 'Sets'            },
+  { key: '925-sterling-silver', label: '925 Silver'      },
+  { key: 'mens-jewellery',      label: "Men's"           },
+  { key: 'couple-bestie',       label: 'Couple & Bestie' },
+  { key: 'jewellery-gift-box',  label: 'Gift Boxes'      },
 ];
 
 type SortKey = 'popularity' | 'price-asc' | 'price-desc' | 'sale';
@@ -72,10 +74,13 @@ function ProductCard({ product }: { product: CKProduct }) {
         className="relative overflow-hidden rounded-2xl bg-secondary/40 aspect-square mb-3 block">
 
         {product.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.image} alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            loading="lazy" />
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground/20">
             <Sparkles size={32} />
@@ -83,7 +88,7 @@ function ProductCard({ product }: { product: CKProduct }) {
         )}
 
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1">
+        <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
           {discount && (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-rose-500 text-white">
               −{discount}%
@@ -112,7 +117,7 @@ function ProductCard({ product }: { product: CKProduct }) {
         {/* Hover CTA */}
         <div className="absolute bottom-3 left-3 right-3 py-2.5 bg-white/90 dark:bg-background/90
           backdrop-blur-sm text-foreground text-xs font-bold rounded-xl text-center pointer-events-none
-          translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200">
+          translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200 z-10">
           View details →
         </div>
       </Link>
@@ -126,9 +131,9 @@ function ProductCard({ product }: { product: CKProduct }) {
         </p>
 
         {/* Material tags */}
-        {product.materials.length > 0 && (
+        {(product.materials ?? []).length > 0 && (
           <div className="flex flex-wrap gap-1 mb-1.5">
-            {product.materials.slice(0, 2).map(m => (
+            {(product.materials ?? []).slice(0, 2).map(m => (
               <span key={m} className="text-[9px] px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground font-medium">
                 {m}
               </span>
@@ -188,9 +193,15 @@ function MiniCart({ items, onClose, onClear }: { items: CartItem[]; onClose: () 
           ) : items.map((item, idx) => (
             <div key={`${item.id}-${idx}`} className="flex items-center gap-3 p-3 rounded-xl border border-border">
               {item.image && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.image} alt={item.name}
-                  className="w-14 h-14 rounded-lg object-cover shrink-0 bg-secondary/40" />
+                <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-secondary/40">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                </div>
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] text-muted-foreground">{item.categoryLabel}</p>
@@ -356,11 +367,13 @@ export default function ChickadeePage() {
             <div className="flex items-center gap-3 mb-5">
               <div>
                 <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center shrink-0 overflow-hidden">
-                  <img 
-                      src="/store-icon/chickadee.png" 
-                      alt="Chickadee Logo" 
-                      className="w-full h-full object-cover" 
+                  <div className="relative w-10 h-10 rounded-xl bg-foreground shrink-0 overflow-hidden">
+                    <Image
+                      src="/store-icon/chickadee.png"
+                      alt="Chickadee Logo"
+                      fill
+                      sizes="40px"
+                      className="object-cover"
                     />
                   </div>
                   <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-foreground/10 text-foreground uppercase tracking-wider">

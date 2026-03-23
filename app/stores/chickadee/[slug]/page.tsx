@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import {
   ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon,
@@ -67,19 +68,27 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
 
   return (
     <div className="flex flex-col gap-3 lg:sticky lg:top-24 self-start">
-      <div ref={ref} className="relative aspect-square rounded-2xl overflow-hidden bg-secondary/30 cursor-zoom-in group"
+      <div
+        ref={ref}
+        className="relative aspect-square rounded-2xl overflow-hidden bg-secondary/30 cursor-zoom-in group"
         onMouseMove={e => {
           if (!ref.current) return;
           const r = ref.current.getBoundingClientRect();
           setZoomPos({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
         }}
-        onMouseEnter={() => setZoomed(true)} onMouseLeave={() => setZoomed(false)}>
-
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={images[active]} alt={`${title} — ${active + 1}`}
-          className={`w-full h-full object-cover transition-transform duration-200 ${zoomed ? 'scale-[1.8]' : 'scale-100'}`}
+        onMouseEnter={() => setZoomed(true)}
+        onMouseLeave={() => setZoomed(false)}
+      >
+        <Image
+          src={images[active]}
+          alt={`${title} — ${active + 1}`}
+          fill
+          sizes="(max-width: 1024px) 100vw, 50vw"
+          className={`object-cover transition-transform duration-200 ${zoomed ? 'scale-[1.8]' : 'scale-100'}`}
           style={zoomed ? { transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` } : undefined}
-          draggable={false} />
+          draggable={false}
+          priority
+        />
 
         <div className="absolute bottom-3 right-3 bg-background/70 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
           <ZoomIn size={11} className="text-muted-foreground" />
@@ -107,9 +116,15 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           {images.map((src, i) => (
             <button key={i} type="button" onClick={() => setActive(i)}
-              className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${active === i ? 'border-foreground' : 'border-transparent hover:border-foreground/30'}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="w-full h-full object-cover" draggable={false} />
+              className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all relative ${active === i ? 'border-foreground' : 'border-transparent hover:border-foreground/30'}`}>
+              <Image
+                src={src}
+                alt=""
+                fill
+                sizes="64px"
+                className="object-cover"
+                draggable={false}
+              />
             </button>
           ))}
         </div>
@@ -188,12 +203,13 @@ export default function ChickadeeProductPage() {
     else navigator.clipboard.writeText(window.location.href).catch(() => {});
   };
 
-  const needsSize = !!product && product.sizes.length > 0;
-  const canAdd    = !!product && (!needsSize || !!selectedSize);
-  const discount  = product?.originalPrice && product.onSale
+  const needsSize    = !!product && product.sizes.length > 0;
+  const canAdd       = !!product && (!needsSize || !!selectedSize);
+  const discount     = product?.originalPrice && product.onSale
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : null;
   const freeShipping = !!product && product.price * qty >= 10000;
+  const materials    = product?.materials ?? [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -317,11 +333,11 @@ export default function ChickadeeProductPage() {
                   <div className="h-px bg-border" />
 
                   {/* Material */}
-                  {product.material.length > 0 && (
+                  {materials.length > 0 && (
                     <div>
                       <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Material</p>
                       <div className="flex flex-wrap gap-2">
-                        {product.material.map(m => (
+                        {materials.map(m => (
                           <span key={m} className="px-3 py-1.5 rounded-xl border border-border text-xs font-medium text-foreground bg-secondary/40">
                             {m}
                           </span>
@@ -330,7 +346,7 @@ export default function ChickadeeProductPage() {
                     </div>
                   )}
 
-                  {/* Size selector (for rings/bracelets) */}
+                  {/* Size selector */}
                   {product.sizes.length > 0 && (
                     <div>
                       <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-2.5">
@@ -381,9 +397,9 @@ export default function ChickadeeProductPage() {
                   {/* Trust bar */}
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { icon: <Truck size={14} />,    label: 'Island-wide', sub: '1–2 working days'  },
-                      { icon: <Gift size={14} />,     label: 'Free ship',   sub: 'Orders over 10K'   },
-                      { icon: <Sparkles size={14} />, label: 'Gold plated', sub: 'Long lasting'       },
+                      { icon: <Truck size={14} />,    label: 'Island-wide', sub: '1–2 working days' },
+                      { icon: <Gift size={14} />,     label: 'Free ship',   sub: 'Orders over 10K'  },
+                      { icon: <Sparkles size={14} />, label: 'Gold plated', sub: 'Long lasting'      },
                     ].map(b => (
                       <div key={b.label} className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary/30 border border-border">
                         <span className="text-foreground mb-1">{b.icon}</span>
@@ -416,10 +432,10 @@ export default function ChickadeeProductPage() {
                       <span className="font-semibold text-foreground w-24 shrink-0">Category</span>
                       <span className="text-muted-foreground">{product.categoryLabel}</span>
                     </div>
-                    {product.material.length > 0 && (
+                    {materials.length > 0 && (
                       <div className="flex gap-3 text-xs">
                         <span className="font-semibold text-foreground w-24 shrink-0">Material</span>
-                        <span className="text-muted-foreground">{product.material.join(', ')}</span>
+                        <span className="text-muted-foreground">{materials.join(', ')}</span>
                       </div>
                     )}
                     {product.sizes.length > 0 && (

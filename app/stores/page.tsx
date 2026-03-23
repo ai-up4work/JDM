@@ -265,7 +265,7 @@ function NewStoresCarousel() {
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 sm:-mx-10 sm:px-10 lg:mx-0 lg:px-0 pb-1"
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 sm:px-10 lg:mx-0 lg:px-0 pb-1"
       >
         {newStores.map(store => (
           <Link

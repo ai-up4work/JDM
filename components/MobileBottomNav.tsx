@@ -255,9 +255,9 @@ function CategorySheet({ onClose }: { onClose: () => void }) {
 
 const navItems = [
   { label: 'Home',         href: '/',            icon: Home       },
-  { label: 'Categories',   href: '#categories',  icon: LayoutGrid },
   { label: 'Brands',       href: '/brands',      icon: Tag        },
-  { label: 'New Arrivals', href: '/new-arrivals', icon: Sparkles  },
+  { label: 'Categories',   href: '#categories',  icon: LayoutGrid },
+  { label: 'Stores',       href: '/stores',      icon: Sparkles   },
   { label: 'Account',      href: '/account',     icon: User       },
 ];
 

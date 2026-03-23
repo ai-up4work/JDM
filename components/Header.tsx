@@ -176,18 +176,19 @@ export function Header() {
           <div className="flex items-center justify-between h-14 px-4">
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 no-underline">
-              <Image
-                src="/brand/logo.png"
-                alt="JDM Co"
-                width={32}
-                height={32}
-                className="flex-shrink-0 object-contain"
-              />
-              <span className="text-foreground text-2xl font-light tracking-widest leading-none select-none">
-                JDM Co
-              </span>
-            </Link>
+            <div className="flex items-center w-30 flex-shrink-0 h-full">
+              <Link href="/" className="flex items-center no-underline h-full">
+                <Image
+                  src="/brand/logo.png"
+                  alt="JDM Co"
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  className="h-64 w-auto object-contain"
+                  priority
+                />
+              </Link>
+            </div>
 
             {/* Right: currency + bag */}
             <div className="flex items-center gap-4">
@@ -226,20 +227,17 @@ export function Header() {
 
         {/* ── DESKTOP LAYOUT (≥ lg) ── */}
         <div className="hidden lg:flex items-center w-full h-20">
-
-          {/* Logo */}
-          <div className="flex items-center w-60 px-4 flex-shrink-0 h-full">
-            <Link href="/" className="flex items-center gap-3 no-underline">
+          <div className="flex items-center w-50 px-4 flex-shrink-0 h-full">
+            <Link href="/" className="flex items-center no-underline h-full">
               <Image
                 src="/brand/logo.png"
                 alt="JDM Co"
-                width={40}
-                height={40}
-                className="flex-shrink-0 object-contain"
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="h-30 w-auto object-contain"
+                priority
               />
-              <span className="text-foreground text-[32px] font-light tracking-[0.08em] leading-none select-none">
-                JDM Co
-              </span>
             </Link>
           </div>
 

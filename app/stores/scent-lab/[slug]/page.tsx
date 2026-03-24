@@ -1,3 +1,4 @@
+// app/stores/scent-lab/[slug]/page.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -8,7 +9,7 @@ import {
   ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon,
   ShoppingBag, Heart, Check, Truck, Package,
   ExternalLink, ArrowLeft, AlertCircle, Share2, ZoomIn,
-  Minus, Plus, Sparkles,
+  Minus, Plus, Sparkles, Wind,
 } from 'lucide-react';
 import type { SLPerfume, SLSingleResponse } from '@/lib/scent-lab.types';
 
@@ -23,7 +24,7 @@ function categoryColor(cat: string) {
 }
 
 const CART_KEY = 'scent_lab_cart';
-type CartItem = SLPerfume & { selectedMl: number; selectedPrice: number; qty: number };
+type CartItem = SLPerfume & { selectedMl: string; selectedPrice: number; qty: number };
 
 function readCart(): CartItem[] {
   if (typeof window === 'undefined') return [];
@@ -86,7 +87,7 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
         onMouseLeave={() => setZoomed(false)}
       >
         <Image
-          src={images[active]}
+          src={`https://ozscent.vercel.app${images[active]}`}
           alt={`${title} — ${active + 1}`}
           fill
           sizes="(max-width: 1024px) 100vw, 50vw"
@@ -121,7 +122,7 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
           {images.map((src, i) => (
             <button key={i} type="button" onClick={() => setActive(i)}
               className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all relative ${active === i ? 'border-foreground' : 'border-transparent hover:border-foreground/30'}`}>
-              <Image src={src} alt="" fill sizes="64px" className="object-cover" draggable={false} />
+              <Image src={`https://ozscent.vercel.app${src}`} alt="" fill sizes="64px" className="object-cover" draggable={false} />
             </button>
           ))}
         </div>
@@ -130,32 +131,80 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
   );
 }
 
-// ─── Notes Pyramid ────────────────────────────────────────────────────────────
+// ─── Scent Pyramid ────────────────────────────────────────────────────────────
+
+const PYRAMID_CONFIG = [
+  {
+    key:      'top'   as const,
+    label:    'Top notes',
+    sub:      'First impression · 15–30 min',
+    // Indented most — visually narrows the top of the pyramid
+    indent:   'mx-8',
+    bg:       'bg-amber-50 dark:bg-amber-950/20',
+    border:   'border-amber-200/70 dark:border-amber-800/40',
+    dot:      'bg-amber-400',
+    pill:     'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-700/50',
+  },
+  {
+    key:      'heart' as const,
+    label:    'Heart notes',
+    sub:      'The soul · 2–4 hours',
+    indent:   'mx-3',
+    bg:       'bg-rose-50 dark:bg-rose-950/20',
+    border:   'border-rose-200/70 dark:border-rose-800/40',
+    dot:      'bg-rose-400',
+    pill:     'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-900/40 dark:text-rose-200 dark:border-rose-700/50',
+  },
+  {
+    key:      'base'  as const,
+    label:    'Base notes',
+    sub:      'Lasting trail · 6–12+ hrs',
+    indent:   'mx-0',
+    bg:       'bg-stone-50 dark:bg-stone-950/20',
+    border:   'border-stone-200/70 dark:border-stone-800/40',
+    dot:      'bg-stone-500',
+    pill:     'bg-stone-100 text-stone-800 border border-stone-200 dark:bg-stone-900/40 dark:text-stone-200 dark:border-stone-700/50',
+  },
+] as const;
 
 function NotesPyramid({ notes }: { notes: SLPerfume['notes'] }) {
   if (!notes) return null;
-  const rows = [
-    { label: 'Top notes',   items: notes.top   ?? [], sub: 'First impression' },
-    { label: 'Heart notes', items: notes.heart ?? [], sub: 'The core'         },
-    { label: 'Base notes',  items: notes.base  ?? [], sub: 'The lasting trail' },
-  ];
+  const rows = PYRAMID_CONFIG.map(c => ({ ...c, items: notes[c.key] ?? [] })).filter(r => r.items.length > 0);
+  if (!rows.length) return <p className="text-xs text-muted-foreground italic">Note information not available.</p>;
+
   return (
-    <div className="space-y-3">
-      {rows.map(r => r.items.length > 0 && (
-        <div key={r.label}>
-          <div className="flex items-baseline gap-2 mb-1.5">
-            <p className="text-[10px] font-bold text-foreground uppercase tracking-wider">{r.label}</p>
-            <p className="text-[9px] text-muted-foreground">{r.sub}</p>
+    <div className="space-y-2">
+      {rows.map((row, idx) => (
+        <div key={row.key} className={`${row.indent} rounded-2xl border ${row.border} ${row.bg} overflow-hidden`}>
+          {/* Header row */}
+          <div className="flex items-center gap-2.5 px-4 pt-3.5 pb-2">
+            <span className={`w-2 h-2 rounded-full shrink-0 ${row.dot}`} />
+            <div className="flex items-baseline gap-2 min-w-0">
+              <span className="text-[10px] font-black text-foreground uppercase tracking-widest whitespace-nowrap">
+                {row.label}
+              </span>
+              <span className="text-[9px] text-muted-foreground hidden sm:block truncate">{row.sub}</span>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-1.5">
-            {r.items.map(n => (
-              <span key={n} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary text-foreground font-medium border border-border">
-                {n}
+
+          {/* Note pills */}
+          <div className="flex flex-wrap gap-1.5 px-4 pb-3.5">
+            {row.items.map(note => (
+              <span key={note} className={`text-[11px] px-2.5 py-1 rounded-full font-medium whitespace-nowrap ${row.pill}`}>
+                {note}
               </span>
             ))}
           </div>
         </div>
       ))}
+
+      {/* Evaporation legend */}
+      <div className="flex items-center gap-2 pt-1 pl-1">
+        <Wind size={10} className="text-muted-foreground shrink-0" />
+        <span className="text-[9px] text-muted-foreground">
+          Top notes evaporate fastest · base notes linger longest
+        </span>
+      </div>
     </div>
   );
 }
@@ -168,11 +217,16 @@ export default function ScentLabProductPage() {
   const [loading,    setLoading]         = useState(true);
   const [error,      setError]           = useState<string | null>(null);
 
-  const [selectedSize, setSelectedSize]  = useState<{ ml: number; price: number } | null>(null);
-  const [qty,          setQty]           = useState(1);
-  const [wishlisted,   setWishlisted]    = useState(false);
-  const [added,        setAdded]         = useState(false);
-  const [cartCount,    setCartCount]     = useState(0);
+  /**
+   * Store only the volume string as the selection key.
+   * Active check: selectedVolume === s.volume — plain string equality,
+   * no object-reference drift, no type-coercion risk.
+   */
+  const [selectedVolume, setSelectedVolume] = useState<string | null>(null);
+  const [qty,            setQty]            = useState(1);
+  const [wishlisted,     setWishlisted]     = useState(false);
+  const [added,          setAdded]          = useState(false);
+  const [cartCount,      setCartCount]      = useState(0);
 
   useEffect(() => {
     const update = () => setCartCount(readCart().reduce((s, i) => s + i.qty, 0));
@@ -188,16 +242,27 @@ export default function ScentLabProductPage() {
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((d: SLSingleResponse) => {
         setPerfume(d.data);
-        if (d.data.sizes?.length) setSelectedSize(d.data.sizes[0]);
+        if (d.data.sizes?.length) setSelectedVolume(d.data.sizes[0].volume);
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, [slug]);
 
+  // Derive full size object from the stable volume key on every render
+  const selectedSize = perfume?.sizes.find(s => s.volume === selectedVolume) ?? null;
+
   const handleAdd = () => {
     if (!perfume || !selectedSize) return;
     const cart = readCart();
-    writeCart([...cart, ...Array(qty).fill({ ...perfume, selectedMl: selectedSize.ml, selectedPrice: selectedSize.price, qty: 1 })]);
+    writeCart([
+      ...cart,
+      ...Array(qty).fill({
+        ...perfume,
+        selectedMl:    selectedSize.volume,
+        selectedPrice: selectedSize.price,
+        qty:           1,
+      }),
+    ]);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
   };
@@ -303,10 +368,10 @@ export default function ScentLabProductPage() {
                     {selectedSize ? (
                       <>
                         <span className="text-3xl font-bold text-foreground">{fmtPrice(selectedSize.price)}</span>
-                        <span className="text-sm text-muted-foreground">for {selectedSize.ml}ml</span>
+                        <span className="text-sm text-muted-foreground">for {selectedSize.volume}</span>
                       </>
                     ) : (
-                      perfume.sizes?.length && (
+                      perfume.sizes?.length > 0 && (
                         <span className="text-3xl font-bold text-foreground">
                           From {fmtPrice(Math.min(...perfume.sizes.map(s => s.price)))}
                         </span>
@@ -316,23 +381,32 @@ export default function ScentLabProductPage() {
 
                   <div className="h-px bg-border" />
 
-                  {/* Size selector */}
+                  {/* ── Size selector ── */}
                   {(perfume.sizes ?? []).length > 0 && (
                     <div>
                       <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-2.5">Choose size</p>
                       <div className="flex flex-wrap gap-2">
-                        {perfume.sizes.map(s => (
-                          <button key={s.ml} type="button" onClick={() => setSelectedSize(s)}
-                            className={`flex flex-col items-center px-4 py-3 rounded-xl border text-xs font-bold transition-all min-w-[72px]
-                              ${selectedSize?.ml === s.ml
-                                ? 'border-foreground bg-foreground text-background shadow-sm'
-                                : 'border-border text-foreground hover:border-foreground/40 hover:bg-secondary/50'}`}>
-                            <span className="text-sm font-black">{s.ml}ml</span>
-                            <span className={`text-[10px] mt-0.5 font-medium ${selectedSize?.ml === s.ml ? 'text-background/70' : 'text-muted-foreground'}`}>
-                              {fmtPrice(s.price)}
-                            </span>
-                          </button>
-                        ))}
+                        {perfume.sizes.map(s => {
+                          const isActive = selectedVolume === s.volume;
+                          return (
+                            <button
+                              key={s.volume}
+                              type="button"
+                              onClick={() => setSelectedVolume(s.volume)}
+                              className={[
+                                'flex flex-col items-center px-4 py-3 rounded-xl border font-bold transition-all min-w-[72px]',
+                                isActive
+                                  ? 'border-foreground bg-foreground text-background shadow-sm'
+                                  : 'border-border text-foreground hover:border-foreground/40 hover:bg-secondary/50',
+                              ].join(' ')}
+                            >
+                              <span className="text-sm font-black">{s.volume}</span>
+                              <span className={['text-[10px] mt-0.5 font-medium', isActive ? 'text-background/70' : 'text-muted-foreground'].join(' ')}>
+                                {fmtPrice(s.price)}
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -361,17 +435,23 @@ export default function ScentLabProductPage() {
                   {/* CTAs */}
                   <div className="flex gap-3">
                     <button type="button" onClick={handleAdd} disabled={!canAdd}
-                      className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-bold transition-all duration-300 active:scale-[0.98]
-                        ${added ? 'bg-emerald-500 text-white shadow-[0_4px_16px_rgba(16,185,129,0.35)]'
-                        : canAdd ? 'bg-foreground text-background hover:bg-foreground/90 shadow-[0_4px_16px_rgba(0,0,0,0.12)]'
-                        : 'bg-secondary text-muted-foreground cursor-not-allowed'}`}>
+                      className={[
+                        'flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-bold transition-all duration-300 active:scale-[0.98]',
+                        added
+                          ? 'bg-emerald-500 text-white shadow-[0_4px_16px_rgba(16,185,129,0.35)]'
+                          : canAdd
+                            ? 'bg-foreground text-background hover:bg-foreground/90 shadow-[0_4px_16px_rgba(0,0,0,0.12)]'
+                            : 'bg-secondary text-muted-foreground cursor-not-allowed',
+                      ].join(' ')}>
                       {added
                         ? <><Check size={16} /> Added to bag</>
                         : <><ShoppingBag size={16} /> Add to bag{qty > 1 ? ` (${qty})` : ''}</>}
                     </button>
                     <button type="button" onClick={() => setWishlisted(v => !v)}
-                      className={`w-14 h-14 rounded-2xl border flex items-center justify-center transition-all
-                        ${wishlisted ? 'border-rose-300 bg-rose-50 dark:bg-rose-950/30' : 'border-border hover:bg-secondary'}`}>
+                      className={[
+                        'w-14 h-14 rounded-2xl border flex items-center justify-center transition-all',
+                        wishlisted ? 'border-rose-300 bg-rose-50 dark:bg-rose-950/30' : 'border-border hover:bg-secondary',
+                      ].join(' ')}>
                       <Heart size={18} className={wishlisted ? 'fill-rose-500 text-rose-500' : 'text-foreground'} />
                     </button>
                   </div>
@@ -379,9 +459,9 @@ export default function ScentLabProductPage() {
                   {/* Trust bar */}
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { icon: <Truck size={14} />,    label: 'Island-wide', sub: 'COD accepted'         },
-                      { icon: <Package size={14} />,  label: '3 sizes',     sub: '5ml · 10ml · Full'    },
-                      { icon: <Sparkles size={14} />, label: 'Authentic',   sub: 'Genuine fragrances'   },
+                      { icon: <Truck size={14} />,    label: 'Island-wide', sub: 'COD accepted'       },
+                      { icon: <Package size={14} />,  label: '3 sizes',     sub: '5ml · 10ml · Full'  },
+                      { icon: <Sparkles size={14} />, label: 'Authentic',   sub: 'Genuine fragrances' },
                     ].map(b => (
                       <div key={b.label} className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary/30 border border-border">
                         <span className="text-foreground mb-1">{b.icon}</span>
@@ -401,32 +481,39 @@ export default function ScentLabProductPage() {
                 </div>
               </div>
 
-              {/* Details + Notes */}
+              {/* ── Details + Pyramid ── */}
               <div className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+                {/* Left: description + specs table */}
                 <div>
                   <h2 className="text-sm font-bold text-foreground uppercase tracking-wider mb-4">About this fragrance</h2>
                   {perfume.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-5">{perfume.description}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-6">{perfume.description}</p>
                   )}
 
-                  {/* Specs */}
-                  <div className="space-y-2">
+                  <div className="rounded-2xl border border-border overflow-hidden">
                     {[
-                      { label: 'Category',  value: perfume.category   },
-                      { label: 'Intensity', value: perfume.intensity  },
-                      { label: 'Longevity', value: perfume.longevity  },
-                      { label: 'Sillage',   value: perfume.sillage    },
+                      { label: 'Category',  value: perfume.category  },
+                      { label: 'Intensity', value: perfume.intensity },
+                      { label: 'Longevity', value: perfume.longevity },
+                      { label: 'Sillage',   value: perfume.sillage   },
                       ...(perfume.season?.length   ? [{ label: 'Season',    value: perfume.season.join(', ')   }] : []),
                       ...(perfume.occasion?.length ? [{ label: 'Occasions', value: perfume.occasion.join(', ') }] : []),
-                    ].map(s => (
-                      <div key={s.label} className="flex gap-3 text-xs">
-                        <span className="font-semibold text-foreground w-24 shrink-0">{s.label}</span>
-                        <span className="text-muted-foreground">{s.value}</span>
+                    ].filter(s => s.value).map((s, idx, arr) => (
+                      <div
+                        key={s.label}
+                        className={['flex text-xs', idx < arr.length - 1 ? 'border-b border-border' : ''].join(' ')}
+                      >
+                        <span className="font-semibold text-foreground w-28 shrink-0 px-4 py-2.5 bg-secondary/30">
+                          {s.label}
+                        </span>
+                        <span className="text-muted-foreground px-4 py-2.5">{s.value}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
+                {/* Right: scent pyramid */}
                 <div>
                   <h2 className="text-sm font-bold text-foreground uppercase tracking-wider mb-4">Scent pyramid</h2>
                   <NotesPyramid notes={perfume.notes} />
@@ -438,9 +525,9 @@ export default function ScentLabProductPage() {
                 <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-3">How to order</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {[
-                    { step: '01', title: 'Choose your size',   body: 'Pick from 5ml decant, 10ml decant, or full bottle. Perfect for sampling before committing.' },
-                    { step: '02', title: 'Add to bag',         body: 'Add your fragrance to the bag, then order via WhatsApp. We confirm availability immediately.' },
-                    { step: '03', title: 'We deliver',         body: 'Cash on delivery or bank transfer. Delivered island-wide within 2–4 working days.' },
+                    { step: '01', title: 'Choose your size',  body: 'Pick from 5ml decant, 10ml decant, or full bottle. Perfect for sampling before committing.' },
+                    { step: '02', title: 'Add to bag',        body: 'Add your fragrance to the bag, then order via WhatsApp. We confirm availability immediately.' },
+                    { step: '03', title: 'We deliver',        body: 'Cash on delivery or bank transfer. Delivered island-wide within 2–4 working days.' },
                   ].map(s => (
                     <div key={s.step} className="flex gap-3">
                       <span className="text-[10px] font-black text-muted-foreground/40 mt-0.5 w-5 shrink-0">{s.step}</span>

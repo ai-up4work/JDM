@@ -47,7 +47,6 @@ const ALL_STORES: Store[] = [
     slug: 'bloom-and-co',
     name: 'Bloom & Co.',
     type: 'template',
-    isNew: true,
     logo: '/store-icon/bloom-and-co.png',
     bannerStyle: { background: '#f5f0e8' },
     category: 'Flowers',
@@ -179,6 +178,20 @@ const ALL_STORES: Store[] = [
     tags: ['Gold plated', 'Rose Gold', 'Bridal', 'Rings'],
     itemCount: 36,
   },
+  {
+    slug: 'buckley-london',
+    name: 'Buckley London',
+    type: 'template',
+    isNew: true,
+    logo: '/store-icon/buckley-london.png',
+    bannerStyle: { background: '#0f172a' },
+    category: 'Jewellery',
+    description: "Elegant British-designed jewellery brand known for crystal-studded pieces, timeless bracelets, necklaces, and gift-ready collections.",
+    shipping: 'Ships island-wide',
+    payment: 'COD',
+    tags: ['Crystal', 'Luxury', 'Bracelets', 'Necklaces', 'Gifts'],
+    itemCount: 28,
+  }
 ];
 
 const FILTERS: { key: FilterKey; label: string }[] = [

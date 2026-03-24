@@ -395,8 +395,14 @@ export default function ScentLabPage() {
           {/* ── Hero ── */}
           <div className="mb-10 sm:mb-14">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center shrink-0">
-                <Sparkles size={16} className="text-background" />
+              <div className="relative w-10 h-10 rounded-xl bg-foreground shrink-0 overflow-hidden">
+                    <Image
+                      src="/store-icon/scent-lab.png"
+                      alt="SCENT LAB Logo"
+                      fill
+                      sizes="40px"
+                      className="object-cover"
+                    />
               </div>
               <div>
                 <div className="flex items-center gap-2">

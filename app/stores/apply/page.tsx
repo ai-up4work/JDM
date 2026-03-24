@@ -19,6 +19,7 @@ interface FormState {
   storeType: StoreTypeOption | null;
   monthlyOrders: string;
   heardFrom: string;
+  referralCode: string;
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -66,7 +67,7 @@ export default function StoresApplyPage() {
   const [form, setForm] = useState<FormState>({
     businessName: '', ownerName: '', phone: '', instagram: '',
     category: '', description: '', storeType: null,
-    monthlyOrders: '', heardFrom: '',
+    monthlyOrders: '', heardFrom: '', referralCode: '',
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -77,6 +78,16 @@ export default function StoresApplyPage() {
     setErrors(e => ({ ...e, [key]: undefined }));
   };
 
+  // Clearing referral code when user switches away from Friend / referral
+  const setHeardFrom = (value: string) => {
+    setForm(f => ({
+      ...f,
+      heardFrom: value,
+      referralCode: value !== 'Friend / referral' ? '' : f.referralCode,
+    }));
+    setErrors(e => ({ ...e, heardFrom: undefined, referralCode: undefined }));
+  };
+
   const validate = () => {
     const e: Partial<Record<keyof FormState, string>> = {};
     if (!form.businessName.trim()) e.businessName = 'Required';
@@ -85,6 +96,8 @@ export default function StoresApplyPage() {
     if (!form.category)            e.category     = 'Please select a category';
     if (!form.description.trim())  e.description  = 'Required';
     if (!form.storeType)           e.storeType    = 'Please choose a store type';
+    if (form.heardFrom === 'Friend / referral' && !form.referralCode.trim())
+      e.referralCode = 'Please enter the referral code you were given';
     return e;
   };
 
@@ -94,7 +107,7 @@ export default function StoresApplyPage() {
     setSubmitted(true);
   };
 
-  // ── Nav — shared between both states ────────────────────────────────────
+  // ── Nav ──────────────────────────────────────────────────────────────────
 
   const Nav = () => (
     <div className="sticky top-0 z-30 bg-background/80 mt-4">
@@ -131,6 +144,11 @@ export default function StoresApplyPage() {
               Thanks, <span className="text-foreground font-medium">{form.ownerName}</span>. We'll review your application and reach you on{' '}
               <span className="text-foreground font-medium">{form.phone}</span> within 48 hours.
             </p>
+            {form.referralCode && (
+              <p className="text-xs text-muted-foreground mb-8">
+                Referral code <span className="text-foreground font-semibold">{form.referralCode.toUpperCase()}</span> applied — your referrer will be rewarded once you go live.
+              </p>
+            )}
             <Link
               href="/stores"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
@@ -315,7 +333,7 @@ export default function StoresApplyPage() {
                   <h2 className="text-sm font-semibold text-foreground mb-4">How did you hear about us?</h2>
                   <div className="flex flex-wrap gap-2">
                     {HEARD_FROM.map(opt => (
-                      <button key={opt} type="button" onClick={() => set('heardFrom', opt)}
+                      <button key={opt} type="button" onClick={() => setHeardFrom(opt)}
                         className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors
                           ${form.heardFrom === opt
                             ? 'bg-foreground text-background border-foreground'
@@ -323,6 +341,34 @@ export default function StoresApplyPage() {
                       >{opt}</button>
                     ))}
                   </div>
+
+                  {/* Referral code — only visible when Friend / referral is selected */}
+                  {form.heardFrom === 'Friend / referral' && (
+                    <div className="mt-4">
+                      <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                        Referral code <span className="text-red-400">*</span>
+                      </label>
+                      <div className="flex items-center gap-2 max-w-xs">
+                        <input
+                          type="text"
+                          placeholder="e.g. AMAL10"
+                          value={form.referralCode}
+                          onChange={e => set('referralCode', e.target.value.toUpperCase())}
+                          maxLength={12}
+                          className={`w-full px-3 py-2.5 rounded-lg border text-sm bg-background placeholder:text-muted-foreground
+                            font-mono tracking-widest uppercase
+                            focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/30 transition-all
+                            ${errors.referralCode ? 'border-red-400' : 'border-border'}`}
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1.5">
+                        Your referrer earns a reward for one month once your store goes live.
+                      </p>
+                      {errors.referralCode && (
+                        <p className="text-xs text-red-400 mt-1">{errors.referralCode}</p>
+                      )}
+                    </div>
+                  )}
                 </section>
 
                 {/* Submit */}

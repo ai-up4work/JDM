@@ -351,7 +351,7 @@ export default function OldMoneyProductPage() {
                   <div className="grid grid-cols-3 gap-3">
                     {[
                       { icon: <Truck size={14} />,    label: 'Island-wide', sub: '2–4 working days' },
-                      { icon: <RefreshCw size={14} />, label: 'Live stock',  sub: 'From old-money.com' },
+                      { icon: <RefreshCw size={14} />, label: 'Live stock',  sub: 'synched' },
                       { icon: <Shield size={14} />,   label: 'Authentic',   sub: '100% original'    },
                     ].map(b => (
                       <div key={b.label} className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary/30 border border-border">
@@ -364,8 +364,8 @@ export default function OldMoneyProductPage() {
 
                   <a href={product.permalink} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    <ExternalLink size={12} />
-                    View original listing on old-money.com
+                    {/* <ExternalLink size={12} />
+                    View original listing on old-money.com */}
                   </a>
 
                 </div>

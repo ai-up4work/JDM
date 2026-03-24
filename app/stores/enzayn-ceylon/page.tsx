@@ -365,7 +365,7 @@ export default function EnzaynCeylonPage() {
                   <h1 className="text-lg font-black text-foreground tracking-tight">ENZAYN CEYLON</h1>
                   <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-foreground/10 text-foreground uppercase tracking-wider">Live inventory</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">Real-time stock from enzaynceylon.com · Ships island-wide</p>
+                <p className="text-[10px] text-muted-foreground">Real-time stock · Ships island-wide</p>
               </div>
             </div>
 

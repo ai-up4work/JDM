@@ -387,7 +387,7 @@ export default function BuckleyLondonPage() {
               British heritage jewellery.<br />Since 1989.
             </p>
             <p className="text-muted-foreground text-sm max-w-md mb-6">
-              Award-winning costume jewellery from London — earrings, necklaces, rings and bangles crafted for everyday elegance. Available exclusively via The Parfumerie Sri Lanka.
+              Award-winning costume jewellery from London — earrings, necklaces, rings and bangles crafted for everyday elegance. Available exclusively.
             </p>
 
             <div className="flex items-center gap-6 flex-wrap">
@@ -530,11 +530,11 @@ export default function BuckleyLondonPage() {
               },
               {
                 title: 'Delivery & authenticity',
-                body:  'Sourced from The Parfumerie — Sri Lanka\'s authorised Buckley London retailer. All pieces are genuine. Island-wide delivery available, cash on delivery accepted.',
+                body:  'Sourced from The Buckly London\'s authorised retailer. All pieces are genuine. Island-wide delivery available, cash on delivery accepted.',
               },
               {
                 title: 'How to order',
-                body:  'Browse, add to bag, then complete your order via WhatsApp. We confirm stock with The Parfumerie and arrange local delivery the same or next day.',
+                body:  'Browse, add to bag, then complete your order via WhatsApp. We confirm stock with The Buckly London and arrange local delivery the same or next day.',
               },
             ].map(s => (
               <div key={s.title}>

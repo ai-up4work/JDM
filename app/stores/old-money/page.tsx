@@ -340,7 +340,7 @@ export default function OldMoneyPage() {
                     Live inventory
                   </span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">Real-time stock from old-money.com · Ships island-wide</p>
+                <p className="text-[10px] text-muted-foreground">Real-time stock · Ships island-wide</p>
               </div>
             </div>
 

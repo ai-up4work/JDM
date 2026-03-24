@@ -474,8 +474,8 @@ export default function ScentLabProductPage() {
                   {perfume.orderUrl && (
                     <a href={perfume.orderUrl} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                      <ExternalLink size={12} />
-                      View original listing on ozscent.vercel.app
+                      {/* <ExternalLink size={12} />
+                      View original listing on ozscent.vercel.app */}
                     </a>
                   )}
                 </div>

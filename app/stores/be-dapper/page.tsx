@@ -385,7 +385,7 @@ export default function BeDapperPage() {
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  Real-time stock from bedapper.lk · Ships island-wide
+                  Real-time stock · Ships island-wide
                 </p>
               </div>
             </div>

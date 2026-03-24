@@ -461,7 +461,7 @@ export default function GIVAPage() {
                     Live inventory
                   </span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">Real-time stock from giva.lk · Free island-wide shipping</p>
+                <p className="text-[10px] text-muted-foreground">Real-time stock · Free island-wide shipping</p>
               </div>
             </div>
 

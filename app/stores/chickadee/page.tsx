@@ -381,7 +381,7 @@ export default function ChickadeePage() {
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  Real-time stock from chickadee.lk · 421+ pieces
+                  Real-time stock · 421+ pieces
                 </p>
               </div>
             </div>

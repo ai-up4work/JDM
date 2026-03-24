@@ -412,7 +412,7 @@ export default function ChickadeeProductPage() {
                   <a href={product.permalink} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
                     <ExternalLink size={12} />
-                    View original listing on chickadee.lk
+                    {/* View original listing on chickadee.lk */}
                   </a>
                 </div>
               </div>

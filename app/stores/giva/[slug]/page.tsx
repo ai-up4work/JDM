@@ -533,8 +533,8 @@ export default function GIVAProductPage() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <ExternalLink size={12} />
-                    View original listing on giva.lk
+                    {/* <ExternalLink size={12} />
+                    View original listing on giva.lk */}
                   </a>
                 </div>
               </div>

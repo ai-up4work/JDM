@@ -57,7 +57,7 @@ const ALL_STORES: Store[] = [
     tags: ['Bouquets', 'Gifting', 'Same-day'],
     itemCount: 18,
   },
-    {
+  {
     slug: 'scent-lab',
     name: 'Scent Lab',
     type: 'custom',
@@ -133,7 +133,7 @@ const ALL_STORES: Store[] = [
     logo: '/store-icon/kingdom-of-rings.png',
     bannerStyle: { background: '#1a1400' },
     category: 'Jewellery',
-    description: 'Sri Lanka\'s most trusted gold plated jewellery store. Chains, bracelets, rings and bridal sets with a 1-year warranty.',
+    description: "Sri Lanka's most trusted gold plated jewellery store. Chains, bracelets, rings and bridal sets with a 1-year warranty.",
     shipping: 'Ships island-wide',
     payment: 'COD',
     tags: ['Gold plated', 'Chains', 'Bridal', 'Rings'],
@@ -152,13 +152,13 @@ const ALL_STORES: Store[] = [
     tags: ['Ethical fashion', 'Sustainable materials', 'Made in Sri Lanka'],
     itemCount: 67,
   },
-    {
+  {
     slug: 'otaku-clothing',
     name: 'OTAKU CLOTHING SL',
     type: 'template',
     logo: '/store-icon/otaku.png',
     bannerStyle: { background: '#faf5f0' },
-    category: 'Handmade',
+    category: 'Clothing',
     description: 'Ethically made, timeless garments for conscious consumers.',
     shipping: 'Ships island-wide',
     payment: 'COD',
@@ -172,6 +172,11 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'custom',   label: 'Custom builds' },
   { key: 'template', label: 'Templates'     },
   { key: 'new',      label: 'New arrivals'  },
+];
+
+const ALPHABET = [
+  '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
+  'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
 ];
 
 // ─── Skeletons ────────────────────────────────────────────────────────────────
@@ -232,6 +237,17 @@ function NewStoresCarousel() {
   const [atStart, setAtStart] = useState(true);
   const [atEnd,   setAtEnd]   = useState(false);
 
+  const newStores = ALL_STORES.filter(s => s.isNew);
+
+  // Check bounds on mount so the Next button starts correctly disabled when
+  // all cards are already visible (avoids the false-enabled bug from brands page)
+  useEffect(() => {
+    const t = trackRef.current;
+    if (!t) return;
+    setAtStart(t.scrollLeft <= 4);
+    setAtEnd(t.scrollLeft + t.clientWidth >= t.scrollWidth - 4);
+  }, []);
+
   const scroll = (dir: 'prev' | 'next') => {
     const t = trackRef.current; if (!t) return;
     const card = t.querySelector('a') as HTMLElement | null;
@@ -245,27 +261,32 @@ function NewStoresCarousel() {
     setAtEnd(t.scrollLeft + t.clientWidth >= t.scrollWidth - 4);
   };
 
-  const newStores = ALL_STORES.filter(s => s.isNew);
-
   return (
     <section className="mb-10 sm:mb-16">
       <div className="flex items-center justify-between mb-5 sm:mb-8">
         <h2 className="text-xl sm:text-2xl font-semibold text-foreground">New Stores</h2>
         <div className="flex items-center gap-2">
-          <button onClick={() => scroll('prev')} disabled={atStart}
+          <button
+            onClick={() => scroll('prev')}
+            disabled={atStart}
             className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          ><ChevronLeft size={18} /></button>
-          <button onClick={() => scroll('next')} disabled={atEnd}
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            onClick={() => scroll('next')}
+            disabled={atEnd}
             className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          ><ChevronRight size={18} /></button>
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
       </div>
 
-      {/* Bleeds to screen edge on mobile/tablet, contained on desktop — mirrors brands carousel */}
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 sm:px-10 lg:mx-0 lg:px-0 pb-1"
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:-mx-10 sm:px-10 lg:mx-0 lg:px-0 pb-1"
       >
         {newStores.map(store => (
           <Link
@@ -294,12 +315,17 @@ function NewStoresCarousel() {
   );
 }
 
-// ─── All Stores List ──────────────────────────────────────────────────────────
+// ─── All Stores ───────────────────────────────────────────────────────────────
 
 function AllStores({ activeFilter }: { activeFilter: FilterKey }) {
-  const [search, setSearch] = useState('');
+  const [search,       setSearch]       = useState('');
+  const [activeLetter, setActiveLetter] = useState<string | null>(null);
 
-  const filtered = ALL_STORES.filter(s => {
+  // Reset letter when filter changes
+  useEffect(() => { setActiveLetter(null); }, [activeFilter]);
+
+  // 1. Apply filter + search
+  const preFiltered = ALL_STORES.filter(s => {
     const matchesFilter =
       activeFilter === 'all'      ? true :
       activeFilter === 'new'      ? !!s.isNew :
@@ -311,6 +337,31 @@ function AllStores({ activeFilter }: { activeFilter: FilterKey }) {
 
     return matchesFilter && matchesSearch;
   });
+
+  // 2. Group by first letter
+  const grouped: Record<string, Store[]> = {};
+  preFiltered.forEach(s => {
+    const first = s.name[0].toUpperCase();
+    const key   = /[A-Z]/.test(first) ? first : '#';
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(s);
+  });
+
+  // Sort stores within each letter alphabetically
+  Object.values(grouped).forEach(arr =>
+    arr.sort((a, b) => a.name.localeCompare(b.name))
+  );
+
+  const availableLetters = Object.keys(grouped);
+
+  // 3. If a letter is selected, only show that group
+  const sortedLetters = activeLetter
+    ? (grouped[activeLetter] ? [activeLetter] : [])
+    : [...availableLetters].sort((a, b) => {
+        if (a === '#') return -1;
+        if (b === '#') return 1;
+        return a.localeCompare(b);
+      });
 
   return (
     <section className="mb-10 sm:mb-16">
@@ -330,48 +381,88 @@ function AllStores({ activeFilter }: { activeFilter: FilterKey }) {
         </div>
       </div>
 
-      {/* Store list rows — mirrors brand list rows exactly */}
-      {filtered.length === 0 ? (
+      {/* Alphabet index — mirrors brands page */}
+      <div className="flex items-center gap-0.5 mb-6 sm:mb-8 flex-wrap">
+        {ALPHABET.map(letter => {
+          const hasData = availableLetters.includes(letter);
+          const isActive = activeLetter === letter;
+          return (
+            <button
+              key={letter}
+              type="button"
+              onClick={() => hasData && setActiveLetter(l => l === letter ? null : letter)}
+              className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md text-xs sm:text-sm font-medium transition-colors
+                ${isActive
+                  ? 'bg-foreground text-background'
+                  : hasData
+                    ? 'text-foreground hover:bg-secondary cursor-pointer'
+                    : 'text-muted-foreground/30 cursor-default'
+                }`}
+            >
+              {letter}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Store list */}
+      {sortedLetters.length === 0 ? (
         <div className="py-16 text-center text-muted-foreground text-sm">No stores found</div>
       ) : (
-        <div className="divide-y divide-border">
-          {filtered.map(store => (
-            <Link
-              key={store.slug}
-              href={`/stores/${store.slug}`}
-              className="flex items-center gap-3 sm:gap-4 py-3 sm:py-3.5 group hover:bg-secondary rounded-xl px-2 -mx-2 transition-colors"
-            >
-              <div
-                className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-border shrink-0"
-                style={store.bannerStyle}
-              >
-                <Image src={store.logo} alt={store.name} fill className="object-cover object-center" />
-              </div>
+        <div className="space-y-6 sm:space-y-8">
+          {sortedLetters.map(letter => (
+            <div key={letter}>
+              <h3 className="text-sm sm:text-base font-semibold text-muted-foreground mb-1 px-1">
+                {letter}
+              </h3>
+              <div className="divide-y divide-border">
+                {grouped[letter].map(store => (
+                  <Link
+                    key={store.slug}
+                    href={`/stores/${store.slug}`}
+                    className="flex items-center gap-3 sm:gap-4 py-3 sm:py-3.5 group hover:bg-secondary rounded-xl px-2 -mx-2 transition-colors"
+                  >
+                    <div
+                      className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-border shrink-0"
+                      style={store.bannerStyle}
+                    >
+                      <Image
+                        src={store.logo}
+                        alt={store.name}
+                        fill
+                        className="object-cover object-center"
+                      />
+                    </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-                    {store.name}
-                  </p>
-                  {store.isNew && (
-                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300 uppercase tracking-wider shrink-0">
-                      New
-                    </span>
-                  )}
-                  <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0
-                    ${store.type === 'custom'
-                      ? 'bg-[#EEEDFE] text-[#3C3489]'
-                      : 'bg-[#E1F5EE] text-[#085041]'}`}>
-                    {store.type === 'custom' ? 'Custom build' : 'Template'}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {store.category} · {store.itemCount} items · {store.shipping}
-                </p>
-              </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                          {store.name}
+                        </p>
+                        {store.isNew && (
+                          <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300 uppercase tracking-wider shrink-0">
+                            New
+                          </span>
+                        )}
+                        <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0
+                          ${store.type === 'custom'
+                            ? 'bg-[#EEEDFE] text-[#3C3489]'
+                            : 'bg-[#E1F5EE] text-[#085041]'
+                          }`}
+                        >
+                          {store.type === 'custom' ? 'Custom build' : 'Template'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {store.category} · {store.itemCount} items · {store.shipping}
+                      </p>
+                    </div>
 
-              <ChevronRight size={15} className="text-muted-foreground shrink-0" />
-            </Link>
+                    <ChevronRight size={15} className="text-muted-foreground shrink-0" />
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -413,7 +504,7 @@ export default function StoresPage() {
   return (
     <>
       {/* ── Sticky Nav ── */}
-      <div className="sticky top-0 z-30 bg-background/80 mt-4">
+      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-sm mt-4 border-b border-border">
         <div className="max-w-7xl mx-auto h-14 flex items-center justify-between gap-4 px-4 sm:px-10 lg:px-40">
 
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
@@ -422,6 +513,7 @@ export default function StoresPage() {
             <span className="text-foreground font-medium">Stores</span>
           </div>
 
+          {/* Desktop filter pills */}
           <div className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-hide">
             {FILTERS.map(({ key, label }) => (
               <button

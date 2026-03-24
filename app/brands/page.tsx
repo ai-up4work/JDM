@@ -1,3 +1,4 @@
+// app/brands/page.tsx
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -5,17 +6,37 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from 'lucide-react';
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+// Returns a Clearbit logo URL for brands that have a domain.
+// For local Sri Lankan brands without one we fall back to a styled initials tile
+// (handled in the BrandImage component below).
+function clearbit(domain: string) {
+  return `https://logo.clearbit.com/${domain}`;
+}
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface Brand {
+  name: string;
+  logo: string;           // clearbit URL or '' for initials fallback
+  items: number;
+  tag?: string;           // e.g. 'Sri Lankan', 'International'
+  bg?: string;            // bg colour for initials tile
+}
+
 // ── Data ──────────────────────────────────────────────────────────────────────
 
-const newBrands = [
-  { id: 1, name: 'Khani Wears',       logo: '/garments/product1.jpeg',  href: '/brands/khani-wears'  },
-  { id: 2, name: 'Afroz by Charcoal', logo: '/garments/product2.jpeg',  href: '/brands/afroz'        },
-  { id: 3, name: 'Ayat Closet',       logo: '/garments/product3.jpeg',  href: '/brands/ayat-closet'  },
-  { id: 4, name: 'Surmeen',           logo: '/garments/product4.jpeg',  href: '/brands/surmeen'      },
-  { id: 5, name: 'Al-Bakhat',         logo: '/garments/product5.jpeg',  href: '/brands/al-bakhat'    },
-  { id: 6, name: 'Mnar',              logo: '/garments/product6.jpeg',  href: '/brands/mnar'         },
-  { id: 7, name: 'Rang-e-Haya',       logo: '/garments/product7.jpeg',  href: '/brands/rang-e-haya'  },
-  { id: 8, name: 'Silk Leaf',         logo: '/garments/product8.jpeg',  href: '/brands/silk-leaf'    },
+// New / featured brands shown in the top carousel
+const NEW_BRANDS: { id: number; name: string; logo: string; href: string }[] = [
+  { id: 1,  name: 'Nike',          logo: clearbit('nike.com'),         href: '/brands/nike'          },
+  { id: 2,  name: 'Zara',          logo: clearbit('zara.com'),         href: '/brands/zara'          },
+  { id: 3,  name: 'H&M',           logo: clearbit('hm.com'),           href: '/brands/hm'            },
+  { id: 4,  name: 'Adidas',        logo: clearbit('adidas.com'),       href: '/brands/adidas'        },
+  { id: 5,  name: 'Uniqlo',        logo: clearbit('uniqlo.com'),       href: '/brands/uniqlo'        },
+  { id: 6,  name: 'Barefoot',      logo: '',                           href: '/brands/barefoot'      },
+  { id: 7,  name: 'Nolimit',       logo: '',                           href: '/brands/nolimit'       },
+  { id: 8,  name: 'Kelly Felder',  logo: '',                           href: '/brands/kelly-felder'  },
 ];
 
 const CATEGORIES = ['Women', 'Men', 'Beauty', 'Kids'];
@@ -25,66 +46,258 @@ const SUBCATEGORIES = [
   'Fusion', 'Western', 'Activewear', 'Accessories', 'Footwear', 'Jewellery',
 ];
 
-const ALPHABET = ['L','S','#','A','B','C','D','E','F','G','H','I','J','K',
-                  'M','N','O','P','Q','R','T','U','V','W','X','Y','Z'];
+const ALPHABET = [
+  '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
+  'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+];
 
-const ALL_BRANDS_DATA: Record<string, Record<string, { name: string; logo: string; items: number }[]>> = {
+// All brands grouped by category → letter
+const ALL_BRANDS_DATA: Record<string, Record<string, Brand[]>> = {
   Women: {
-    L: [
-      { name: 'Libaas-e-Resham', logo: '/garments/product1.jpeg',  items: 44  },
-      { name: 'Lulusar',         logo: '/garments/product2.jpeg',  items: 99  },
-    ],
-    S: [
-      { name: 'Saheliyan Pret',  logo: '/garments/product3.jpeg',  items: 34  },
-      { name: 'Sana Safinaz',    logo: '/garments/product4.jpeg',  items: 212 },
-      { name: 'Silk & Stones',   logo: '/garments/product5.jpeg',  items: 18  },
-      { name: 'Surmeen',         logo: '/garments/product6.jpeg',  items: 42  },
-    ],
     A: [
-      { name: 'Afroz by Charcoal', logo: '/garments/product7.jpeg',  items: 56 },
-      { name: 'Ayat Closet',       logo: '/garments/product8.jpeg',  items: 17 },
-      { name: 'Al-Zohaib',         logo: '/garments/product9.jpeg',  items: 88 },
-      { name: 'Al-Bakhat',         logo: '/garments/product10.jpeg', items: 31 },
+      { name: 'Adidas',          logo: clearbit('adidas.com'),         items: 134, tag: 'International' },
+      { name: 'ASOS',            logo: clearbit('asos.com'),           items: 280, tag: 'International' },
+      { name: 'Amma',            logo: '',                             items: 48,  tag: 'Sri Lankan', bg: '#f0ebe3' },
+      { name: 'Anuk',            logo: '',                             items: 32,  tag: 'Sri Lankan', bg: '#e8f0eb' },
     ],
     B: [
-      { name: 'Bahar Arts',       logo: '/garments/product11.jpeg', items: 29  },
-      { name: 'Bonanza Satrangi', logo: '/garments/product12.jpeg', items: 145 },
+      { name: 'Barefoot',        logo: '',                             items: 67,  tag: 'Sri Lankan', bg: '#f5e6d0' },
+      { name: 'Buddhi Batiks',   logo: '',                             items: 55,  tag: 'Sri Lankan', bg: '#e8d5f0' },
+      { name: 'Burberry',        logo: clearbit('burberry.com'),       items: 92,  tag: 'International' },
+      { name: 'Bershka',         logo: clearbit('bershka.com'),        items: 118, tag: 'International' },
+    ],
+    C: [
+      { name: 'Calvin Klein',    logo: clearbit('calvinklein.com'),    items: 76,  tag: 'International' },
+      { name: 'Chanel',          logo: clearbit('chanel.com'),         items: 44,  tag: 'International' },
+      { name: 'Cool Planet',     logo: '',                             items: 88,  tag: 'Sri Lankan', bg: '#dff0f5' },
+    ],
+    D: [
+      { name: 'Dior',            logo: clearbit('dior.com'),           items: 39,  tag: 'International' },
+      { name: 'Design Collective,The', logo: '',                       items: 110, tag: 'Sri Lankan', bg: '#f0e8d5' },
+    ],
+    F: [
+      { name: 'Forever 21',      logo: clearbit('forever21.com'),      items: 196, tag: 'International' },
+      { name: 'FMLK',            logo: '',                             items: 43,  tag: 'Sri Lankan', bg: '#d5f0e8' },
     ],
     G: [
-      { name: 'Gulman',    logo: '/garments/product13.jpeg', items: 14  },
-      { name: 'Gul Ahmed', logo: '/garments/product14.jpeg', items: 310 },
+      { name: 'Gucci',           logo: clearbit('gucci.com'),          items: 58,  tag: 'International' },
+      { name: 'Gap',             logo: clearbit('gap.com'),            items: 142, tag: 'International' },
+      { name: 'GFLOCK',          logo: '',                             items: 76,  tag: 'Sri Lankan', bg: '#e0e8f5' },
+    ],
+    H: [
+      { name: 'H&M',             logo: clearbit('hm.com'),             items: 320, tag: 'International' },
+      { name: 'House of Lonali', logo: '',                             items: 29,  tag: 'Sri Lankan', bg: '#f5dde8' },
     ],
     K: [
-      { name: 'Khaadi',      logo: '/garments/product15.jpeg', items: 280 },
-      { name: 'Khani Wears', logo: '/garments/product16.jpeg', items: 8   },
+      { name: 'Kelly Felder',    logo: '',                             items: 94,  tag: 'Sri Lankan', bg: '#2d2d2d' },
+      { name: 'Kheila',          logo: '',                             items: 38,  tag: 'Sri Lankan', bg: '#f0d5e8' },
+    ],
+    L: [
+      { name: 'Lacoste',         logo: clearbit('lacoste.com'),        items: 88,  tag: 'International' },
+      { name: 'Lois London',     logo: '',                             items: 41,  tag: 'Sri Lankan', bg: '#e8f5f0' },
+      { name: "L'Atelier Touché",logo: '',                             items: 27,  tag: 'Sri Lankan', bg: '#1a1a1a' },
+      { name: 'Louis Vuitton',   logo: clearbit('louisvuitton.com'),   items: 33,  tag: 'International' },
     ],
     M: [
-      { name: 'Maria B', logo: '/garments/product1.jpeg', items: 195 },
-      { name: 'Malhaar', logo: '/garments/product2.jpeg', items: 67  },
-      { name: 'Mushq',   logo: '/garments/product3.jpeg', items: 53  },
-      { name: 'Mnar',    logo: '/garments/product4.jpeg', items: 38  },
+      { name: 'Mango',           logo: clearbit('mango.com'),          items: 165, tag: 'International' },
+      { name: 'Massimo Dutti',   logo: clearbit('massimodutti.com'),   items: 77,  tag: 'International' },
+      { name: 'Mezzo',           logo: '',                             items: 52,  tag: 'Sri Lankan', bg: '#f5e8d5' },
+      { name: 'Mimosa',          logo: '',                             items: 44,  tag: 'Sri Lankan', bg: '#f5d5e0' },
+      { name: 'Maus',            logo: '',                             items: 36,  tag: 'Sri Lankan', bg: '#d5e8f5' },
+    ],
+    N: [
+      { name: 'Nike',            logo: clearbit('nike.com'),           items: 210, tag: 'International' },
+      { name: 'Nolimit',         logo: '',                             items: 188, tag: 'Sri Lankan', bg: '#1c3d5a' },
+      { name: 'Nåd',             logo: '',                             items: 22,  tag: 'Sri Lankan', bg: '#e8ede8' },
+    ],
+    O: [
+      { name: 'Odel',            logo: '',                             items: 240, tag: 'Sri Lankan', bg: '#c8102e' },
+    ],
+    P: [
+      { name: 'Pull&Bear',       logo: clearbit('pullandbear.com'),    items: 143, tag: 'International' },
+      { name: 'Puma',            logo: clearbit('puma.com'),           items: 98,  tag: 'International' },
+    ],
+    R: [
+      { name: 'Ralph Lauren',    logo: clearbit('ralphlauren.com'),    items: 87,  tag: 'International' },
+      { name: 'Rachel Raj',      logo: '',                             items: 31,  tag: 'Sri Lankan', bg: '#f0e0d5' },
+      { name: 'Rithihi',         logo: '',                             items: 45,  tag: 'Sri Lankan', bg: '#2c1a0e' },
+    ],
+    S: [
+      { name: 'Selyn',           logo: '',                             items: 58,  tag: 'Sri Lankan', bg: '#3a6b35' },
+      { name: 'Sonali Dharmawardena', logo: '',                        items: 19,  tag: 'Sri Lankan', bg: '#1a1a2e' },
+      { name: 'Stradivarius',    logo: clearbit('stradivarius.com'),   items: 134, tag: 'International' },
+      { name: 'Spring & Summer', logo: '',                             items: 76,  tag: 'Sri Lankan', bg: '#f0f0e0' },
+    ],
+    U: [
+      { name: 'Uniqlo',          logo: clearbit('uniqlo.com'),         items: 177, tag: 'International' },
+      { name: 'Urban Island',    logo: '',                             items: 63,  tag: 'Sri Lankan', bg: '#0a2540' },
+    ],
+    V: [
+      { name: 'Victoria\'s Secret', logo: clearbit('victoriassecret.com'), items: 112, tag: 'International' },
+    ],
+    Z: [
+      { name: 'Zara',            logo: clearbit('zara.com'),           items: 248, tag: 'International' },
+      { name: 'Zie',             logo: '',                             items: 33,  tag: 'Sri Lankan', bg: '#2a2a3e' },
     ],
   },
   Men: {
     A: [
-      { name: 'Amir Adnan', logo: '/garments/product5.jpeg', items: 72 },
-      { name: 'Almirah',    logo: '/garments/product6.jpeg', items: 49 },
+      { name: 'Adidas',          logo: clearbit('adidas.com'),         items: 178, tag: 'International' },
+      { name: 'Armani',          logo: clearbit('armani.com'),         items: 54,  tag: 'International' },
     ],
-    B: [{ name: 'Basix',      logo: '/garments/product7.jpeg', items: 33  }],
-    K: [{ name: 'Khaadi Men', logo: '/garments/product8.jpeg', items: 120 }],
-    M: [{ name: 'Menfolk',    logo: '/garments/product9.jpeg', items: 88  }],
+    B: [
+      { name: 'Benetton',        logo: clearbit('benetton.com'),       items: 88,  tag: 'International' },
+    ],
+    C: [
+      { name: 'Calvin Klein',    logo: clearbit('calvinklein.com'),    items: 63,  tag: 'International' },
+      { name: 'Crocodile',       logo: '',                             items: 72,  tag: 'Sri Lankan', bg: '#1a3a1a' },
+    ],
+    G: [
+      { name: 'Gap',             logo: clearbit('gap.com'),            items: 95,  tag: 'International' },
+      { name: 'GFLOCK',          logo: '',                             items: 54,  tag: 'Sri Lankan', bg: '#e0e8f5' },
+    ],
+    H: [
+      { name: 'H&M',             logo: clearbit('hm.com'),             items: 144, tag: 'International' },
+      { name: 'Hugo Boss',       logo: clearbit('hugoboss.com'),       items: 67,  tag: 'International' },
+    ],
+    L: [
+      { name: 'Lacoste',         logo: clearbit('lacoste.com'),        items: 71,  tag: 'International' },
+      { name: 'Levi\'s',         logo: clearbit('levi.com'),           items: 110, tag: 'International' },
+    ],
+    N: [
+      { name: 'Nike',            logo: clearbit('nike.com'),           items: 198, tag: 'International' },
+      { name: 'Nolimit',         logo: '',                             items: 122, tag: 'Sri Lankan', bg: '#1c3d5a' },
+    ],
+    O: [
+      { name: 'Odel',            logo: '',                             items: 135, tag: 'Sri Lankan', bg: '#c8102e' },
+    ],
+    P: [
+      { name: 'Puma',            logo: clearbit('puma.com'),           items: 86,  tag: 'International' },
+    ],
+    R: [
+      { name: 'Ralph Lauren',    logo: clearbit('ralphlauren.com'),    items: 59,  tag: 'International' },
+    ],
+    T: [
+      { name: 'Tommy Hilfiger',  logo: clearbit('tommy.com'),          items: 92,  tag: 'International' },
+      { name: 'T-Shirt Republic',logo: '',                             items: 68,  tag: 'Sri Lankan', bg: '#1a1a1a' },
+    ],
+    U: [
+      { name: 'Uniqlo',          logo: clearbit('uniqlo.com'),         items: 140, tag: 'International' },
+    ],
+    Z: [
+      { name: 'Zara',            logo: clearbit('zara.com'),           items: 112, tag: 'International' },
+    ],
   },
   Beauty: {
-    B: [{ name: 'Beautify',     logo: '/garments/product10.jpeg', items: 55 }],
-    H: [{ name: 'Hunza Beauty', logo: '/garments/product11.jpeg', items: 22 }],
-    S: [{ name: 'Skin Story',   logo: '/garments/product12.jpeg', items: 41 }],
+    B: [
+      { name: 'Bare Escentuals', logo: clearbit('bareminerals.com'),   items: 44,  tag: 'International' },
+    ],
+    C: [
+      { name: 'Clinique',        logo: clearbit('clinique.com'),       items: 88,  tag: 'International' },
+    ],
+    E: [
+      { name: 'Estée Lauder',    logo: clearbit('esteelauder.com'),    items: 72,  tag: 'International' },
+    ],
+    I: [
+      { name: 'Iris Garden',     logo: '',                             items: 34,  tag: 'Sri Lankan', bg: '#4a7c59' },
+    ],
+    L: [
+      { name: 'L\'Oréal',        logo: clearbit('loreal.com'),         items: 120, tag: 'International' },
+    ],
+    M: [
+      { name: 'MAC',             logo: clearbit('maccosmetics.com'),   items: 95,  tag: 'International' },
+    ],
+    N: [
+      { name: 'NYX',             logo: clearbit('nyxcosmetics.com'),   items: 66,  tag: 'International' },
+      { name: 'Nion',            logo: '',                             items: 28,  tag: 'Sri Lankan', bg: '#f5e8ee' },
+    ],
+    S: [
+      { name: 'Sephora',         logo: clearbit('sephora.com'),        items: 154, tag: 'International' },
+    ],
   },
   Kids: {
-    B: [{ name: 'Baby World',  logo: '/garments/product13.jpeg', items: 67 }],
-    G: [{ name: 'Girls Tag',   logo: '/garments/product14.jpeg', items: 39 }],
-    K: [{ name: 'Khaadi Kids', logo: '/garments/product15.jpeg', items: 95 }],
+    B: [
+      { name: 'Bonds',           logo: clearbit('bonds.com.au'),       items: 88,  tag: 'International' },
+    ],
+    C: [
+      { name: "Carter's",        logo: clearbit('carters.com'),        items: 134, tag: 'International' },
+      { name: 'Cool Planet Kids',logo: '',                             items: 54,  tag: 'Sri Lankan', bg: '#dff0f5' },
+    ],
+    G: [
+      { name: 'Gap Kids',        logo: clearbit('gap.com'),            items: 97,  tag: 'International' },
+    ],
+    H: [
+      { name: 'H&M Kids',        logo: clearbit('hm.com'),             items: 142, tag: 'International' },
+    ],
+    L: [
+      { name: 'Lishe',           logo: '',                             items: 44,  tag: 'Sri Lankan', bg: '#f5e0d5' },
+    ],
+    N: [
+      { name: 'Next',            logo: clearbit('next.co.uk'),         items: 110, tag: 'International' },
+      { name: 'Nolimit Kids',    logo: '',                             items: 78,  tag: 'Sri Lankan', bg: '#1c3d5a' },
+    ],
+    Z: [
+      { name: 'Zara Kids',       logo: clearbit('zara.com'),           items: 88,  tag: 'International' },
+    ],
   },
 };
+
+// ── Brand Image component ─────────────────────────────────────────────────────
+// Uses Clearbit logo if available, falls back to a coloured initials tile.
+
+function BrandImage({
+  brand,
+  size = 'row',
+}: {
+  brand: { name: string; logo: string; bg?: string };
+  size?: 'row' | 'card';
+}) {
+  const [errored, setErrored] = useState(false);
+
+  const initials = brand.name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(w => w[0])
+    .join('')
+    .toUpperCase();
+
+  const bg = brand.bg ?? '#e8e8e8';
+  const isDark = (() => {
+    const hex = bg.replace('#', '');
+    if (hex.length < 6) return false;
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 < 128;
+  })();
+
+  if (!brand.logo || errored) {
+    return (
+      <div
+        className="w-full h-full flex items-center justify-center"
+        style={{
+          background: bg,
+          fontSize: size === 'card' ? '1.5rem' : '0.7rem',
+          fontWeight: 600,
+          color: isDark ? '#ffffff' : '#1a1a1a',
+          letterSpacing: '0.04em',
+        }}
+      >
+        {initials}
+      </div>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={brand.logo}
+      alt={brand.name}
+      onError={() => setErrored(true)}
+      className="w-full h-full object-contain p-1.5"
+    />
+  );
+}
 
 // ── Skeletons ─────────────────────────────────────────────────────────────────
 
@@ -144,6 +357,13 @@ function NewBrandsCarousel() {
   const [atStart, setAtStart] = useState(true);
   const [atEnd,   setAtEnd]   = useState(false);
 
+  useEffect(() => {
+    const t = trackRef.current;
+    if (!t) return;
+    setAtStart(t.scrollLeft <= 4);
+    setAtEnd(t.scrollLeft + t.clientWidth >= t.scrollWidth - 4);
+  }, []);
+
   const scroll = (dir: 'prev' | 'next') => {
     const t = trackRef.current; if (!t) return;
     const card = t.querySelector('a') as HTMLElement | null;
@@ -162,29 +382,36 @@ function NewBrandsCarousel() {
       <div className="flex items-center justify-between mb-5 sm:mb-8">
         <h2 className="text-xl sm:text-2xl font-semibold text-foreground">New Brands</h2>
         <div className="flex items-center gap-2">
-          <button onClick={() => scroll('prev')} disabled={atStart}
+          <button
+            onClick={() => scroll('prev')}
+            disabled={atStart}
             className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          ><ChevronLeft size={18} /></button>
-          <button onClick={() => scroll('next')} disabled={atEnd}
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            onClick={() => scroll('next')}
+            disabled={atEnd}
             className="p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          ><ChevronRight size={18} /></button>
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
       </div>
 
-      {/* Swipeable — bleeds to screen edge on mobile/tablet, contained on desktop */}
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 sm:-mx-10 sm:px-10 lg:mx-0 lg:px-0 pb-1"
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 sm:px-10 lg:mx-0 lg:px-0 pb-1"
       >
-        {newBrands.map(brand => (
-          <Link key={brand.id} href={brand.href}
+        {NEW_BRANDS.map(brand => (
+          <Link
+            key={brand.id}
+            href={brand.href}
             className="shrink-0 snap-start flex flex-col items-center gap-2.5 group w-[28vw] sm:w-[18vw] lg:w-32"
           >
             <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-muted border border-border group-hover:border-primary transition-colors">
-              <Image src={brand.logo} alt={brand.name} fill
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-              />
+              <BrandImage brand={brand} size="card" />
             </div>
             <span className="text-xs sm:text-sm font-medium text-foreground text-center leading-snug line-clamp-2 px-1">
               {brand.name}
@@ -211,23 +438,31 @@ function FilterSheet({
     <div className="fixed inset-0 z-50 flex items-end bg-black/40" onClick={onClose}>
       <div
         className="w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-4 border-b border-border">
           <span className="text-base font-semibold">Filter by Subcategory</span>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-full hover:bg-secondary transition-colors">
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-full hover:bg-secondary transition-colors"
+          >
             <X size={18} />
           </button>
         </div>
         <div className="p-4 flex flex-wrap gap-2 max-h-64 overflow-y-auto">
           {SUBCATEGORIES.map(sub => (
-            <button key={sub} type="button"
+            <button
+              key={sub}
+              type="button"
               onClick={() => { setActiveSubcat(activeSubcat === sub ? null : sub); onClose(); }}
               className={`px-3 py-2 rounded-full border text-sm font-medium transition-colors
                 ${activeSubcat === sub
                   ? 'bg-foreground text-background border-foreground'
                   : 'border-border text-foreground hover:bg-secondary'}`}
-            >{sub}</button>
+            >
+              {sub}
+            </button>
           ))}
         </div>
       </div>
@@ -244,60 +479,84 @@ function AllBrands() {
   const [search,         setSearch]         = useState('');
   const [filterOpen,     setFilterOpen]     = useState(false);
 
+  // Reset letter when category changes
+  useEffect(() => { setActiveLetter(null); }, [activeCategory]);
+
   const brandsByLetter   = ALL_BRANDS_DATA[activeCategory] ?? {};
   const availableLetters = Object.keys(brandsByLetter);
 
-  const filtered: Record<string, { name: string; logo: string; items: number }[]> = {};
+  // Build filtered + sorted map
+  const filtered: Record<string, Brand[]> = {};
   Object.entries(brandsByLetter).forEach(([letter, brands]) => {
     if (activeLetter && letter !== activeLetter) return;
-    const f = brands.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
+    const f = brands
+      .filter(b => b.name.toLowerCase().includes(search.toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name));
     if (f.length > 0) filtered[letter] = f;
   });
-  const sortedLetters = Object.keys(filtered).sort();
+
+  const sortedLetters = Object.keys(filtered).sort((a, b) => {
+    if (a === '#') return -1;
+    if (b === '#') return 1;
+    return a.localeCompare(b);
+  });
 
   const activeFilterCount = [activeLetter, activeSubcat].filter(Boolean).length;
 
   return (
     <section className="mb-10 sm:mb-16">
+
       {/* Header row */}
       <div className="flex items-center justify-between gap-3 mb-5 sm:mb-8">
         <h2 className="text-xl sm:text-2xl font-semibold text-foreground shrink-0">All Brands</h2>
         <div className="relative flex-1 sm:flex-none sm:w-72">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input type="text" placeholder="Search brands" value={search}
+          <input
+            type="text"
+            placeholder="Search brands"
+            value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-border bg-background text-sm focus:outline-none focus:border-primary transition-colors"
           />
         </div>
       </div>
 
-      {/* Category tabs — bleeds to screen edge on mobile/tablet */}
-      <div className="flex border-b border-border mb-5 sm:mb-8 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:-mx-10 sm:px-10 lg:mx-0 lg:px-0">
+      {/* Category tabs */}
+      <div className="flex border-b border-border mb-5 sm:mb-8 overflow-x-auto scrollbar-hide px-4 sm:px-10 lg:mx-0 lg:px-0">
         {CATEGORIES.map(cat => (
-          <button key={cat} type="button"
-            onClick={() => { setActiveCategory(cat); setActiveLetter(null); setSearch(''); }}
+          <button
+            key={cat}
+            type="button"
+            onClick={() => { setActiveCategory(cat); setSearch(''); }}
             className={`relative shrink-0 px-5 sm:px-8 py-3 text-sm font-medium transition-colors whitespace-nowrap
               ${activeCategory === cat
                 ? 'text-foreground after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:h-[2px] after:bg-foreground'
                 : 'text-muted-foreground hover:text-foreground'}`}
-          >{cat}</button>
+          >
+            {cat}
+          </button>
         ))}
       </div>
 
-      {/* Subcategory row */}
+      {/* Subcategory filter row */}
       <div className="mb-5 sm:mb-6">
-        {/* Mobile: filter button only */}
+        {/* Mobile: filter button */}
         <div className="flex sm:hidden items-center gap-2 mb-2">
-          <button type="button"
+          <button
+            type="button"
             onClick={() => setFilterOpen(true)}
             className={`flex items-center gap-2 px-3 py-2 rounded-full border text-xs font-medium transition-colors
-              ${activeFilterCount > 0 ? 'bg-foreground text-background border-foreground' : 'border-border hover:bg-secondary'}`}
+              ${activeFilterCount > 0
+                ? 'bg-foreground text-background border-foreground'
+                : 'border-border hover:bg-secondary'}`}
           >
             <SlidersHorizontal size={14} />
             Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
           </button>
           {activeSubcat && (
-            <button type="button" onClick={() => setActiveSubcat(null)}
+            <button
+              type="button"
+              onClick={() => setActiveSubcat(null)}
               className="flex items-center gap-1 px-3 py-2 rounded-full border border-border text-xs text-muted-foreground hover:bg-secondary transition-colors"
             >
               {activeSubcat} <X size={12} />
@@ -305,25 +564,34 @@ function AllBrands() {
           )}
         </div>
 
-        {/* sm+: scrollable pill row — same style as home TrendingProducts filter bar */}
+        {/* Desktop: scrollable pill row */}
         <div className="hidden sm:flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <button type="button"
+          <button
+            type="button"
+            onClick={() => setFilterOpen(true)}
             className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border transition-colors shrink-0
-              ${activeFilterCount > 0 ? 'border-foreground bg-foreground text-background' : 'border-border bg-background hover:bg-secondary'}`}
+              ${activeFilterCount > 0
+                ? 'border-foreground bg-foreground text-background'
+                : 'border-border bg-background hover:bg-secondary'}`}
           >
             <SlidersHorizontal size={15} />
           </button>
           {SUBCATEGORIES.map(sub => (
-            <button key={sub} type="button"
+            <button
+              key={sub}
+              type="button"
               onClick={() => setActiveSubcat(s => s === sub ? null : sub)}
               className={`shrink-0 px-3 sm:px-4 py-2 rounded-full border text-xs sm:text-sm font-medium transition-colors whitespace-nowrap
                 ${activeSubcat === sub
                   ? 'border-foreground bg-foreground text-background'
                   : 'border-border bg-background text-foreground hover:bg-secondary'}`}
-            >{sub}</button>
+            >
+              {sub}
+            </button>
           ))}
           {activeFilterCount > 0 && (
-            <button type="button"
+            <button
+              type="button"
               onClick={() => { setActiveSubcat(null); setActiveLetter(null); }}
               className="px-3 sm:px-4 py-2 rounded-full border border-red-300 text-red-500 text-xs sm:text-sm font-medium hover:bg-red-50 transition-colors shrink-0"
             >
@@ -339,7 +607,9 @@ function AllBrands() {
           const hasData = availableLetters.includes(letter);
           const isActive = activeLetter === letter;
           return (
-            <button key={letter} type="button"
+            <button
+              key={letter}
+              type="button"
               onClick={() => hasData && setActiveLetter(l => l === letter ? null : letter)}
               className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md text-xs sm:text-sm font-medium transition-colors
                 ${isActive
@@ -347,7 +617,9 @@ function AllBrands() {
                   : hasData
                     ? 'text-foreground hover:bg-secondary cursor-pointer'
                     : 'text-muted-foreground/30 cursor-default'}`}
-            >{letter}</button>
+            >
+              {letter}
+            </button>
           );
         })}
       </div>
@@ -359,18 +631,34 @@ function AllBrands() {
         <div className="space-y-6 sm:space-y-8">
           {sortedLetters.map(letter => (
             <div key={letter}>
-              <h3 className="text-sm sm:text-base font-semibold text-muted-foreground mb-1 px-1">{letter}</h3>
+              <h3 className="text-sm sm:text-base font-semibold text-muted-foreground mb-1 px-1">
+                {letter}
+              </h3>
               <div className="divide-y divide-border">
                 {filtered[letter].map(brand => (
-                  <Link key={brand.name}
+                  <Link
+                    key={brand.name}
                     href={`/brands/${brand.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
-                    className="flex items-center gap-3 sm:gap-4 py-3 sm:py-3.5 group hover:bg-secondary rounded-xl px-2 -mx-2 transition-colors"
+                    className="flex items-center gap-3 sm:gap-4 py-3 sm:py-3.5 group hover:bg-secondary rounded-xl px-2 transition-colors"
                   >
                     <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden bg-muted border border-border shrink-0">
-                      <Image src={brand.logo} alt={brand.name} fill className="object-cover object-center" />
+                      <BrandImage brand={brand} size="row" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">{brand.name}</p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                          {brand.name}
+                        </p>
+                        {brand.tag && (
+                          <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0
+                            ${brand.tag === 'Sri Lankan'
+                              ? 'bg-[#E1F5EE] text-[#085041]'
+                              : 'bg-[#EEEDFE] text-[#3C3489]'}`}
+                          >
+                            {brand.tag}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-muted-foreground mt-0.5">{brand.items} items</p>
                     </div>
                     <ChevronRight size={15} className="text-muted-foreground shrink-0" />
@@ -406,11 +694,11 @@ export default function BrandsPage() {
   if (loading) return <PageSkeleton />;
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden px-4 sm:px-10 lg:px-40">
-      <div className="max-w-7xl mx-auto py-2 sm:py-4 min-w-0">
-        <NewBrandsCarousel />
-        <AllBrands />
-      </div>
-    </div>
+<div className="w-full min-w-0 overflow-x-hidden px-4 lg:px-40">
+  <div className="max-w-7xl lg:-mx-10 py-2 sm:py-4 min-w-0">
+    <NewBrandsCarousel />
+    <AllBrands />
+  </div>
+</div>
   );
 }

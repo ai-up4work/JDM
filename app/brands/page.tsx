@@ -30,11 +30,11 @@ const NEW_BRANDS: { id: number; name: string; logo: string; domain?: string; bg?
   { id: 2, name: 'Burberry',     logo: getLogo('burberry.com'),     domain: 'burberry.com',     href: '/brands/burberry'         },
   { id: 3, name: 'Lacoste',      logo: getLogo('lacoste.com'),      domain: 'lacoste.com',      href: '/brands/lacoste'      },
   { id: 4, name: 'Adidas',       logo: getLogo('adidas.com'),       domain: 'adidas.com',       href: '/brands/adidas'       },
-  { id: 5, name: 'Uniqlo',       logo: getLogo('uniqlo.com'),       domain: 'uniqlo.com',       href: '/brands/uniqlo'       },
+  { id: 5, name: 'Uniqlo',       logo: getLogo('uniqlo.com'),       domain: 'uniqlo.com',       href: '/brands/uniqlo',       bg: '#FF0000'  },
   { id: 6, name: 'Mango',        logo: getLogo('mango.com'),        domain: 'mango.com',        href: '/brands/mango'        },
-  { id: 7, name: 'Barefoot',     logo: getLogo('barefootceylon.com'), domain: 'barefootceylon.com', bg: '#f5e6d0', href: '/brands/barefoot'     },
-  { id: 8, name: 'Nolimit',      logo: getLogo('nolimit.lk'),       domain: 'nolimit.lk',       bg: '#1c3d5a', href: '/brands/nolimit'      },
-  { id: 9, name: 'Kelly Felder', logo: getLogo('kellyfelder.com'),  domain: 'kellyfelder.com',  bg: '#2d2d2d', href: '/brands/kelly-felder' },
+  { id: 7, name: 'ASOS',     logo: getLogo('asos.com'), domain: 'asos.com', href: '/brands/asos'     },
+  { id: 8, name: 'Starbucks',      logo: getLogo('starbucks.com'),       domain: 'starbucks.com',       bg: '#00A862', href: '/brands/starbucks'      },
+  { id: 9, name: 'Calvin Klein', logo: getLogo('calvinklein.com'),  domain: 'calvinklein.com', href: '/brands/calvinklein' },
 ];
 
 const CATEGORIES = ['Women', 'Men', 'Beauty', 'Kids'];
@@ -73,7 +73,7 @@ const ALL_BRANDS_DATA: Record<string, Record<string, Brand[]>> = {
       { name: 'Design Collective, The',  logo: '',                                       items: 110, tag: 'Sri Lankan', bg: '#f0e8d5'   },
     ],
     F: [
-      { name: 'Forever 21', logo: getLogo('forever21.com'), domain: 'forever21.com', items: 196, tag: 'International'             },
+      { name: 'Forever 21', logo: getLogo('forever21.com'), domain: 'forever21.com', items: 196, tag: 'International', bg: '#FFE814 '          },
       { name: 'FMLK',       logo: '',                                                 items: 43,  tag: 'Sri Lankan', bg: '#d5f0e8' },
     ],
     G: [
@@ -112,7 +112,7 @@ const ALL_BRANDS_DATA: Record<string, Record<string, Brand[]>> = {
     ],
     P: [
       { name: 'Pull&Bear', logo: getLogo('pullandbear.com'), domain: 'pullandbear.com', items: 143, tag: 'International' },
-      { name: 'Puma',      logo: getLogo('puma.com'),        domain: 'puma.com',        items: 98,  tag: 'International' },
+      { name: 'Puma',      logo: getLogo('puma.com'),        domain: 'puma.com', bg: '#000000',  items: 98,  tag: 'International' },
     ],
     R: [
       { name: 'Ralph Lauren', logo: getLogo('ralphlauren.com'), domain: 'ralphlauren.com', items: 87, tag: 'International'             },
@@ -126,7 +126,7 @@ const ALL_BRANDS_DATA: Record<string, Record<string, Brand[]>> = {
       { name: 'Sonali Dharmawardena', logo: '',                                                        items: 19,  tag: 'Sri Lankan', bg: '#1a1a2e' },
     ],
     U: [
-      { name: 'Uniqlo',       logo: getLogo('uniqlo.com'), domain: 'uniqlo.com', items: 177, tag: 'International'             },
+      { name: 'Uniqlo',       logo: getLogo('uniqlo.com'), domain: 'uniqlo.com', bg: '#FF0000',  items: 177, tag: 'International'             },
       { name: 'Urban Island', logo: '',                                           items: 63,  tag: 'Sri Lankan', bg: '#0a2540' },
     ],
     V: [

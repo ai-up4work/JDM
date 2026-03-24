@@ -165,6 +165,20 @@ const ALL_STORES: Store[] = [
     tags: ['Ethical fashion', 'Sustainable materials', 'Made in Sri Lanka'],
     itemCount: 67,
   },
+    {
+    slug: 'giva',
+    name: 'GIVA',
+    type: 'template',
+    isNew: true,
+    logo: '/store-icon/giva.png',
+    bannerStyle: { background: '#1a1400' },
+    category: 'Jewellery',
+    description: "Sri Lanka's most trusted gold plated jewellery store. Chains, bracelets, rings and bridal sets with a 1-year warranty.",
+    shipping: 'Ships island-wide',
+    payment: 'COD',
+    tags: ['Gold plated', 'Rose Gold', 'Bridal', 'Rings'],
+    itemCount: 36,
+  },
 ];
 
 const FILTERS: { key: FilterKey; label: string }[] = [

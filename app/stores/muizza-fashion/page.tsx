@@ -200,19 +200,24 @@ function ProductCard({ product, onEnquire }: { product: MFProduct; onEnquire: (p
   return (
     <div className="group flex flex-col">
       <div className="relative overflow-hidden rounded-2xl bg-secondary/40 aspect-[3/4] mb-3">
-        {product.image ? (
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground/20">
-            <Scissors size={32} />
-          </div>
-        )}
+
+        {/* ✅ Image is now a Link — clicking anywhere on it navigates to the slug page */}
+        <Link href={`/stores/muizza-fashion/${product.slug}`} className="block w-full h-full">
+          {product.image ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground/20">
+              <Scissors size={32} />
+            </div>
+          )}
+        </Link>
+
         <div className="absolute top-3 left-3 flex flex-col gap-1">
           {product.featured && (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-foreground text-background">
@@ -242,15 +247,7 @@ function ProductCard({ product, onEnquire }: { product: MFProduct; onEnquire: (p
           <Heart size={14} className={wishlisted ? 'fill-rose-500 text-rose-500' : 'text-foreground'} />
         </button>
 
-        {/* ✅ FIXED: was `/${product.slug}` — now includes full store path */}
-        <Link
-          href={`/stores/muizza-fashion/${product.slug}`}
-          className="absolute bottom-3 left-3 right-3 py-2.5 bg-foreground
-            text-background text-xs font-bold rounded-xl text-center cursor-pointer
-            translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center gap-1.5"
-        >
-          <Ruler size={11} /> Customise this style →
-        </Link>
+        {/* ✅ Hover overlay button removed */}
       </div>
 
       <div className="flex flex-col flex-1">
@@ -272,22 +269,13 @@ function ProductCard({ product, onEnquire }: { product: MFProduct; onEnquire: (p
             <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Starting from</p>
             <span className="text-sm font-bold text-foreground">{fmtPrice(product.basePrice)}</span>
           </div>
-          <div className="flex items-center gap-2">
-            {product.rating > 0 && (
-              <div className="flex items-center gap-0.5">
-                <Star size={10} className="fill-foreground text-foreground" />
-                <span className="text-[10px] text-muted-foreground">{product.rating.toFixed(1)}</span>
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => onEnquire(product)}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border text-[10px] font-semibold
-                hover:bg-foreground hover:text-background hover:border-foreground transition-all duration-200"
-            >
-              <MessageCircle size={10} /> Enquire
-            </button>
-          </div>
+          {/* ✅ Enquire button removed — only rating remains */}
+          {product.rating > 0 && (
+            <div className="flex items-center gap-0.5">
+              <Star size={10} className="fill-foreground text-foreground" />
+              <span className="text-[10px] text-muted-foreground">{product.rating.toFixed(1)}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

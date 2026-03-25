@@ -132,46 +132,46 @@ function Badge({ children, variant = 'default' }: { children: React.ReactNode; v
 
 // ─── Image Gallery ────────────────────────────────────────────────────────────
 
-function ImageGallery({ image, name }: { image: string | null; name: string }) {
-  // In production, product.images would be an array — for now we simulate
-  // multiple gallery slots from the single image with different crop params
-  const images = image
-    ? [
-        image,
-        image.replace('w=600', 'w=600&crop=top'),
-        image.replace('w=600', 'w=600&crop=bottom'),
-      ]
-    : [null, null, null];
+function ImageGallery({ image, images, name }: {
+  image: string | null;
+  images?: string[];
+  name: string;
+}) {
+  // Use the images array if provided; fall back to just the cover image
+  const galleryImages: (string | null)[] =
+    images && images.length > 0 ? images : image ? [image] : [null];
 
   const [active, setActive] = useState(0);
 
   return (
     <div className="flex flex-col-reverse sm:flex-row gap-3">
-      {/* Thumbnails */}
-      <div className="flex sm:flex-col gap-2 overflow-x-auto sm:overflow-visible">
-        {images.map((img, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => setActive(i)}
-            className={`relative shrink-0 w-16 h-20 sm:w-20 sm:h-24 rounded-xl overflow-hidden border-2 transition-all
-              ${active === i ? 'border-foreground' : 'border-transparent opacity-60 hover:opacity-100'}`}
-          >
-            {img
-              ? <Image src={img} alt={`${name} view ${i + 1}`} fill sizes="80px" className="object-cover" />
-              : <div className="w-full h-full bg-secondary/40 flex items-center justify-center">
-                  <Scissors size={14} className="text-muted-foreground/30" />
-                </div>
-            }
-          </button>
-        ))}
-      </div>
+      {/* Thumbnails — only render strip if more than 1 image */}
+      {galleryImages.length > 1 && (
+        <div className="flex sm:flex-col gap-2 overflow-x-auto sm:overflow-visible">
+          {galleryImages.map((img, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setActive(i)}
+              className={`relative shrink-0 w-16 h-20 sm:w-20 sm:h-24 rounded-xl overflow-hidden border-2 transition-all
+                ${active === i ? 'border-foreground' : 'border-transparent opacity-60 hover:opacity-100'}`}
+            >
+              {img
+                ? <Image src={img} alt={`${name} view ${i + 1}`} fill sizes="80px" className="object-cover" />
+                : <div className="w-full h-full bg-secondary/40 flex items-center justify-center">
+                    <Scissors size={14} className="text-muted-foreground/30" />
+                  </div>
+              }
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Main image */}
       <div className="relative flex-1 aspect-[3/4] rounded-2xl overflow-hidden bg-secondary/40">
-        {images[active]
+        {galleryImages[active]
           ? <Image
-              src={images[active]!}
+              src={galleryImages[active]!}
               alt={name}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -182,33 +182,37 @@ function ImageGallery({ image, name }: { image: string | null; name: string }) {
               <Scissors size={48} className="text-muted-foreground/20" />
             </div>
         }
-        {/* Nav arrows */}
-        {images.length > 1 && (
+
+        {/* Nav arrows — only when multiple images */}
+        {galleryImages.length > 1 && (
           <>
             <button
               type="button"
-              onClick={() => setActive(v => (v - 1 + images.length) % images.length)}
+              onClick={() => setActive(v => (v - 1 + galleryImages.length) % galleryImages.length)}
               className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
             >
               <ChevronLeft size={14} />
             </button>
             <button
               type="button"
-              onClick={() => setActive(v => (v + 1) % images.length)}
+              onClick={() => setActive(v => (v + 1) % galleryImages.length)}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
             >
               <ChevronRight size={14} />
             </button>
           </>
         )}
-        {/* Dot indicators */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {images.map((_, i) => (
-            <button key={i} type="button" onClick={() => setActive(i)}
-              className={`w-1.5 h-1.5 rounded-full transition-all ${active === i ? 'bg-foreground w-3' : 'bg-foreground/30'}`}
-            />
-          ))}
-        </div>
+
+        {/* Dot indicators — only when multiple images */}
+        {galleryImages.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {galleryImages.map((_, i) => (
+              <button key={i} type="button" onClick={() => setActive(i)}
+                className={`w-1.5 h-1.5 rounded-full transition-all ${active === i ? 'bg-foreground w-3' : 'bg-foreground/30'}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -389,7 +393,7 @@ export default function MuizzaFashionSlugPage() {
 
             {/* LEFT — Gallery */}
             <div className="lg:sticky lg:top-20 lg:self-start">
-              <ImageGallery image={product.image} name={product.name} />
+              <ImageGallery image={product.image} name={product.name} images={product.images || []} />
             </div>
 
             {/* RIGHT — Details + Order form */}

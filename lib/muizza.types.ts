@@ -9,6 +9,7 @@ export interface MFProduct {
   category: string;
   categoryLabel: string;
   image: string | null;
+  images?: string[];           // additional gallery images (new)
   basePrice: number;        // starting price for this style (LKR)
   estimatedDays: number;    // typical tailoring turnaround
   fabric?: string;          // comma-separated, e.g. "Cotton, Silk, Georgette"

@@ -16,10 +16,10 @@ const jost = Jost({
 })
 
 export const metadata: Metadata = {
-  title: "JDM - South Asia's Fashion Discovery Platform",
+  title: "EastMall - Digital marketplace and customizable E Commerce for small businesses in Sri Lanka",
   description:
-    "Shop premium fashion from Pakistani and South Asian designers on JDM. Discover curated collections of women's, men's, and kids fashion.",
-  generator: 'v0.app',
+    "EastMall is a digital marketplace and customizable e-commerce solution designed to empower small businesses in Sri Lanka. We provide a platform for local entrepreneurs to showcase their products and reach a wider audience, while offering customers a convenient and personalized shopping experience.",
+  generator: 'up4work',
   icons: {
     icon: [
       { url: '/brand/favicon.ico', media: '(prefers-color-scheme: light)' },

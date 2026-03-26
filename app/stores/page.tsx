@@ -138,7 +138,7 @@ const ALL_STORES: Store[] = [
     payment: 'COD',
     tags: ['Gold plated', 'Earrings', 'Necklaces', 'Rings'],
     itemCount: 421,
-  },
+    },
     {
     slug: 'cherie-lueur',
     name: 'Cherie Lueur',

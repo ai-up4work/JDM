@@ -1,5 +1,5 @@
 'use client';
-// app/booking/confirmed/page.tsx  →  Booking confirmed screen
+// app/booking/confirmed/page.tsx  →  Step 5: Request submitted confirmation screen
 
 import { useRouter } from 'next/navigation';
 import { useBooking } from '@/lib/booking/context';

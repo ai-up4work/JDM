@@ -17,12 +17,12 @@ const AMENITY_ICONS: Record<string, string> = {
 
 export default function ChooseOperatorPage() {
   const router = useRouter();
-  const { operator, setOperator, setBus, setSelectedSeats } = useBooking();
+  const { operator, setOperator, setBus, setSeatCount } = useBooking();
 
   const handleSelect = (op: Operator) => {
     setOperator(op);
     setBus(null);
-    setSelectedSeats([]);
+    setSeatCount(1);
     router.push(`/booking/${op.id}`);
   };
 
@@ -58,85 +58,85 @@ export default function ChooseOperatorPage() {
         </svg>
       </Link>
 
-     {/* Resale tickets available now */}
-    {availableResale.length > 0 && (
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
-              Resale tickets
-            </p>
-            <p className="text-xs text-foreground font-semibold">Last-minute seats from other travellers</p>
-          </div>
-          <Link href="/booking/tickets" className="text-[10px] font-semibold text-amber-600 hover:text-amber-700 transition-colors shrink-0">
-            Sell yours →
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {availableResale.map(r => (
-            <div
-              key={r.id}
-              className="relative flex flex-col justify-between gap-3 p-4 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50/30 overflow-hidden"
-            >
-              {/* Decorative circle */}
-              <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-amber-100/60 pointer-events-none" />
-              <div className="absolute -bottom-6 -left-4 w-16 h-16 rounded-full bg-orange-100/40 pointer-events-none" />
-
-              {/* Top: operator + resale badge */}
-              <div className="flex items-center justify-between gap-2 relative">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-white text-[9px] font-black"
-                    style={{ background: r.accentColor }}
-                  >
-                    {r.operatorName.slice(0, 2).toUpperCase()}
-                  </div>
-                  <span className="text-[10px] font-semibold text-muted-foreground">{r.operatorName}</span>
-                </div>
-                <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 uppercase tracking-wider shrink-0">
-                  <Tag size={8} /> Resale
-                </span>
-              </div>
-
-              {/* Route */}
-              <div className="relative">
-                <div className="flex items-center gap-1.5 text-sm font-bold text-foreground">
-                  <span>{r.from}</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400 shrink-0">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                  <span>{r.to}</span>
-                </div>
-                <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
-                  <span>🕐 {r.departure}</span>
-                  <span>·</span>
-                  <span>{new Date(r.date).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short' })}</span>
-                  <span>·</span>
-                  <span>Seat {r.seat}</span>
-                </div>
-              </div>
-
-              {/* Bottom: price + buy */}
-              <div className="flex items-end justify-between gap-2 relative">
-                <div>
-                  <p className="text-base font-black text-foreground leading-tight">LKR {r.totalPrice}</p>
-                  <p className="text-[9px] text-amber-600 mt-0.5">
-                    LKR {r.originalFare} fare · LKR {r.mediationFee} mediation
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-[10px] font-bold transition-all duration-150 shrink-0"
-                >
-                  Buy seat
-                </button>
-              </div>
+      {/* Resale tickets available now */}
+      {availableResale.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                Resale tickets
+              </p>
+              <p className="text-xs text-foreground font-semibold">Last-minute seats from other travellers</p>
             </div>
-          ))}
+            <Link href="/booking/tickets" className="text-[10px] font-semibold text-amber-600 hover:text-amber-700 transition-colors shrink-0">
+              Sell yours →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {availableResale.map(r => (
+              <div
+                key={r.id}
+                className="relative flex flex-col justify-between gap-3 p-4 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50/30 overflow-hidden"
+              >
+                {/* Decorative circles */}
+                <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-amber-100/60 pointer-events-none" />
+                <div className="absolute -bottom-6 -left-4 w-16 h-16 rounded-full bg-orange-100/40 pointer-events-none" />
+
+                {/* Top: operator + resale badge */}
+                <div className="flex items-center justify-between gap-2 relative">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-white text-[9px] font-black"
+                      style={{ background: r.accentColor }}
+                    >
+                      {r.operatorName.slice(0, 2).toUpperCase()}
+                    </div>
+                    <span className="text-[10px] font-semibold text-muted-foreground">{r.operatorName}</span>
+                  </div>
+                  <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 uppercase tracking-wider shrink-0">
+                    <Tag size={8} /> Resale
+                  </span>
+                </div>
+
+                {/* Route */}
+                <div className="relative">
+                  <div className="flex items-center gap-1.5 text-sm font-bold text-foreground">
+                    <span>{r.from}</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400 shrink-0">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                    <span>{r.to}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
+                    <span>🕐 {r.departure}</span>
+                    <span>·</span>
+                    <span>{new Date(r.date).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short' })}</span>
+                    <span>·</span>
+                    <span>Seat {r.seat}</span>
+                  </div>
+                </div>
+
+                {/* Bottom: price + buy */}
+                <div className="flex items-end justify-between gap-2 relative">
+                  <div>
+                    <p className="text-base font-black text-foreground leading-tight">LKR {r.totalPrice}</p>
+                    <p className="text-[9px] text-amber-600 mt-0.5">
+                      LKR {r.originalFare} fare · LKR {r.mediationFee} mediation
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-[10px] font-bold transition-all duration-150 shrink-0"
+                  >
+                    Buy seat
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
       {/* Operator grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -172,7 +172,6 @@ function OperatorCard({
       {/* Top row: logo + name + fare */}
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="flex items-center gap-2.5">
-          {/* Coloured logo block */}
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-white text-[10px] font-black"
             style={{ background: op.accentColor }}

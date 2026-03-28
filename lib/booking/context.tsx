@@ -1,5 +1,5 @@
 'use client';
-// lib/Booking/context.tsx
+// lib/booking/context.tsx
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Operator, Bus } from './mock/operators';
@@ -7,40 +7,41 @@ import { Operator, Bus } from './mock/operators';
 interface BookingState {
   operator: Operator | null;
   bus: Bus | null;
-  selectedSeats: string[]; // seat ids
+  seatCount: number;           // how many seats the user wants
   passengerName: string;
   passengerPhone: string;
   passengerGender: 'male' | 'female';
+  requestId: string | null;    // set after submitRequest()
 }
 
 interface BookingContextValue extends BookingState {
   setOperator: (op: Operator | null) => void;
   setBus: (bus: Bus | null) => void;
-  setSelectedSeats: (seats: string[]) => void;
+  setSeatCount: (n: number) => void;
   setPassengerName: (name: string) => void;
   setPassengerPhone: (phone: string) => void;
   setPassengerGender: (gender: 'male' | 'female') => void;
+  setRequestId: (id: string | null) => void;
   clearBooking: () => void;
 }
 
 const defaultState: BookingState = {
   operator: null,
   bus: null,
-  selectedSeats: [],
+  seatCount: 1,
   passengerName: '',
   passengerPhone: '',
   passengerGender: 'male',
+  requestId: null,
 };
 
 const BookingContext = createContext<BookingContextValue | null>(null);
-
-const STORAGE_KEY = 'booking-state';
+const STORAGE_KEY = 'booking-state-v2';
 
 export function BookingProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<BookingState>(defaultState);
   const [hydrated, setHydrated] = useState(false);
 
-  // Restore from sessionStorage on mount
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
@@ -49,12 +50,9 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     setHydrated(true);
   }, []);
 
-  // Persist on every change
   useEffect(() => {
     if (!hydrated) return;
-    try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch {}
+    try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
   }, [state, hydrated]);
 
   const update = (patch: Partial<BookingState>) =>
@@ -64,10 +62,11 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     ...state,
     setOperator: op => update({ operator: op }),
     setBus: bus => update({ bus }),
-    setSelectedSeats: seats => update({ selectedSeats: seats }),
+    setSeatCount: n => update({ seatCount: n }),
     setPassengerName: name => update({ passengerName: name }),
     setPassengerPhone: phone => update({ passengerPhone: phone }),
     setPassengerGender: gender => update({ passengerGender: gender }),
+    setRequestId: id => update({ requestId: id }),
     clearBooking: () => {
       setState(defaultState);
       try { sessionStorage.removeItem(STORAGE_KEY); } catch {}

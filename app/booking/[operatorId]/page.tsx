@@ -17,7 +17,7 @@ function formatDate(iso: string) {
 export default function ChooseBusPage({ params }: { params: Promise<{ operatorId: string }> }) {
   const { operatorId } = use(params);
   const router = useRouter();
-  const { operator, bus: selectedBus, setBus, setSelectedSeats } = useBooking();
+  const { operator, bus: selectedBus, setBus, setSeatCount } = useBooking();
 
   const op = operator ?? getOperator(operatorId);
   if (!op) {
@@ -30,7 +30,7 @@ export default function ChooseBusPage({ params }: { params: Promise<{ operatorId
 
   const handleSelect = (bus: Bus) => {
     setBus(bus);
-    setSelectedSeats([]);
+    setSeatCount([]);
     router.push(`/booking/${op.id}/${bus.id}`);
   };
 

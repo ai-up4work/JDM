@@ -5,7 +5,6 @@ import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBooking } from '@/lib/booking/context';
 import { getBus, getOperator } from '@/lib/booking/mock/operators';
-import { confirmSeat } from '@/lib/booking/mock/operators';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', {
@@ -19,10 +18,11 @@ export default function ConfirmPage({ params }: { params: Promise<{ operatorId: 
 
   const {
     operator: ctxOp, bus: ctxBus,
-    selectedSeats,
+    seatCount, setSeatCount,
     passengerName, setPassengerName,
     passengerPhone, setPassengerPhone,
     passengerGender, setPassengerGender,
+    setRequestId,
   } = useBooking();
 
   const op  = ctxOp  ?? getOperator(operatorId);
@@ -30,7 +30,7 @@ export default function ConfirmPage({ params }: { params: Promise<{ operatorId: 
 
   const [submitting, setSubmitting] = useState(false);
 
-  if (!op || !bus || selectedSeats.length === 0) {
+  if (!op || !bus) {
     return (
       <div className="py-20 text-center">
         <p className="text-muted-foreground text-sm">No booking in progress.</p>
@@ -38,12 +38,12 @@ export default function ConfirmPage({ params }: { params: Promise<{ operatorId: 
     );
   }
 
-  const totalFare = selectedSeats.length * bus.fare;
+  const totalFare = seatCount * bus.fare;
 
   const handleConfirm = () => {
     if (!passengerName.trim() || !passengerPhone.trim()) return;
     setSubmitting(true);
-    selectedSeats.forEach(id => confirmSeat(busId, id, passengerGender));
+    setRequestId(Math.random().toString(36).slice(2, 10).toUpperCase());
     setTimeout(() => router.push('/booking/confirmed'), 400);
   };
 
@@ -71,7 +71,6 @@ export default function ConfirmPage({ params }: { params: Promise<{ operatorId: 
           { label: 'Route',     value: `${bus.from} → ${bus.to}` },
           { label: 'Date',      value: formatDate(bus.date) },
           { label: 'Duration',  value: `${bus.duration} · ${bus.distance}` },
-          { label: 'Seats',     value: selectedSeats.join(', ') },
           { label: 'Fare/seat', value: `LKR ${bus.fare.toLocaleString()}` },
         ].map(row => (
           <div key={row.label} className="px-4 py-3 border-b border-border flex justify-between items-center">
@@ -79,6 +78,30 @@ export default function ConfirmPage({ params }: { params: Promise<{ operatorId: 
             <span className="text-xs font-semibold text-foreground">{row.value}</span>
           </div>
         ))}
+
+        {/* Seat count stepper */}
+        <div className="px-4 py-3 border-b border-border flex justify-between items-center">
+          <span className="text-xs text-muted-foreground">Number of seats</span>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSeatCount(Math.max(1, seatCount - 1))}
+              disabled={seatCount <= 1}
+              className="w-7 h-7 rounded-lg border border-border text-foreground text-sm font-bold hover:bg-secondary transition-colors disabled:opacity-30"
+            >
+              −
+            </button>
+            <span className="text-sm font-bold text-foreground w-4 text-center">{seatCount}</span>
+            <button
+              type="button"
+              onClick={() => setSeatCount(Math.min(6, seatCount + 1))}
+              disabled={seatCount >= 6}
+              className="w-7 h-7 rounded-lg border border-border text-foreground text-sm font-bold hover:bg-secondary transition-colors disabled:opacity-30"
+            >
+              +
+            </button>
+          </div>
+        </div>
 
         <div className="px-4 py-3 bg-secondary/10 flex justify-between items-center">
           <span className="text-sm font-bold text-foreground">Total</span>

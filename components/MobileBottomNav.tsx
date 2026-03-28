@@ -132,6 +132,7 @@ const extraLinks = [
   { label: 'New Arrivals', href: '/new-arrivals'  },
   { label: 'West',         href: '/category/west' },
   { label: 'Stores',       href: '/stores'        },
+  { label: 'Library',      href: '/library'       },
   { label: 'Orders',       href: '/orders'        },
   { label: 'Rewards',      href: '/rewards'       },
   { label: 'Wishlist',     href: '/wishlist'      },

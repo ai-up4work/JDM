@@ -1,35 +1,30 @@
 'use client';
-// lib/library/context.tsx  →  Global state backed by Convex
+// lib/library/context.tsx  →  Global state backed by Supabase
 
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from './supabase';
 
-export type Subject = string;
+export type Subject = string; // extensible — any subject slug
 export type ItemType = 'book' | 'journal' | 'workbook' | 'reference';
 export type BorrowStatus = 'active' | 'returned' | 'overdue';
 
 export interface LibraryItem {
-  _id: Id<'items'>;
-  id: string;           // referenceNumber — used for display
+  id: string;
   title: string;
-  author?: string;
+  author: string;
   subject: Subject;
   type: ItemType;
-  isbn?: string;
-  referenceNumber: string;
+  isbn: string;
   totalCopies: number;
   availableCopies: number;
-  description?: string;
-  year?: number;
+  description: string;
+  year: number;
   edition?: string;
 }
 
 export interface BorrowRecord {
-  _id: Id<'borrowRecords'>;
   id: string;
-  itemId: Id<'items'>;
+  itemId: string;
   itemTitle: string;
   borrowerName: string;
   borrowerPhone: string;
@@ -41,9 +36,72 @@ export interface BorrowRecord {
   status: BorrowStatus;
 }
 
+// ─── Raw Supabase row shapes (snake_case) ────────────────────────────────────
+
+interface RawItem {
+  id: string;
+  title: string;
+  author: string | null;
+  subject: Subject;
+  type: ItemType;
+  isbn: string | null;
+  total_copies: number;
+  available_copies: number;
+  description: string | null;
+  year: number | null;
+  edition?: string | null;
+}
+
+interface RawRecord {
+  id: string;
+  item_id: string;
+  item_title: string;
+  borrower_name: string;
+  borrower_phone: string;
+  borrower_email: string | null;
+  borrower_nic: string;
+  borrowed_date: string;
+  due_date: string;
+  returned_date?: string | null;
+}
+
+// ─── Mappers ─────────────────────────────────────────────────────────────────
+
+function mapItem(r: RawItem): LibraryItem {
+  return {
+    id: r.id,
+    title: r.title,
+    author: r.author ?? '',
+    subject: r.subject,
+    type: r.type,
+    isbn: r.isbn ?? '',
+    totalCopies: r.total_copies,
+    availableCopies: r.available_copies,
+    description: r.description ?? '',
+    year: r.year ?? 0,
+    edition: r.edition ?? undefined,
+  };
+}
+
+function mapRecord(r: RawRecord): BorrowRecord {
+  return {
+    id: r.id,
+    itemId: r.item_id,
+    itemTitle: r.item_title,
+    borrowerName: r.borrower_name,
+    borrowerPhone: r.borrower_phone,
+    borrowerEmail: r.borrower_email ?? '',
+    borrowerNIC: r.borrower_nic,
+    borrowedDate: r.borrowed_date,
+    dueDate: r.due_date,
+    returnedDate: r.returned_date ?? undefined,
+    status: computeStatus(r.returned_date ?? undefined, r.due_date),
+  };
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function makeDueDate(): string {
+function dueDate(): string {
   const d = new Date();
   d.setDate(d.getDate() + 14);
   return d.toISOString();
@@ -55,24 +113,11 @@ function computeStatus(returnedDate: string | undefined, due: string): BorrowSta
   return 'active';
 }
 
-function mapRecord(r: any): BorrowRecord {
-  return {
-    ...r,
-    id: r._id,
-    status: computeStatus(r.returnedDate, r.dueDate),
-  };
-}
-
-function mapItem(r: any): LibraryItem {
-  return {
-    ...r,
-    id: r.referenceNumber,
-  };
-}
-
 // ─── State / context types ───────────────────────────────────────────────────
 
 interface LibraryState {
+  items: LibraryItem[];
+  borrowRecords: BorrowRecord[];
   selectedItem: LibraryItem | null;
   borrowerName: string;
   borrowerPhone: string;
@@ -80,12 +125,11 @@ interface LibraryState {
   borrowerNIC: string;
   activeSubject: Subject | 'all';
   searchQuery: string;
+  loading: boolean;
+  error: string | null;
 }
 
 interface LibraryContextValue extends LibraryState {
-  items: LibraryItem[];
-  borrowRecords: BorrowRecord[];
-  loading: boolean;
   setSelectedItem: (item: LibraryItem | null) => void;
   setBorrowerName: (v: string) => void;
   setBorrowerPhone: (v: string) => void;
@@ -94,12 +138,12 @@ interface LibraryContextValue extends LibraryState {
   setActiveSubject: (s: Subject | 'all') => void;
   setSearchQuery: (q: string) => void;
   borrowItem: () => Promise<BorrowRecord | null>;
-  returnItem: (recordId: Id<'borrowRecords'>) => Promise<void>;
+  returnItem: (recordId: string) => Promise<void>;
   clearBorrowerForm: () => void;
   getActiveRecords: () => BorrowRecord[];
   getOverdueRecords: () => BorrowRecord[];
   getRecordsByNIC: (nic: string) => BorrowRecord[];
-  getItemById: (id: Id<'items'>) => LibraryItem | undefined;
+  getItemById: (id: string) => LibraryItem | undefined;
   filteredItems: () => LibraryItem[];
 }
 
@@ -107,7 +151,9 @@ interface LibraryContextValue extends LibraryState {
 
 const LibraryContext = createContext<LibraryContextValue | null>(null);
 
-const defaultFormState: LibraryState = {
+const defaultState: LibraryState = {
+  items: [],
+  borrowRecords: [],
   selectedItem: null,
   borrowerName: '',
   borrowerPhone: '',
@@ -115,80 +161,147 @@ const defaultFormState: LibraryState = {
   borrowerNIC: '',
   activeSubject: 'all',
   searchQuery: '',
+  loading: true,
+  error: null,
 };
 
 // ─── Provider ────────────────────────────────────────────────────────────────
 
 export function LibraryProvider({ children }: { children: ReactNode }) {
-  const [formState, setFormState] = useState<LibraryState>(defaultFormState);
-
-  // ── Convex queries (real-time, auto-updating) ─────────────────────────────
-  const rawItems   = useQuery(api.library.getItems);
-  const rawRecords = useQuery(api.library.getBorrowRecords);
-
-  // ── Convex mutations ──────────────────────────────────────────────────────
-  const borrowMutation = useMutation(api.library.borrowItem);
-  const returnMutation = useMutation(api.library.returnItem);
-
-  const items: LibraryItem[]     = (rawItems   ?? []).map(mapItem);
-  const borrowRecords: BorrowRecord[] = (rawRecords ?? []).map(mapRecord);
-  const loading = rawItems === undefined || rawRecords === undefined;
+  const [state, setState] = useState<LibraryState>(defaultState);
 
   const update = (patch: Partial<LibraryState>) =>
-    setFormState(prev => ({ ...prev, ...patch }));
+    setState(prev => ({ ...prev, ...patch }));
+
+  // ── Initial data fetch ────────────────────────────────────────────────────
+  useEffect(() => {
+    async function fetchAll() {
+      update({ loading: true, error: null });
+      try {
+        const [{ data: itemRows, error: itemErr }, { data: recordRows, error: recErr }] =
+          await Promise.all([
+            supabase.from('items').select('*').order('title'),
+            supabase.from('borrow_records').select('*').order('borrowed_date', { ascending: false }),
+          ]);
+
+        console.log('Fetched items:', itemRows);
+
+        if (itemErr) throw itemErr;
+        if (recErr) throw recErr;
+
+        update({
+          items: (itemRows as RawItem[]).map(mapItem),
+          borrowRecords: (recordRows as RawRecord[]).map(mapRecord),
+          loading: false,
+        });
+      } catch (err: any) {
+        update({ error: err.message ?? 'Failed to load library data', loading: false });
+      }
+    }
+
+    fetchAll();
+  }, []);
 
   // ── borrow ────────────────────────────────────────────────────────────────
   const borrowItem = async (): Promise<BorrowRecord | null> => {
-    const { selectedItem, borrowerName, borrowerPhone, borrowerEmail, borrowerNIC } = formState;
+    const { selectedItem, borrowerName, borrowerPhone, borrowerEmail, borrowerNIC } = state;
     if (!selectedItem || selectedItem.availableCopies < 1) return null;
 
-    try {
-      await borrowMutation({
-        itemId: selectedItem._id,
-        itemTitle: selectedItem.title,
-        borrowerName,
-        borrowerPhone,
-        borrowerEmail: borrowerEmail || undefined,
-        borrowerNIC,
-        borrowedDate: new Date().toISOString(),
-        dueDate: makeDueDate(),
-      });
+    const due = dueDate();
+    const now = new Date().toISOString();
 
-      // Return a minimal record for the confirmation page
-      return {
-        _id: '' as any,
-        id: '',
-        itemId: selectedItem._id,
-        itemTitle: selectedItem.title,
-        borrowerName,
-        borrowerPhone,
-        borrowerEmail,
-        borrowerNIC,
-        borrowedDate: new Date().toISOString(),
-        dueDate: makeDueDate(),
-        status: 'active',
-      };
-    } catch (err: any) {
-      console.error('borrowItem error:', err.message);
+    // 1. Insert borrow record
+    const { data: inserted, error: insertErr } = await supabase
+      .from('borrow_records')
+      .insert({
+        item_id: selectedItem.id,
+        item_title: selectedItem.title,
+        borrower_name: borrowerName,
+        borrower_phone: borrowerPhone,
+        borrower_email: borrowerEmail || null,
+        borrower_nic: borrowerNIC,
+        borrowed_date: now,
+        due_date: due,
+      })
+      .select()
+      .single();
+
+    if (insertErr || !inserted) {
+      update({ error: insertErr?.message ?? 'Failed to create borrow record' });
       return null;
     }
+
+    // 2. Decrement available_copies
+    const { error: updateErr } = await supabase
+      .from('items')
+      .update({ available_copies: selectedItem.availableCopies - 1 })
+      .eq('id', selectedItem.id);
+
+    if (updateErr) {
+      update({ error: updateErr.message });
+      return null;
+    }
+
+    // 3. Reflect in local state
+    const newRecord = mapRecord(inserted as RawRecord);
+    setState(prev => ({
+      ...prev,
+      borrowRecords: [newRecord, ...prev.borrowRecords],
+      items: prev.items.map(i =>
+        i.id === selectedItem.id
+          ? { ...i, availableCopies: i.availableCopies - 1 }
+          : i
+      ),
+    }));
+
+    return newRecord;
   };
 
   // ── return ────────────────────────────────────────────────────────────────
-  const returnItem = async (recordId: Id<'borrowRecords'>): Promise<void> => {
-    try {
-      await returnMutation({ recordId });
-    } catch (err: any) {
-      console.error('returnItem error:', err.message);
+  const returnItem = async (recordId: string): Promise<void> => {
+    const record = state.borrowRecords.find(r => r.id === recordId);
+    if (!record || record.returnedDate) return;
+
+    const now = new Date().toISOString();
+
+    // 1. Mark returned
+    const { error: recErr } = await supabase
+      .from('borrow_records')
+      .update({ returned_date: now })
+      .eq('id', recordId);
+
+    if (recErr) { update({ error: recErr.message }); return; }
+
+    // 2. Increment available_copies
+    const item = state.items.find(i => i.id === record.itemId);
+    if (item) {
+      const { error: itemErr } = await supabase
+        .from('items')
+        .update({ available_copies: item.availableCopies + 1 })
+        .eq('id', item.id);
+
+      if (itemErr) { update({ error: itemErr.message }); return; }
     }
+
+    // 3. Reflect in local state
+    setState(prev => ({
+      ...prev,
+      borrowRecords: prev.borrowRecords.map(r =>
+        r.id === recordId
+          ? { ...r, returnedDate: now, status: 'returned' as BorrowStatus }
+          : r
+      ),
+      items: prev.items.map(i =>
+        i.id === record.itemId
+          ? { ...i, availableCopies: i.availableCopies + 1 }
+          : i
+      ),
+    }));
   };
 
   // ── value ─────────────────────────────────────────────────────────────────
   const value: LibraryContextValue = {
-    ...formState,
-    items,
-    borrowRecords,
-    loading,
+    ...state,
 
     setSelectedItem: item => update({ selectedItem: item }),
     setBorrowerName: v => update({ borrowerName: v }),
@@ -202,29 +315,28 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     returnItem,
 
     clearBorrowerForm: () =>
-      setFormState(prev => ({
-        ...prev,
+      update({
         borrowerName: '',
         borrowerPhone: '',
         borrowerEmail: '',
         borrowerNIC: '',
         selectedItem: null,
-      })),
+      }),
 
     getActiveRecords: () =>
-      borrowRecords.filter(r => r.status === 'active' || r.status === 'overdue'),
+      state.borrowRecords.filter(r => r.status === 'active' || r.status === 'overdue'),
 
     getOverdueRecords: () =>
-      borrowRecords.filter(r => r.status === 'overdue'),
+      state.borrowRecords.filter(r => r.status === 'overdue'),
 
     getRecordsByNIC: (nic: string) =>
-      borrowRecords.filter(r => r.borrowerNIC === nic),
+      state.borrowRecords.filter(r => r.borrowerNIC === nic),
 
-    getItemById: (id: Id<'items'>) =>
-      items.find(i => i._id === id),
+    getItemById: (id: string) =>
+      state.items.find(i => i.id === id),
 
     filteredItems: () => {
-      const { activeSubject, searchQuery } = formState;
+      const { items, activeSubject, searchQuery } = state;
       return items.filter(item => {
         const matchSubject = activeSubject === 'all' || item.subject === activeSubject;
         const q = searchQuery.toLowerCase();
@@ -232,7 +344,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
           item.title.toLowerCase().includes(q) ||
           (item.author ?? '').toLowerCase().includes(q) ||
           (item.isbn ?? '').includes(q) ||
-          item.referenceNumber.toLowerCase().includes(q);
+          item.id.toLowerCase().includes(q); // reference number search
         return matchSubject && matchSearch;
       });
     },

@@ -1,17 +1,14 @@
-// lib/library/subjects.ts  →  Subject metadata (colors, labels, accent classes)
-
-import { Subject } from './context';
-
 export interface SubjectMeta {
   label: string;
-  accent: string;       // Tailwind bg for badges / active tabs
-  accentText: string;   // Tailwind text for on-accent labels
-  accentBorder: string; // Tailwind border for cards
-  accentLight: string;  // Tailwind bg for light tint
-  icon: string;         // emoji-free: short Unicode symbol
+  accent: string;
+  accentText: string;
+  accentBorder: string;
+  accentLight: string;
+  icon: string;
 }
 
-export const SUBJECT_META: Record<Subject, SubjectMeta> = {
+// Default known subjects
+export const SUBJECT_META: Record<string, SubjectMeta> = {
   physics: {
     label: 'Physics',
     accent: 'bg-blue-600',
@@ -45,6 +42,20 @@ export const SUBJECT_META: Record<Subject, SubjectMeta> = {
     icon: 'Mat',
   },
 };
+
+// Fallback for unknown subjects (e.g. new ones added via Supabase)
+export const FALLBACK_META: SubjectMeta = {
+  label: 'General',
+  accent: 'bg-slate-500',
+  accentText: 'text-slate-700',
+  accentBorder: 'border-slate-200',
+  accentLight: 'bg-slate-50',
+  icon: 'Gen',
+};
+
+export function getSubjectMeta(subject: string): SubjectMeta {
+  return SUBJECT_META[subject] ?? { ...FALLBACK_META, label: subject, icon: subject.slice(0, 3) };
+}
 
 export const TYPE_LABELS: Record<string, string> = {
   book: 'Book',

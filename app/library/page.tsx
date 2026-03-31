@@ -3,25 +3,28 @@
 
 import Link from 'next/link';
 import { useLibrary } from '@/lib/library/context';
-import { SUBJECT_META, TYPE_LABELS } from '@/lib/library/subjects';
+import { getSubjectMeta, TYPE_LABELS } from '@/lib/library/subjects';
 import { Subject } from '@/lib/library/context';
 
-const SUBJECTS: Array<Subject | 'all'> = ['all', 'physics', 'chemistry', 'biology', 'mathematics'];
-
-const SUBJECT_COLORS: Record<Subject, string> = {
-  physics:     'bg-blue-600',
-  chemistry:   'bg-emerald-600',
-  biology:     'bg-green-700',
-  mathematics: 'bg-amber-500',
-};
+const KNOWN_SUBJECTS: Array<Subject | 'all'> = ['all', 'physics', 'chemistry', 'biology', 'mathematics'];
 
 export default function CatalogPage() {
   const {
     filteredItems, activeSubject, setActiveSubject,
     searchQuery, setSearchQuery, setSelectedItem,
+    items: allItems,
   } = useLibrary();
 
   const items = filteredItems();
+
+  // Build subject list dynamically from actual data + known defaults
+  const dynamicSubjects: Array<Subject | 'all'> = [
+    'all',
+    ...Array.from(new Set([
+      ...KNOWN_SUBJECTS.filter(s => s !== 'all'),
+      ...allItems.map(i => i.subject),
+    ])),
+  ];
 
   const stats = {
     total: items.length,
@@ -49,7 +52,7 @@ export default function CatalogPage() {
         </svg>
         <input
           type="text"
-          placeholder="Search by title, author, or ISBN…"
+          placeholder="Search by title, author, or reference number…"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
@@ -64,11 +67,11 @@ export default function CatalogPage() {
         )}
       </div>
 
-      {/* Subject filter tabs */}
+      {/* Subject filter tabs — built dynamically */}
       <div className="flex items-center gap-2 mb-6 flex-wrap">
-        {SUBJECTS.map(s => {
+        {dynamicSubjects.map(s => {
           const active = activeSubject === s;
-          const meta = s !== 'all' ? SUBJECT_META[s] : null;
+          const meta = s !== 'all' ? getSubjectMeta(s) : null;
           return (
             <button
               key={s}
@@ -96,7 +99,7 @@ export default function CatalogPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map(item => {
-            const meta = SUBJECT_META[item.subject];
+            const meta = getSubjectMeta(item.subject);
             const available = item.availableCopies > 0;
             return (
               <Link
@@ -106,7 +109,7 @@ export default function CatalogPage() {
                 className="group rounded-2xl border border-border bg-background hover:border-foreground/30 hover:shadow-sm transition-all overflow-hidden flex flex-col"
               >
                 {/* Color band */}
-                <div className={`h-1.5 w-full ${SUBJECT_COLORS[item.subject]}`} />
+                <div className={`h-1.5 w-full ${meta.accent}`} />
 
                 <div className="p-4 flex flex-col gap-2 flex-1">
                   {/* Badges */}
@@ -115,7 +118,7 @@ export default function CatalogPage() {
                       {meta.label}
                     </span>
                     <span className="text-[10px] font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
-                      {TYPE_LABELS[item.type]}
+                      {TYPE_LABELS[item.type] ?? item.type}
                     </span>
                     {item.edition && (
                       <span className="text-[10px] text-muted-foreground">
@@ -129,18 +132,22 @@ export default function CatalogPage() {
                     <h3 className="text-sm font-bold text-foreground leading-snug group-hover:underline">
                       {item.title}
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">{item.author}</p>
+                    {item.author && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{item.author}</p>
+                    )}
                   </div>
 
                   {/* Description */}
-                  <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
-                    {item.description}
-                  </p>
+                  {item.description && (
+                    <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
+                      {item.description}
+                    </p>
+                  )}
 
                   {/* Footer */}
                   <div className="flex items-center justify-between pt-1 border-t border-border mt-1">
                     <span className="text-[10px] text-muted-foreground font-mono">
-                      {item.isbn}
+                      {item.id}  {/* Reference number as ID */}
                     </span>
                     <span className={[
                       'text-[10px] font-bold px-2 py-0.5 rounded-full',

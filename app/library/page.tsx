@@ -6,18 +6,73 @@ import { useLibrary } from '@/lib/library/context';
 import { getSubjectMeta, TYPE_LABELS } from '@/lib/library/subjects';
 import { Subject } from '@/lib/library/context';
 
-const KNOWN_SUBJECTS: Array<Subject | 'all'> = ['all', 'physics', 'chemistry', 'biology', 'mathematics'];
+const KNOWN_SUBJECTS: Array<Subject | 'all'> = ['all'];
+
+function CatalogSkeleton() {
+  return (
+    <div>
+      <div className="mb-6">
+        <div className="h-8 w-56 rounded-lg bg-muted animate-pulse mb-2" />
+        <div className="h-4 w-40 rounded-md bg-muted animate-pulse" />
+      </div>
+
+      <div className="h-10 w-full rounded-xl bg-muted animate-pulse mb-5" />
+
+      <div className="flex items-center gap-2 mb-6 flex-wrap">
+        {['All Subjects', 'Physics', 'Chemistry', 'Biology', 'Mathematics'].map(s => (
+          <div
+            key={s}
+            className="h-7 rounded-full bg-muted animate-pulse"
+            style={{ width: `${s.length * 8 + 24}px` }}
+          />
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-2xl border border-border bg-background overflow-hidden flex flex-col"
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
+            <div className="h-1.5 w-full bg-muted animate-pulse" />
+            <div className="p-4 flex flex-col gap-3 flex-1">
+              <div className="flex items-center gap-1.5">
+                <div className="h-4 w-16 rounded-full bg-muted animate-pulse" />
+                <div className="h-4 w-12 rounded-full bg-muted animate-pulse" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <div className="h-4 w-full rounded bg-muted animate-pulse" />
+                <div className="h-4 w-3/4 rounded bg-muted animate-pulse" />
+                <div className="h-3 w-1/2 rounded bg-muted animate-pulse mt-0.5" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="h-3 w-full rounded bg-muted animate-pulse" />
+                <div className="h-3 w-5/6 rounded bg-muted animate-pulse" />
+              </div>
+              <div className="flex items-center justify-between pt-1 border-t border-border mt-1">
+                <div className="h-3 w-24 rounded bg-muted animate-pulse" />
+                <div className="h-4 w-20 rounded-full bg-muted animate-pulse" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function CatalogPage() {
   const {
     filteredItems, activeSubject, setActiveSubject,
     searchQuery, setSearchQuery, setSelectedItem,
-    items: allItems,
+    items: allItems, loading,
   } = useLibrary();
+
+  if (loading) return <CatalogSkeleton />;
 
   const items = filteredItems();
 
-  // Build subject list dynamically from actual data + known defaults
   const dynamicSubjects: Array<Subject | 'all'> = [
     'all',
     ...Array.from(new Set([
@@ -67,7 +122,7 @@ export default function CatalogPage() {
         )}
       </div>
 
-      {/* Subject filter tabs — built dynamically */}
+      {/* Subject filter tabs */}
       <div className="flex items-center gap-2 mb-6 flex-wrap">
         {dynamicSubjects.map(s => {
           const active = activeSubject === s;
@@ -108,11 +163,9 @@ export default function CatalogPage() {
                 onClick={() => setSelectedItem(item)}
                 className="group rounded-2xl border border-border bg-background hover:border-foreground/30 hover:shadow-sm transition-all overflow-hidden flex flex-col"
               >
-                {/* Color band */}
                 <div className={`h-1.5 w-full ${meta.accent}`} />
 
                 <div className="p-4 flex flex-col gap-2 flex-1">
-                  {/* Badges */}
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${meta.accentLight} ${meta.accentText}`}>
                       {meta.label}
@@ -127,7 +180,6 @@ export default function CatalogPage() {
                     )}
                   </div>
 
-                  {/* Title & author */}
                   <div className="flex-1">
                     <h3 className="text-sm font-bold text-foreground leading-snug group-hover:underline">
                       {item.title}
@@ -137,17 +189,15 @@ export default function CatalogPage() {
                     )}
                   </div>
 
-                  {/* Description */}
                   {item.description && (
                     <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
                       {item.description}
                     </p>
                   )}
 
-                  {/* Footer */}
                   <div className="flex items-center justify-between pt-1 border-t border-border mt-1">
                     <span className="text-[10px] text-muted-foreground font-mono">
-                      {item.id}  {/* Reference number as ID */}
+                      {item.isbn}
                     </span>
                     <span className={[
                       'text-[10px] font-bold px-2 py-0.5 rounded-full',

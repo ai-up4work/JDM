@@ -4,9 +4,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from './supabase';
 
-export type Subject = string; // extensible — any subject slug
-export type ItemType = 'book' | 'journal' | 'workbook' | 'reference';
+export type Subject = string;
+export type ItemType = 'book' | 'model_paper' | 'journal' | 'workbook' | 'reference';
 export type BorrowStatus = 'active' | 'returned' | 'overdue';
+export type ItemStatus = 'Available' | 'Unavailable';
 
 export interface LibraryItem {
   id: string;
@@ -20,6 +21,7 @@ export interface LibraryItem {
   description: string;
   year: number;
   edition?: string;
+  status: ItemStatus;
 }
 
 export interface BorrowRecord {
@@ -42,14 +44,15 @@ interface RawItem {
   id: string;
   title: string;
   author: string | null;
-  subject: Subject;
-  type: ItemType;
+  subject: Subject | null;
+  type: string | null;
   isbn: string | null;
   total_copies: number;
   available_copies: number;
   description: string | null;
   year: number | null;
   edition?: string | null;
+  status: ItemStatus | null;
 }
 
 interface RawRecord {
@@ -72,14 +75,15 @@ function mapItem(r: RawItem): LibraryItem {
     id: r.id,
     title: r.title,
     author: r.author ?? '',
-    subject: r.subject,
-    type: r.type,
+    subject: r.subject ?? 'general',
+    type: (r.type ?? 'book') as ItemType,
     isbn: r.isbn ?? '',
     totalCopies: r.total_copies,
     availableCopies: r.available_copies,
     description: r.description ?? '',
     year: r.year ?? 0,
     edition: r.edition ?? undefined,
+    status: r.status ?? 'Available',
   };
 }
 
@@ -210,7 +214,6 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     const due = dueDate();
     const now = new Date().toISOString();
 
-    // 1. Insert borrow record
     const { data: inserted, error: insertErr } = await supabase
       .from('borrow_records')
       .insert({
@@ -231,7 +234,6 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       return null;
     }
 
-    // 2. Decrement available_copies
     const { error: updateErr } = await supabase
       .from('items')
       .update({ available_copies: selectedItem.availableCopies - 1 })
@@ -242,7 +244,6 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       return null;
     }
 
-    // 3. Reflect in local state
     const newRecord = mapRecord(inserted as RawRecord);
     setState(prev => ({
       ...prev,
@@ -264,7 +265,6 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
 
     const now = new Date().toISOString();
 
-    // 1. Mark returned
     const { error: recErr } = await supabase
       .from('borrow_records')
       .update({ returned_date: now })
@@ -272,7 +272,6 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
 
     if (recErr) { update({ error: recErr.message }); return; }
 
-    // 2. Increment available_copies
     const item = state.items.find(i => i.id === record.itemId);
     if (item) {
       const { error: itemErr } = await supabase
@@ -283,7 +282,6 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       if (itemErr) { update({ error: itemErr.message }); return; }
     }
 
-    // 3. Reflect in local state
     setState(prev => ({
       ...prev,
       borrowRecords: prev.borrowRecords.map(r =>
@@ -344,7 +342,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
           item.title.toLowerCase().includes(q) ||
           (item.author ?? '').toLowerCase().includes(q) ||
           (item.isbn ?? '').includes(q) ||
-          item.id.toLowerCase().includes(q); // reference number search
+          item.id.toLowerCase().includes(q);
         return matchSubject && matchSearch;
       });
     },

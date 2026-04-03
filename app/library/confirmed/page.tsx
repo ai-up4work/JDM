@@ -8,6 +8,9 @@ import { useLibrary, BorrowRecord } from '@/lib/library/context';
 import { SUBJECT_META, TYPE_LABELS } from '@/lib/library/subjects';
 import { formatDate, formatShort } from '@/lib/library/dates';
 
+export const dynamic = 'force-dynamic'; // 👈 add this line
+
+
 export default function LibraryConfirmedPage() {
   const router = useRouter();
   const {

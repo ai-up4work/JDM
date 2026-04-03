@@ -1,28 +1,27 @@
-// app/booking/layout.tsx
+// app/library/layout.tsx
 import { ReactNode } from 'react';
-import { BookingProvider } from '@/lib/booking/context';
-import BookingSummaryBar from '@/components/booking/BookingSummaryBar';
+import { LibraryProvider } from '@/lib/library/context';
 
-export default function BookingLayout({ children }: { children: ReactNode }) {
+export default function LibraryLayout({ children }: { children: ReactNode }) {
   return (
-    <BookingProvider>
+    <LibraryProvider>
       <div className="min-h-screen bg-background">
-        {/* Sticky top nav — StepBar removed */}
+        {/* Optional Header for Library section */}
         <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
-          <div className="w-full min-w-0 px-4 sm:px-10 lg:px-40">
-            <div className="max-w-4xl mx-auto h-14 flex items-center justify-between gap-4">
-              {/* BookingNav and StepBar intentionally removed */}
+          <div className="w-full px-4 sm:px-10 lg:px-40">
+            <div className="max-w-4xl mx-auto h-14 flex items-center justify-between">
+               {/* Add Library specific navigation here if needed */}
             </div>
           </div>
         </div>
+
         {/* Page content */}
-        <div className="w-full min-w-0 px-4 sm:px-10 lg:px-40">
-          <div className="max-w-4xl mx-auto pt-4 pb-28 min-w-0">
+        <div className="w-full px-4 sm:px-10 lg:px-40">
+          <div className="max-w-4xl mx-auto pt-4 pb-20">
             {children}
           </div>
         </div>
-        <BookingSummaryBar />
       </div>
-    </BookingProvider>
+    </LibraryProvider>
   );
 }

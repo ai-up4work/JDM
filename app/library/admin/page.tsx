@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { LibraryProvider, useLibrary } from '@/lib/library/context';
+import { useLibrary } from '@/lib/library/context';
 import { getSubjectMeta, TYPE_LABELS } from '@/lib/library/subjects';
 import { formatShort, isOverdue, daysUntil } from '@/lib/library/dates';
 
 type AdminTab = 'overview' | 'loans' | 'inventory';
 
-// --- Sub-components ---
+// ── Removed local SUBJECT_COLORS — use getSubjectMeta().accent instead ──
 
 function StatCard({ label, value, sub, accent }: {
   label: string; value: string | number; sub?: string; accent?: string;
@@ -21,9 +21,7 @@ function StatCard({ label, value, sub, accent }: {
   );
 }
 
-// --- Main Logic Component ---
-
-function AdminDashboardContent() {
+export default function AdminPage() {
   const {
     items, borrowRecords, getActiveRecords,
     getOverdueRecords, returnItem,
@@ -31,6 +29,7 @@ function AdminDashboardContent() {
 
   const [tab, setTab] = useState<AdminTab>('overview');
   const [filterSubject, setFilterSubject] = useState<string | 'all'>('all');
+  // ── Fix 3: track the returned id but clear it when switching tabs ──
   const [returnedId, setReturnedId] = useState<string | null>(null);
 
   const activeRecords = getActiveRecords();
@@ -43,6 +42,7 @@ function AdminDashboardContent() {
     ? items
     : items.filter(i => i.subject === filterSubject);
 
+  // Derive unique subjects from actual data for the filter bar
   const allSubjects = [...new Set(items.map(i => i.subject))];
 
   const handleReturn = (id: string) => {
@@ -50,6 +50,7 @@ function AdminDashboardContent() {
     setReturnedId(id);
   };
 
+  // ── Fix 3: clear the banner when switching tabs ──
   const handleTabChange = (next: AdminTab) => {
     setTab(next);
     setReturnedId(null);
@@ -84,7 +85,7 @@ function AdminDashboardContent() {
         {TABS.map(t => (
           <button
             key={t.id}
-            onClick={() => handleTabChange(t.id)}
+            onClick={() => handleTabChange(t.id)}  // ← was setTab directly
             className={[
               'px-4 py-2.5 text-xs font-semibold border-b-2 -mb-px transition-colors',
               tab === t.id
@@ -102,11 +103,12 @@ function AdminDashboardContent() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <StatCard label="Currently borrowed" value={totalBorrowed} sub="items out" />
-            <StatCard label="Overdue" value={overdueRecords.length} accent={overdueRecords.length > 0 ? 'text-red-600' : undefined} sub="need chasing" />
+            <StatCard label="Overdue"             value={overdueRecords.length} accent={overdueRecords.length > 0 ? 'text-red-600' : undefined} sub="need chasing" />
             <StatCard label="Total in collection" value={totalItems} sub="across all subjects" />
-            <StatCard label="Available now" value={totalAvailable} sub="ready to lend" accent="text-emerald-600" />
+            <StatCard label="Available now"       value={totalAvailable} sub="ready to lend" accent="text-emerald-600" />
           </div>
 
+          {/* Per-subject breakdown — now uses getSubjectMeta, handles unknown subjects */}
           <div className="rounded-2xl border border-border overflow-hidden">
             <div className="px-4 py-3 bg-secondary/30 border-b border-border">
               <p className="text-xs font-semibold text-foreground uppercase tracking-wider">By subject</p>
@@ -116,6 +118,7 @@ function AdminDashboardContent() {
               const total = subItems.reduce((s, i) => s + i.totalCopies, 0);
               const avail = subItems.reduce((s, i) => s + i.availableCopies, 0);
               const out = total - avail;
+              // ── Fix 2: use getSubjectMeta instead of SUBJECT_META + SUBJECT_COLORS ──
               const meta = getSubjectMeta(subject);
               return (
                 <div key={subject} className="px-4 py-3 border-b border-border last:border-0 flex items-center gap-4">
@@ -133,6 +136,7 @@ function AdminDashboardContent() {
             })}
           </div>
 
+          {/* Recent activity */}
           {borrowRecords.length > 0 && (
             <div className="rounded-2xl border border-border overflow-hidden">
               <div className="px-4 py-3 bg-secondary/30 border-b border-border">
@@ -215,7 +219,7 @@ function AdminDashboardContent() {
 
                   <div className="px-4 py-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {[
-                      { label: 'Item',     value: record.itemTitle },
+                      { label: 'Item',      value: record.itemTitle },
                       { label: 'Borrower',  value: record.borrowerName },
                       { label: 'NIC',       value: record.borrowerNIC },
                       { label: 'Phone',     value: record.borrowerPhone },
@@ -241,6 +245,7 @@ function AdminDashboardContent() {
       {/* ── INVENTORY ── */}
       {tab === 'inventory' && (
         <div>
+          {/* Subject filter — Fix 1: built from real data, always lowercase keys */}
           <div className="flex items-center gap-2 mb-5 flex-wrap">
             {(['all', ...allSubjects] as Array<string | 'all'>).map(s => {
               const meta = s === 'all' ? null : getSubjectMeta(s);
@@ -274,6 +279,7 @@ function AdminDashboardContent() {
             </div>
 
             {filteredItems.map((item, i) => {
+              // ── Fix 2: use getSubjectMeta instead of SUBJECT_COLORS ──
               const meta = getSubjectMeta(item.subject);
               const out = item.totalCopies - item.availableCopies;
               return (
@@ -310,15 +316,5 @@ function AdminDashboardContent() {
         </div>
       )}
     </div>
-  );
-}
-
-// --- Default Export wrapped in Provider ---
-
-export default function AdminPage() {
-  return (
-    <LibraryProvider>
-      <AdminDashboardContent />
-    </LibraryProvider>
   );
 }

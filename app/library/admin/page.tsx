@@ -1,19 +1,13 @@
 'use client';
-// app/library/admin/page.tsx  →  Admin dashboard — stats, all loans, overdue alerts, inventory
 
 import { useState } from 'react';
-import { useLibrary, BorrowRecord, Subject } from '@/lib/library/context';
-import { SUBJECT_META, TYPE_LABELS } from '@/lib/library/subjects';
+import { LibraryProvider, useLibrary } from '@/lib/library/context';
+import { getSubjectMeta, TYPE_LABELS } from '@/lib/library/subjects';
 import { formatShort, isOverdue, daysUntil } from '@/lib/library/dates';
 
 type AdminTab = 'overview' | 'loans' | 'inventory';
 
-const SUBJECT_COLORS: Record<Subject, string> = {
-  physics:     'bg-blue-600',
-  chemistry:   'bg-emerald-600',
-  biology:     'bg-green-700',
-  mathematics: 'bg-amber-500',
-};
+// --- Sub-components ---
 
 function StatCard({ label, value, sub, accent }: {
   label: string; value: string | number; sub?: string; accent?: string;
@@ -27,20 +21,21 @@ function StatCard({ label, value, sub, accent }: {
   );
 }
 
-export default function AdminPage() {
+// --- Main Logic Component ---
+
+function AdminDashboardContent() {
   const {
     items, borrowRecords, getActiveRecords,
     getOverdueRecords, returnItem,
   } = useLibrary();
 
   const [tab, setTab] = useState<AdminTab>('overview');
-  const [filterSubject, setFilterSubject] = useState<Subject | 'all'>('all');
+  const [filterSubject, setFilterSubject] = useState<string | 'all'>('all');
   const [returnedId, setReturnedId] = useState<string | null>(null);
 
   const activeRecords = getActiveRecords();
   const overdueRecords = getOverdueRecords();
   const totalBorrowed = borrowRecords.filter(r => !r.returnedDate).length;
-  const totalReturned = borrowRecords.filter(r => r.returnedDate).length;
   const totalItems = items.reduce((s, i) => s + i.totalCopies, 0);
   const totalAvailable = items.reduce((s, i) => s + i.availableCopies, 0);
 
@@ -48,9 +43,16 @@ export default function AdminPage() {
     ? items
     : items.filter(i => i.subject === filterSubject);
 
+  const allSubjects = [...new Set(items.map(i => i.subject))];
+
   const handleReturn = (id: string) => {
     returnItem(id);
     setReturnedId(id);
+  };
+
+  const handleTabChange = (next: AdminTab) => {
+    setTab(next);
+    setReturnedId(null);
   };
 
   const TABS: Array<{ id: AdminTab; label: string }> = [
@@ -82,7 +84,7 @@ export default function AdminPage() {
         {TABS.map(t => (
           <button
             key={t.id}
-            onClick={() => setTab(t.id)}
+            onClick={() => handleTabChange(t.id)}
             className={[
               'px-4 py-2.5 text-xs font-semibold border-b-2 -mb-px transition-colors',
               tab === t.id
@@ -98,28 +100,26 @@ export default function AdminPage() {
       {/* ── OVERVIEW ── */}
       {tab === 'overview' && (
         <div className="space-y-6">
-          {/* Stats grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <StatCard label="Currently borrowed" value={totalBorrowed} sub="items out" />
-            <StatCard label="Overdue"             value={overdueRecords.length} accent={overdueRecords.length > 0 ? 'text-red-600' : undefined} sub="need chasing" />
+            <StatCard label="Overdue" value={overdueRecords.length} accent={overdueRecords.length > 0 ? 'text-red-600' : undefined} sub="need chasing" />
             <StatCard label="Total in collection" value={totalItems} sub="across all subjects" />
-            <StatCard label="Available now"       value={totalAvailable} sub="ready to lend" accent="text-emerald-600" />
+            <StatCard label="Available now" value={totalAvailable} sub="ready to lend" accent="text-emerald-600" />
           </div>
 
-          {/* Per-subject breakdown */}
           <div className="rounded-2xl border border-border overflow-hidden">
             <div className="px-4 py-3 bg-secondary/30 border-b border-border">
               <p className="text-xs font-semibold text-foreground uppercase tracking-wider">By subject</p>
             </div>
-            {(['physics', 'chemistry', 'biology', 'mathematics'] as Subject[]).map(subject => {
+            {allSubjects.map(subject => {
               const subItems = items.filter(i => i.subject === subject);
               const total = subItems.reduce((s, i) => s + i.totalCopies, 0);
               const avail = subItems.reduce((s, i) => s + i.availableCopies, 0);
               const out = total - avail;
-              const meta = SUBJECT_META[subject];
+              const meta = getSubjectMeta(subject);
               return (
                 <div key={subject} className="px-4 py-3 border-b border-border last:border-0 flex items-center gap-4">
-                  <div className={`w-2 h-8 rounded-full ${SUBJECT_COLORS[subject]}`} />
+                  <div className={`w-2 h-8 rounded-full ${meta.accent}`} />
                   <div className="flex-1">
                     <p className="text-xs font-bold text-foreground">{meta.label}</p>
                     <p className="text-[10px] text-muted-foreground">{subItems.length} titles · {total} copies</p>
@@ -133,7 +133,6 @@ export default function AdminPage() {
             })}
           </div>
 
-          {/* Recent activity */}
           {borrowRecords.length > 0 && (
             <div className="rounded-2xl border border-border overflow-hidden">
               <div className="px-4 py-3 bg-secondary/30 border-b border-border">
@@ -216,7 +215,7 @@ export default function AdminPage() {
 
                   <div className="px-4 py-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {[
-                      { label: 'Item',      value: record.itemTitle },
+                      { label: 'Item',     value: record.itemTitle },
                       { label: 'Borrower',  value: record.borrowerName },
                       { label: 'NIC',       value: record.borrowerNIC },
                       { label: 'Phone',     value: record.borrowerPhone },
@@ -242,24 +241,26 @@ export default function AdminPage() {
       {/* ── INVENTORY ── */}
       {tab === 'inventory' && (
         <div>
-          {/* Subject filter */}
           <div className="flex items-center gap-2 mb-5 flex-wrap">
-            {(['all', 'Physics', 'chemistry', 'biology', 'mathematics'] as Array<Subject | 'all'>).map(s => (
-              <button
-                key={s}
-                onClick={() => setFilterSubject(s)}
-                className={[
-                  'px-3 py-1.5 rounded-full text-xs font-semibold border transition-all',
-                  filterSubject === s
-                    ? s === 'all'
-                      ? 'bg-foreground text-background border-foreground'
-                      : `${SUBJECT_COLORS[s as Subject]} text-white border-transparent`
-                    : 'bg-background text-muted-foreground border-border hover:border-foreground/30',
-                ].join(' ')}
-              >
-                {s === 'all' ? 'All' : SUBJECT_META[s as Subject].label}
-              </button>
-            ))}
+            {(['all', ...allSubjects] as Array<string | 'all'>).map(s => {
+              const meta = s === 'all' ? null : getSubjectMeta(s);
+              return (
+                <button
+                  key={s}
+                  onClick={() => setFilterSubject(s)}
+                  className={[
+                    'px-3 py-1.5 rounded-full text-xs font-semibold border transition-all',
+                    filterSubject === s
+                      ? s === 'all'
+                        ? 'bg-foreground text-background border-foreground'
+                        : `${meta!.accent} text-white border-transparent`
+                      : 'bg-background text-muted-foreground border-border hover:border-foreground/30',
+                  ].join(' ')}
+                >
+                  {s === 'all' ? 'All' : meta!.label}
+                </button>
+              );
+            })}
           </div>
 
           <div className="rounded-2xl border border-border overflow-hidden">
@@ -273,7 +274,7 @@ export default function AdminPage() {
             </div>
 
             {filteredItems.map((item, i) => {
-              const meta = SUBJECT_META[item.subject];
+              const meta = getSubjectMeta(item.subject);
               const out = item.totalCopies - item.availableCopies;
               return (
                 <div
@@ -296,7 +297,7 @@ export default function AdminPage() {
                   <div className="col-span-2">
                     <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${SUBJECT_COLORS[item.subject]}`}
+                        className={`h-full rounded-full transition-all ${meta.accent}`}
                         style={{ width: `${(item.availableCopies / item.totalCopies) * 100}%` }}
                       />
                     </div>
@@ -309,5 +310,15 @@ export default function AdminPage() {
         </div>
       )}
     </div>
+  );
+}
+
+// --- Default Export wrapped in Provider ---
+
+export default function AdminPage() {
+  return (
+    <LibraryProvider>
+      <AdminDashboardContent />
+    </LibraryProvider>
   );
 }

@@ -559,40 +559,6 @@ export default function StoresPage() {
 
   return (
     <>
-      {/* ── Sticky Nav ── */}
-      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-sm mt-4 border-b border-border">
-        <div className="max-w-7xl mx-auto h-14 flex items-center justify-between gap-4 px-4 sm:px-10 lg:px-40">
-
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
-            <Link href="/" className="hover:text-foreground transition-colors font-medium">Home</Link>
-            <ChevronRight size={11} />
-            <span className="text-foreground font-medium">Stores</span>
-          </div>
-
-          {/* Desktop filter pills */}
-          <div className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-hide">
-            {FILTERS.map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setActiveFilter(key)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap
-                  ${activeFilter === key
-                    ? 'bg-foreground text-background'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                  }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          <p className="text-xs text-muted-foreground hidden sm:block shrink-0">
-            <span className="text-foreground font-semibold">{ALL_STORES.length}</span> verified stores
-          </p>
-        </div>
-      </div>
-
       {/* ── Page content ── */}
       <div className="w-full min-w-0 overflow-x-hidden px-4 sm:px-10 lg:px-40">
         <div className="max-w-7xl mx-auto py-2 sm:py-4 min-w-0">

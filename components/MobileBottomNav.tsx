@@ -131,7 +131,7 @@ const extraLinks = [
   { label: 'All',          href: '/shop'           },
   { label: 'New Arrivals', href: '/new-arrivals'   },
   { label: 'West',         href: '/category/west'  },
-  { label: 'Brands',       href: '/brands'         },
+  // { label: 'Brands',       href: '/brands'         },
   { label: 'Stores',       href: '/stores'         },
   { label: 'Booking',      href: '/booking'        },
   { label: 'Library',      href: '/library'        },
@@ -348,7 +348,7 @@ function CategorySheet({ open, onClose }: { open: boolean; onClose: () => void }
 
 const navItems = [
   { label: 'Home',       href: '/',           icon: Home       },
-  { label: 'Brands',     href: '/brands',     icon: Tag        },
+  { label: 'Booking',    href: '/booking',   icon: Tag      },
   { label: 'Categories', href: '#categories', icon: LayoutGrid },
   { label: 'Stores',     href: '/stores',     icon: Sparkles   },
   { label: 'Account',    href: '/account',    icon: User       },

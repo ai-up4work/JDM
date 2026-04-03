@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/brand/favicon.ico', media: '(prefers-color-scheme: light)' },
-      { url: '/brand/favicon.ico',  media: '(prefers-color-scheme: dark)'  },
+      { url: '/brand/favicon.ico', media: '(prefers-color-scheme: dark)'  },
       { url: '/brand/favicon.ico', type: 'image/svg+xml' },
     ],
     apple: '/brand/favicon.ico',
@@ -35,26 +35,27 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={jost.variable}>
-      <body className="font-sans antialiased bg-background text-foreground overflow-x-hidden">
+      <body className="font-sans antialiased bg-background text-foreground overflow-x-hidden h-dvh flex flex-col">
 
         <Header />
 
-        <div className="flex">
-
-          {/* ── Desktop Sidebar (lg+) ── */}
-          <aside className="hidden lg:flex lg:flex-col fixed top-16 left-0 bottom-0 w-64 border-r border-border bg-background overflow-y-auto overflow-x-hidden z-30">
-            <Sidebar />
-          </aside>
-
-          {/* ── Main Content ── */}
-          <main className="flex-1 min-w-0 w-full lg:ml-60 pb-16 lg:pb-0">
+        {/* ── Mobile layout ── */}
+        <div className="lg:hidden flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
             {children}
-          </main>
-
+          </div>
+          <MobileBottomNav />
         </div>
 
-        {/* ── Mobile / Tablet Bottom Nav — rendered at root so it's never hidden ── */}
-        <MobileBottomNav />
+        {/* ── Desktop layout ── */}
+        <div className="hidden lg:flex flex-1 min-h-0">
+          <aside className="flex flex-col fixed top-16 left-0 bottom-0 w-64 border-r border-border bg-background overflow-y-auto overflow-x-hidden z-30">
+            <Sidebar />
+          </aside>
+          <main className="flex-1 min-w-0 w-full lg:ml-60 overflow-y-auto overflow-x-hidden">
+            {children}
+          </main>
+        </div>
 
         {/* <Footer /> */}
         <Toaster position="bottom-right" />

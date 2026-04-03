@@ -140,7 +140,7 @@ const extraLinks = [
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const NAV_HEIGHT = 62; // keep in sync with nav height below
+const NAV_HEIGHT = 62;
 
 // ── Category sheet ────────────────────────────────────────────────────────────
 
@@ -151,20 +151,6 @@ function CategorySheet({ open, onClose }: { open: boolean; onClose: () => void }
     categoryData['Women'].sections[0].title,
   ]);
 
-  /**
-   * Two-state animation pattern:
-   *   `mounted`  — DOM presence (node exists but may be off-screen)
-   *   `visible`  — CSS animated value (drives transform & opacity)
-   *
-   * Enter flow:
-   *   1. setMounted(true)  → node appears with transform: translateY(110%)
-   *   2. double-RAF        → browser paints the off-screen frame
-   *   3. setVisible(true)  → CSS transition fires, sheet slides up
-   *
-   * Exit flow:
-   *   1. setVisible(false) → CSS transition fires, sheet slides down
-   *   2. setTimeout(420ms) → setMounted(false), node removed from DOM
-   */
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -196,12 +182,15 @@ function CategorySheet({ open, onClose }: { open: boolean; onClose: () => void }
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — covers only the scrollable content area, not the nav */}
       <div
         onClick={onClose}
         style={{
           position: 'fixed',
-          inset: 0,
+          top: 0,
+          left: 0,
+          right: 0,
+          // stops above the nav bar so it never overlaps it
           bottom: `${NAV_HEIGHT}px`,
           zIndex: 40,
           background: 'rgba(0,0,0,0.4)',
@@ -213,7 +202,7 @@ function CategorySheet({ open, onClose }: { open: boolean; onClose: () => void }
         }}
       />
 
-      {/* Sheet */}
+      {/* Sheet — anchored just above the nav */}
       <div
         style={{
           position: 'fixed',
@@ -230,8 +219,8 @@ function CategorySheet({ open, onClose }: { open: boolean; onClose: () => void }
           boxShadow: '0 -8px 40px rgba(0,0,0,0.14), 0 -1px 0 rgba(0,0,0,0.06)',
           transform: visible ? 'translateY(0)' : 'translateY(110%)',
           transition: visible
-            ? 'transform 0.44s cubic-bezier(0.32, 0.72, 0, 1)'   // spring in
-            : 'transform 0.36s cubic-bezier(0.4, 0, 0.2, 1)',    // ease out
+            ? 'transform 0.44s cubic-bezier(0.32, 0.72, 0, 1)'
+            : 'transform 0.36s cubic-bezier(0.4, 0, 0.2, 1)',
           willChange: 'transform',
         }}
       >
@@ -294,7 +283,6 @@ function CategorySheet({ open, onClose }: { open: boolean; onClose: () => void }
                   </span>
                 </button>
 
-                {/* Accordion — grid-template-rows trick for smooth height */}
                 <div style={{
                   display: 'grid',
                   gridTemplateRows: isOpen ? '1fr' : '0fr',
@@ -369,23 +357,19 @@ export function MobileBottomNav() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--nav-height', `${NAV_HEIGHT}px`);
-  }, []);
-
-  useEffect(() => {
     document.body.style.overflow = sheetOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [sheetOpen]);
 
   return (
     <>
-      {/* Sheet renders before nav so nav z-index always wins */}
+      {/* Sheet still uses fixed positioning — that's fine for overlays */}
       <CategorySheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
 
-      {/* Bottom bar */}
+      {/* Nav is now a natural flex child in the layout — NOT fixed */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border"
-        style={{ zIndex: 50, height: `${NAV_HEIGHT}px` }}
+        className="bg-background border-t border-border shrink-0 w-full"
+        style={{ height: `${NAV_HEIGHT}px` }}
       >
         <div className="flex items-center justify-around px-1 py-2 h-full">
           {navItems.map((item) => {

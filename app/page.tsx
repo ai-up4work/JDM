@@ -303,14 +303,6 @@ function StylingVideos() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
           onClick={closeVideo}
         >
-          <button
-            type="button"
-            onClick={closeVideo}
-            className="fixed top-4 right-4 sm:top-6 sm:right-6 bg-white text-black text-sm font-medium px-4 py-2 rounded-full hover:bg-gray-100 transition-colors z-50"
-          >
-            Close
-          </button>
-
           <div
             className="relative flex flex-col bg-black overflow-hidden rounded-2xl w-full"
             style={{ maxWidth: 390, height: '90vh' }}
@@ -327,10 +319,22 @@ function StylingVideos() {
                 className="w-full h-full object-cover"
               />
 
+              {/* Close button — top right, same circular style as mute */}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); closeVideo(); }}
+                className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm rounded-full p-2 z-10"
+              >
+                <svg viewBox="0 0 24 24" fill="red" className="w-5 h-5">
+                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+              </button>
+
+              {/* Mute button — just below close */}
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-                className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm rounded-full p-2 z-10"
+                className="absolute top-16 right-4 bg-black/50 backdrop-blur-sm rounded-full p-2 z-10"
               >
                 {isMuted ? (
                   <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
@@ -343,6 +347,7 @@ function StylingVideos() {
                 )}
               </button>
 
+              {/* Share button — unchanged */}
               <button
                 type="button"
                 onClick={async (e) => {
@@ -366,6 +371,7 @@ function StylingVideos() {
                 </svg>
               </button>
 
+              {/* Product card — unchanged */}
               <div
                 className="absolute bottom-4 left-4 right-4 z-20 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl shadow-lg cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={(e) => {

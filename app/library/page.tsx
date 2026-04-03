@@ -90,7 +90,7 @@ export default function CatalogPage() {
   return (
     <div>
       {/* Page header */}
-      <div className="mb-6 -mt-4">
+      <div className="mb-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground mb-1">UGAA Book Cloud</h1>
           <Image src="/ugaa-logo.png" alt="UGAA Logo" width={64} height={64} className="object-contain" />

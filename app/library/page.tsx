@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useLibrary } from '@/lib/library/context';
 import { getSubjectMeta, TYPE_LABELS } from '@/lib/library/subjects';
 import { Subject } from '@/lib/library/context';
+import Image from 'next/image';
 
 const KNOWN_SUBJECTS: Array<Subject | 'all'> = ['all'];
 
@@ -89,8 +90,11 @@ export default function CatalogPage() {
   return (
     <div>
       {/* Page header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground mb-1">Science Library Catalog</h1>
+      <div className="mb-6 -mt-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-foreground mb-1">UGAA Book Cloud</h1>
+          <Image src="/ugaa-logo.png" alt="UGAA Logo" width={64} height={64} className="object-contain" />
+        </div>
         <p className="text-sm text-muted-foreground">
           {stats.available} of {stats.total} items available to borrow
         </p>

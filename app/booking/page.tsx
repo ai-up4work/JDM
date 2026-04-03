@@ -1,5 +1,5 @@
 'use client';
-// app/booking/page.tsx
+// app/booking/page.tsx  →  Step 1: Choose operator
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -7,7 +7,6 @@ import { useBooking } from '@/lib/booking/context';
 import { OPERATORS, Operator } from '@/lib/booking/mock/operators';
 import { RESALE_TICKETS } from '@/lib/booking/mock/resale';
 import { Tag } from 'lucide-react';
-import StepBar from '@/components/booking/StepBar';
 
 const AMENITY_ICONS: Record<string, string> = {
   AC: '❄',
@@ -33,7 +32,7 @@ export default function ChooseOperatorPage() {
     <div>
       {/* Page header */}
       <div className="mb-6 py-4">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-1.5">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
           Island-wide bus booking
         </p>
         <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Choose your operator</h1>
@@ -59,7 +58,7 @@ export default function ChooseOperatorPage() {
         </svg>
       </Link>
 
-      {/* Resale tickets */}
+      {/* Resale tickets available now */}
       {availableResale.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
@@ -80,9 +79,11 @@ export default function ChooseOperatorPage() {
                 key={r.id}
                 className="relative flex flex-col justify-between gap-3 p-4 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50/30 overflow-hidden"
               >
+                {/* Decorative circles */}
                 <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-amber-100/60 pointer-events-none" />
                 <div className="absolute -bottom-6 -left-4 w-16 h-16 rounded-full bg-orange-100/40 pointer-events-none" />
 
+                {/* Top: operator + resale badge */}
                 <div className="flex items-center justify-between gap-2 relative">
                   <div className="flex items-center gap-2">
                     <div
@@ -98,6 +99,7 @@ export default function ChooseOperatorPage() {
                   </span>
                 </div>
 
+                {/* Route */}
                 <div className="relative">
                   <div className="flex items-center gap-1.5 text-sm font-bold text-foreground">
                     <span>{r.from}</span>
@@ -115,6 +117,7 @@ export default function ChooseOperatorPage() {
                   </div>
                 </div>
 
+                {/* Bottom: price + buy */}
                 <div className="flex items-end justify-between gap-2 relative">
                   <div>
                     <p className="text-base font-black text-foreground leading-tight">LKR {r.totalPrice}</p>
@@ -135,34 +138,16 @@ export default function ChooseOperatorPage() {
         </div>
       )}
 
-      {/* ── Available buses section: stepper left, grid right ── */}
-      <div className="flex gap-6 items-start">
-
-        {/* Vertical stepper — sticky so it stays visible while scrolling the grid */}
-        <div className="hidden sm:flex flex-col gap-1 sticky top-20 shrink-0 pt-1">
-          <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-            Progress
-          </p>
-          <StepBar vertical />
-        </div>
-
-        {/* Operator grid */}
-        <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Available buses
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {OPERATORS.map(op => (
-              <OperatorCard
-                key={op.id}
-                op={op}
-                selected={operator?.id === op.id}
-                onSelect={() => handleSelect(op)}
-              />
-            ))}
-          </div>
-        </div>
-
+      {/* Operator grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {OPERATORS.map(op => (
+          <OperatorCard
+            key={op.id}
+            op={op}
+            selected={operator?.id === op.id}
+            onSelect={() => handleSelect(op)}
+          />
+        ))}
       </div>
     </div>
   );
@@ -184,6 +169,7 @@ function OperatorCard({
           ? 'border-foreground bg-foreground/[0.03] shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_4px_20px_rgba(0,0,0,0.07)]'
           : 'border-border hover:border-foreground/30 hover:bg-secondary/30'}`}
     >
+      {/* Top row: logo + name + fare */}
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="flex items-center gap-2.5">
           <div
@@ -217,6 +203,7 @@ function OperatorCard({
         </div>
       </div>
 
+      {/* Amenities + rating */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 flex-wrap">
           {op.amenities.map(a => (
@@ -232,6 +219,7 @@ function OperatorCard({
         </div>
       </div>
 
+      {/* Route count footer */}
       <div className="mt-2.5 pt-2.5 border-t border-border">
         <p className="text-[10px] text-muted-foreground">{op.buses.length} buses available</p>
       </div>

@@ -128,14 +128,16 @@ const categoryData: Record<string, {
 };
 
 const extraLinks = [
-  { label: 'All',          href: '/'              },
-  { label: 'New Arrivals', href: '/new-arrivals'  },
-  { label: 'West',         href: '/category/west' },
-  { label: 'Stores',       href: '/stores'        },
-  { label: 'Library',      href: '/library'       },
-  { label: 'Orders',       href: '/orders'        },
-  { label: 'Rewards',      href: '/rewards'       },
-  { label: 'Wishlist',     href: '/wishlist'      },
+  { label: 'All',          href: '/shop'           },
+  { label: 'New Arrivals', href: '/new-arrivals'   },
+  { label: 'West',         href: '/category/west'  },
+  { label: 'Brands',       href: '/brands'         },
+  { label: 'Stores',       href: '/stores'         },
+  { label: 'Booking',      href: '/booking'        },
+  { label: 'Library',      href: '/library'        },
+  { label: 'Orders',       href: '/orders'         },
+  { label: 'Rewards',      href: '/rewards'        },
+  { label: 'Wishlist',     href: '/wishlist'       },
 ];
 
 // ── Constants ─────────────────────────────────────────────────────────────────

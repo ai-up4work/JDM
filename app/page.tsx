@@ -323,9 +323,9 @@ function StylingVideos() {
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); closeVideo(); }}
-                className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm rounded-full p-2 z-10"
+                className="absolute top-4 right-4 bg-red-500/80 backdrop-blur-sm rounded-full p-2 z-10"
               >
-                <svg viewBox="0 0 24 24" fill="red" className="w-5 h-5">
+                <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
                   <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                 </svg>
               </button>

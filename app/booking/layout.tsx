@@ -12,12 +12,9 @@ export default function BookingLayout({ children }: { children: ReactNode }) {
       <div className="min-h-screen bg-background">
 
         {/* Sticky top nav */}
-        <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
-          <div className="w-full min-w-0 px-4 sm:px-10 lg:px-40">
-            <div className="max-w-4xl mx-auto h-14 flex items-center justify-between gap-4">
-              <BookingNav />
-              <StepBar />
-            </div>
+        <div className="w-full flex justify-center px-4 -mb-4 sm:px-10 lg:px-40 mt-4"> 
+          <div className="w-full max-w-4xl h-14 flex items-center justify-center gap-4">
+            <StepBar />
           </div>
         </div>
 

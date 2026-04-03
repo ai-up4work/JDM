@@ -98,7 +98,7 @@ export default function ConfirmedPage() {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto py-10 px-2">
+    <div className="max-w-3xl mx-auto py-10 -mb-30 px-2">
 
       {/* Success header */}
       <div className="text-center mb-8">

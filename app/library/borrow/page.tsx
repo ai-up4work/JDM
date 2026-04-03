@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useLibrary } from '@/lib/library/context';
-import { SUBJECT_META, TYPE_LABELS } from '@/lib/library/subjects';
+import { getSubjectMeta, TYPE_LABELS } from '@/lib/library/subjects';
 
 function Field({
   label, value, onChange, placeholder, type = 'text', required = true, hint,
@@ -55,7 +55,7 @@ export default function BorrowPage() {
 
   const validate = (): string[] => {
     const errs: string[] = [];
-    if (!selectedItem)       errs.push('Please select an item to borrow.');
+    if (!selectedItem)        errs.push('Please select an item to borrow.');
     if (!borrowerName.trim()) errs.push('Full name is required.');
     if (!borrowerNIC.trim())  errs.push('NIC number is required.');
     if (!borrowerPhone.trim()) errs.push('Phone number is required.');
@@ -102,16 +102,16 @@ export default function BorrowPage() {
         {selectedItem && !showPicker ? (
           <div className="px-4 py-4 flex items-start gap-3">
             <div className={`w-10 h-12 rounded-lg shrink-0 flex items-center justify-center text-white text-[9px] font-bold ${
-              { physics: 'bg-blue-600', chemistry: 'bg-emerald-600', biology: 'bg-green-700', mathematics: 'bg-amber-500' }[selectedItem.subject]
+              getSubjectMeta(selectedItem.subject).accent
             }`}>
-              {SUBJECT_META[selectedItem.subject].icon}
+              {getSubjectMeta(selectedItem.subject).icon}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-foreground leading-snug">{selectedItem.title}</p>
               <p className="text-xs text-muted-foreground">{selectedItem.author}</p>
               <div className="flex items-center gap-2 mt-1">
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${SUBJECT_META[selectedItem.subject].accentLight} ${SUBJECT_META[selectedItem.subject].accentText}`}>
-                  {SUBJECT_META[selectedItem.subject].label}
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${getSubjectMeta(selectedItem.subject).accentLight} ${getSubjectMeta(selectedItem.subject).accentText}`}>
+                  {getSubjectMeta(selectedItem.subject).label}
                 </span>
                 <span className="text-[10px] text-muted-foreground">{TYPE_LABELS[selectedItem.type]}</span>
                 <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold">
@@ -148,9 +148,9 @@ export default function BorrowPage() {
                   className="w-full flex items-start gap-3 p-3 rounded-xl border border-border hover:border-foreground/30 hover:bg-secondary/20 text-left transition-all"
                 >
                   <div className={`w-8 h-10 rounded-md shrink-0 flex items-center justify-center text-white text-[8px] font-bold ${
-                    { physics: 'bg-blue-600', chemistry: 'bg-emerald-600', biology: 'bg-green-700', mathematics: 'bg-amber-500' }[item.subject]
+                    getSubjectMeta(item.subject).accent
                   }`}>
-                    {SUBJECT_META[item.subject].icon}
+                    {getSubjectMeta(item.subject).icon}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-foreground leading-snug truncate">{item.title}</p>
@@ -179,10 +179,10 @@ export default function BorrowPage() {
           </p>
         </div>
         <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Full Name" value={borrowerName} onChange={setBorrowerName} placeholder="e.g. Kamal Perera" />
-          <Field label="NIC Number" value={borrowerNIC} onChange={setBorrowerNIC} placeholder="e.g. 991234567V" hint="National Identity Card number" />
-          <Field label="Phone Number" value={borrowerPhone} onChange={setBorrowerPhone} placeholder="e.g. 0771234567" type="tel" />
-          <Field label="Email Address" value={borrowerEmail} onChange={setBorrowerEmail} placeholder="you@example.com" type="email" required={false} hint="Optional — for overdue reminders" />
+          <Field label="Full Name"      value={borrowerName}  onChange={setBorrowerName}  placeholder="e.g. Kamal Perera" />
+          <Field label="NIC Number"     value={borrowerNIC}   onChange={setBorrowerNIC}   placeholder="e.g. 991234567V" hint="National Identity Card number" />
+          <Field label="Phone Number"   value={borrowerPhone} onChange={setBorrowerPhone} placeholder="e.g. 0771234567" type="tel" />
+          <Field label="Email Address"  value={borrowerEmail} onChange={setBorrowerEmail} placeholder="you@example.com" type="email" required={false} hint="Optional — for overdue reminders" />
         </div>
       </div>
 

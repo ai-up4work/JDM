@@ -20,9 +20,13 @@ export default function LibraryConfirmedPage() {
   const record: BorrowRecord | undefined = borrowRecords[borrowRecords.length - 1];
 
   // If somehow landed here with no record, redirect back
-  useEffect(() => {
-    if (!record) router.replace('/library/borrow');
-  }, [record, router]);
+  // useEffect(() => {
+  //   // Give context a tick to hydrate before redirecting
+  //   const t = setTimeout(() => {
+  //     if (!record) router.replace('/library/borrow');
+  //   }, 100);
+  //   return () => clearTimeout(t);
+  // }, [record, router]);
 
   const handleBorrowAnother = () => {
     clearBorrowerForm();

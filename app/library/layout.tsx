@@ -6,7 +6,6 @@ export default function LibraryLayout({ children }: { children: ReactNode }) {
   return (
     <LibraryProvider>
       <div className="min-h-screen bg-background">
-        {/* Optional Header for Library section */}
         
 
         {/* Page content */}

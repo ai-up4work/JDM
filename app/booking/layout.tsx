@@ -26,7 +26,7 @@ export default function BookingLayout({ children }: { children: ReactNode }) {
         </div>
 
         {/* Fixed bottom summary bar */}
-        <BookingSummaryBar />
+        {/* <BookingSummaryBar /> */}
       </div>
     </BookingProvider>
   );

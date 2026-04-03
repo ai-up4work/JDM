@@ -1,11 +1,12 @@
 'use client';
-// app/library/borrow/page.tsx  →  Borrow form — select item + enter borrower details
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useLibrary } from '@/lib/library/context';
+import { LibraryProvider, useLibrary } from '@/lib/library/context';
 import { getSubjectMeta, TYPE_LABELS } from '@/lib/library/subjects';
+
+// --- Sub-components ---
 
 function Field({
   label, value, onChange, placeholder, type = 'text', required = true, hint,
@@ -31,7 +32,9 @@ function Field({
   );
 }
 
-export default function BorrowPage() {
+// --- Main Logic Component ---
+
+function BorrowFormContent() {
   const router = useRouter();
   const {
     items, selectedItem, setSelectedItem,
@@ -55,7 +58,7 @@ export default function BorrowPage() {
 
   const validate = (): string[] => {
     const errs: string[] = [];
-    if (!selectedItem)        errs.push('Please select an item to borrow.');
+    if (!selectedItem)      errs.push('Please select an item to borrow.');
     if (!borrowerName.trim()) errs.push('Full name is required.');
     if (!borrowerNIC.trim())  errs.push('NIC number is required.');
     if (!borrowerPhone.trim()) errs.push('Phone number is required.');
@@ -98,7 +101,6 @@ export default function BorrowPage() {
           )}
         </div>
 
-        {/* Selected item summary */}
         {selectedItem && !showPicker ? (
           <div className="px-4 py-4 flex items-start gap-3">
             <div className={`w-10 h-12 rounded-lg shrink-0 flex items-center justify-center text-white text-[9px] font-bold ${
@@ -122,7 +124,6 @@ export default function BorrowPage() {
           </div>
         ) : (
           <div className="p-4">
-            {/* Item search */}
             <div className="relative mb-3">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" width="13" height="13"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -186,7 +187,7 @@ export default function BorrowPage() {
         </div>
       </div>
 
-      {/* Loan terms */}
+      {/* Terms and Submit */}
       <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 mb-5">
         <span className="text-amber-600 shrink-0 mt-0.5 text-sm">⚠</span>
         <p className="text-[11px] text-amber-700">
@@ -194,7 +195,6 @@ export default function BorrowPage() {
         </p>
       </div>
 
-      {/* Validation errors */}
       {errors.length > 0 && (
         <div className="rounded-xl bg-red-50 border border-red-200 p-3 mb-5">
           {errors.map(e => (
@@ -203,7 +203,6 @@ export default function BorrowPage() {
         </div>
       )}
 
-      {/* Submit */}
       <button
         type="button"
         onClick={handleSubmit}
@@ -213,5 +212,15 @@ export default function BorrowPage() {
         Confirm Borrow Request
       </button>
     </div>
+  );
+}
+
+// --- Default Export wrapped in Provider ---
+
+export default function BorrowPage() {
+  return (
+    <LibraryProvider>
+      <BorrowFormContent />
+    </LibraryProvider>
   );
 }

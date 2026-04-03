@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useBooking } from '@/lib/booking/context';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 function randomRef(): string {
   return Math.random().toString(36).slice(2, 10).toUpperCase();
@@ -15,15 +15,22 @@ function formatDate(iso: string) {
   });
 }
 
-function QRCode({ value, size = 200 }: { value: string; size?: number }) {
+function QRCode({ value, size = 200, downloadRef }: {
+  value: string;
+  size?: number;
+  downloadRef?: React.RefObject<HTMLImageElement>;
+}) {
   const encoded = encodeURIComponent(value);
+  const src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}&margin=10`;
   return (
     <img
-      src={`https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}&margin=10`}
+      ref={downloadRef}
+      src={src}
       width={size}
       height={size}
       alt="Booking QR code"
       className="rounded-xl"
+      crossOrigin="anonymous"
     />
   );
 }
@@ -38,6 +45,7 @@ export default function ConfirmedPage() {
 
   const ref = useMemo(() => randomRef(), []);
   const totalFare = bus && seatCount ? seatCount * bus.fare : 0;
+  const qrImgRef = useRef<HTMLImageElement>(null);
 
   const qrPayload = useMemo(() => {
     const params = new URLSearchParams({
@@ -54,18 +62,38 @@ export default function ConfirmedPage() {
     return `${typeof window !== 'undefined' ? window.location.origin : ''}/booking/ticket?${params.toString()}`;
   }, [ref, passengerName, passengerPhone, bus, seatCount, totalFare]);
 
+  const handleDownloadQR = async () => {
+    // Fetch via proxy to avoid CORS issues with canvas
+    const encoded = encodeURIComponent(qrPayload);
+    const src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encoded}&margin=10`;
+
+    try {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ticket-${ref}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback: open in new tab
+      window.open(src, '_blank');
+    }
+  };
+
   const handleBookAnother = () => {
     clearBooking();
     router.push('/booking');
   };
 
   const rows = [
-    { label: 'Passenger',          value: passengerName || '—' },
-    { label: 'Phone',              value: passengerPhone ? `+94 ${passengerPhone}` : '—' },
-    { label: 'Gender',             value: passengerGender === 'male' ? '♂ Male' : '♀ Female' },
-    { label: 'Seat(s)',            value: seatCount > 1 ? `${seatCount} seats` : '1 seat' },
-    { label: 'Route',              value: bus ? `${bus.from} → ${bus.to}` : '—' },
-    { label: 'Departure',          value: bus ? `${formatDate(bus.date)} at ${bus.departureTime}` : '—' },
+    { label: 'Passenger',           value: passengerName || '—' },
+    { label: 'Phone',               value: passengerPhone ? `+94 ${passengerPhone}` : '—' },
+    { label: 'Gender',              value: passengerGender === 'male' ? '♂ Male' : '♀ Female' },
+    { label: 'Seat(s)',             value: seatCount > 1 ? `${seatCount} seats` : '1 seat' },
+    { label: 'Route',               value: bus ? `${bus.from} → ${bus.to}` : '—' },
+    { label: 'Departure',           value: bus ? `${formatDate(bus.date)} at ${bus.departureTime}` : '—' },
     { label: 'Total (on boarding)', value: `LKR ${totalFare.toLocaleString()}` },
   ];
 
@@ -123,12 +151,24 @@ export default function ConfirmedPage() {
         <div className="hidden md:block w-px bg-border" />
         <div className="block md:hidden h-px bg-border" />
 
-        {/* Right: QR code */}
+        {/* Right: QR code + download */}
         <div className="flex flex-col items-center justify-center gap-3 p-6 bg-secondary/5 md:w-56 shrink-0">
-          <QRCode value={qrPayload} size={160} />
+          <QRCode value={qrPayload} size={160} downloadRef={qrImgRef} />
           <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
-            Scan to view your ticket details. Show this to the conductor.
+            Scan to view your ticket. Show this to the conductor.
           </p>
+          <button
+            type="button"
+            onClick={handleDownloadQR}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-secondary/50 transition-colors text-[11px] font-semibold text-foreground"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download QR
+          </button>
         </div>
       </div>
 

@@ -944,7 +944,7 @@ export default function Home() {
           <h2 className="text-xl sm:text-2xl font-semibold mb-5 sm:mb-8 text-foreground">Shop Our famous Stores</h2>
           <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4 lg:gap-5 mx-4">
             {categories.map((cat, i) => (
-              <Link key={i} href={cat.logo} className="group flex flex-col items-center gap-1.5 sm:gap-2 min-w-0">
+              <Link key={i} href={`/stores/${cat.slug}`} className="group flex flex-col items-center gap-1.5 sm:gap-2 min-w-0">
                 <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xl sm:rounded-2xl bg-muted">
                   <Image
                     src={cat.logo}

@@ -874,7 +874,7 @@ export default function Home() {
           </div>
 
           {/* Mobile: 3 columns, first 12 */}
-          <div className="sm:hidden grid grid-cols-3 gap-3">
+          <div className="sm:hidden grid grid-cols-3 gap-3 mx-4">
             {ALL_STORES.slice(0, 12).map((store) => (
               <Link
                 key={store.slug}
@@ -904,7 +904,7 @@ export default function Home() {
           </div>
 
           {/* Desktop: 6 columns, first 12 = 2 rows */}
-          <div className="hidden sm:grid grid-cols-6 gap-4">
+          <div className="hidden sm:grid grid-cols-6 gap-4 mx-4">
             {ALL_STORES.slice(0, 12).map((store) => (
               <Link
                 key={store.slug}

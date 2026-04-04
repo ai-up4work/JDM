@@ -16,28 +16,13 @@ const heroSlides = [
   { id: 3, title: 'KIDS',  subtitle: 'SUMMER WEAR',        image: '/hero/hero3.jpg' },
 ];
 
-type Store = {
-  slug: string;
-  name: string;
-  type: 'custom' | 'template';
-  isNew?: boolean;
-  logo: string;
-  bannerStyle: { background: string };
-  category: string;
-  description: string;
-  shipping: string;
-  payment: string;
-  tags: string[];
-  itemCount: number;
-};
-
-const ALL_STORES: Store[] = [
+const categories = [
   {
     slug: 'casecraft',
     name: 'CaseCraft',
     type: 'custom',
     isNew: true,
-    logo: '/store-icon/case-craft.png',
+    logo: '/store-icon/potrait/case-craft.png',
     bannerStyle: { background: '#1a1a1a' },
     category: 'Phone Cases',
     description: 'Design your own printed phone case — pick your model, upload your photo, preview it live.',
@@ -46,25 +31,25 @@ const ALL_STORES: Store[] = [
     tags: ['Custom print', 'iPhone', 'Samsung'],
     itemCount: 24,
   },
-  {
-    slug: 'bloom-and-co',
-    name: 'Bloom & Co.',
-    type: 'template',
-    logo: '/store-icon/bloom-and-co.png',
-    bannerStyle: { background: '#f5f0e8' },
-    category: 'Flowers',
-    description: 'Fresh flower arrangements and bouquets for every occasion, delivered same-day in Colombo.',
-    shipping: 'Colombo only',
-    payment: 'COD',
-    tags: ['Bouquets', 'Gifting', 'Same-day'],
-    itemCount: 18,
-  },
+  // {
+  //   slug: 'bloom-and-co',
+  //   name: 'Bloom & Co.',
+  //   type: 'template',
+  //   logo: '/store-icon/potrait/bloom-and-co.png',
+  //   bannerStyle: { background: '#f5f0e8' },
+  //   category: 'Flowers',
+  //   description: 'Fresh flower arrangements and bouquets for every occasion, delivered same-day in Colombo.',
+  //   shipping: 'Colombo only',
+  //   payment: 'COD',
+  //   tags: ['Bouquets', 'Gifting', 'Same-day'],
+  //   itemCount: 18,
+  // },
   {
     slug: 'muizza-fashion',
     name: 'Muizza Fashion',
     type: 'custom',
     isNew: true,
-    logo: '/store-icon/muizza-fashion.png',
+    logo: '/store-icon/potrait/muizza-fashion.png',
     bannerStyle: { background: '#f5f0e8' },
     category: 'Clothing',
     description: 'Trendy and affordable fashion for men and women. From casual wear to formal attire, we have something for everyone.',
@@ -78,7 +63,7 @@ const ALL_STORES: Store[] = [
     name: 'Scent Lab',
     type: 'custom',
     isNew: true,
-    logo: '/store-icon/scent-lab.png',
+    logo: '/store-icon/potrait/scent-lab.png',
     bannerStyle: { background: '#1b3a2f' },
     category: 'Fragrance',
     description: 'Build your own attar blend — choose base, heart and top notes, name your scent, order it bottled.',
@@ -92,7 +77,7 @@ const ALL_STORES: Store[] = [
     name: 'Be Dapper',
     type: 'template',
     isNew: true,
-    logo: '/store-icon/be-dapper.png',
+    logo: '/store-icon/potrait/be-dapper.png',
     bannerStyle: { background: '#0f2027' },
     category: 'Clothing',
     description: 'Minimal streetwear made in Sri Lanka. Small-batch drops, direct from the designer.',
@@ -106,7 +91,7 @@ const ALL_STORES: Store[] = [
     name: 'Old Money',
     type: 'template',
     isNew: true,
-    logo: '/store-icon/old-money.png',
+    logo: '/store-icon/potrait/old-money.png',
     bannerStyle: { background: '#0f2027' },
     category: 'Clothing',
     description: 'Minimal streetwear made in Sri Lanka. Small-batch drops, direct from the designer.',
@@ -115,77 +100,12 @@ const ALL_STORES: Store[] = [
     tags: ['Streetwear', 'Unisex', 'Local brand'],
     itemCount: 41,
   },
-  {
-    slug: 'skye-clothing',
-    name: 'Skye Clothing',
-    type: 'template',
-    logo: '/store-icon/skye-clothing.png',
-    bannerStyle: { background: '#faf5f0' },
-    category: 'Handmade',
-    description: 'Ethically made, timeless garments for conscious consumers.',
-    shipping: 'Ships island-wide',
-    payment: 'COD',
-    tags: ['Ethical fashion', 'Sustainable materials', 'Made in Sri Lanka'],
-    itemCount: 67,
-  },
-  {
-    slug: 'chickadee',
-    name: 'Chickadee',
-    type: 'template',
-    logo: '/store-icon/chickadee.png',
-    bannerStyle: { background: '#f5ede8' },
-    category: 'Jewellery',
-    description: '18K gold plated jewellery — earrings, necklaces, rings, bracelets and more. Water-resistant & tarnish-free.',
-    shipping: 'Ships island-wide',
-    payment: 'COD',
-    tags: ['Gold plated', 'Earrings', 'Necklaces', 'Rings'],
-    itemCount: 421,
-  },
-  {
-    slug: 'cherie-lueur',
-    name: 'Cherie Lueur',
-    type: 'template',
-    logo: '/store-icon/cherie-lueur.png',
-    bannerStyle: { background: '#f5ede8' },
-    category: 'Jewellery',
-    description: '18K gold plated jewellery — earrings, necklaces, rings, bracelets and more. Water-resistant & tarnish-free.',
-    shipping: 'Ships island-wide',
-    payment: 'COD',
-    tags: ['Gold plated', 'Earrings', 'Necklaces', 'Rings'],
-    itemCount: 421,
-  },
-  {
-    slug: 'kingdom-of-rings',
-    name: 'Kingdom of Rings',
-    type: 'template',
-    logo: '/store-icon/kingdom-of-rings.png',
-    bannerStyle: { background: '#1a1400' },
-    category: 'Jewellery',
-    description: "Sri Lanka's most trusted gold plated jewellery store. Chains, bracelets, rings and bridal sets with a 1-year warranty.",
-    shipping: 'Ships island-wide',
-    payment: 'COD',
-    tags: ['Gold plated', 'Chains', 'Bridal', 'Rings'],
-    itemCount: 36,
-  },
-  {
-    slug: 'enzayn-ceylon',
-    name: 'Enzayn Ceylon',
-    type: 'template',
-    logo: '/store-icon/enzayn-ceylon.png',
-    bannerStyle: { background: '#faf5f0' },
-    category: 'Handmade',
-    description: 'Ethically made, timeless garments for conscious consumers.',
-    shipping: 'Ships island-wide',
-    payment: 'COD',
-    tags: ['Ethical fashion', 'Sustainable materials', 'Made in Sri Lanka'],
-    itemCount: 67,
-  },
-  {
+    {
     slug: 'otaku-clothing',
     name: 'OTAKU CLOTHING SL',
     type: 'template',
     isNew: true,
-    logo: '/store-icon/otaku.png',
+    logo: '/store-icon/potrait/otaku.png',
     bannerStyle: { background: '#faf5f0' },
     category: 'Clothing',
     description: 'Ethically made, timeless garments for conscious consumers.',
@@ -194,35 +114,101 @@ const ALL_STORES: Store[] = [
     tags: ['Ethical fashion', 'Sustainable materials', 'Made in Sri Lanka'],
     itemCount: 67,
   },
-  {
-    slug: 'giva',
-    name: 'GIVA',
-    type: 'template',
-    isNew: true,
-    logo: '/store-icon/giva.png',
-    bannerStyle: { background: '#1a1400' },
-    category: 'Jewellery',
-    description: "Sri Lanka's most trusted gold plated jewellery store. Chains, bracelets, rings and bridal sets with a 1-year warranty.",
-    shipping: 'Ships island-wide',
-    payment: 'COD',
-    tags: ['Gold plated', 'Rose Gold', 'Bridal', 'Rings'],
-    itemCount: 36,
-  },
-  {
-    slug: 'buckley-london',
-    name: 'Buckley London',
-    type: 'template',
-    isNew: true,
-    logo: '/store-icon/buckley-london.png',
-    bannerStyle: { background: '#0f172a' },
-    category: 'Jewellery',
-    description: "Elegant British-designed jewellery brand known for crystal-studded pieces, timeless bracelets, necklaces, and gift-ready collections.",
-    shipping: 'Ships island-wide',
-    payment: 'COD',
-    tags: ['Crystal', 'Luxury', 'Bracelets', 'Necklaces', 'Gifts'],
-    itemCount: 28,
-  },
+  // {
+  //   slug: 'skye-clothing',
+  //   name: 'Skye Clothing',
+  //   type: 'template',
+  //   logo: '/store-icon/potrait/skye-clothing.png',
+  //   bannerStyle: { background: '#faf5f0' },
+  //   category: 'Handmade',
+  //   description: 'Ethically made, timeless garments for conscious consumers.',
+  //   shipping: 'Ships island-wide',
+  //   payment: 'COD',
+  //   tags: ['Ethical fashion', 'Sustainable materials', 'Made in Sri Lanka'],
+  //   itemCount: 67,
+  // },
+  // {
+  //   slug: 'chickadee',
+  //   name: 'Chickadee',
+  //   type: 'template',
+  //   logo: '/store-icon/potrait/chickadee.png',
+  //   bannerStyle: { background: '#f5ede8' },
+  //   category: 'Jewellery',
+  //   description: '18K gold plated jewellery — earrings, necklaces, rings, bracelets and more. Water-resistant & tarnish-free.',
+  //   shipping: 'Ships island-wide',
+  //   payment: 'COD',
+  //   tags: ['Gold plated', 'Earrings', 'Necklaces', 'Rings'],
+  //   itemCount: 421,
+  // },
+  // {
+  //   slug: 'cherie-lueur',
+  //   name: 'Cherie Lueur',
+  //   type: 'template',
+  //   logo: '/store-icon/potrait/cherie-lueur.png',
+  //   bannerStyle: { background: '#f5ede8' },
+  //   category: 'Jewellery',
+  //   description: '18K gold plated jewellery — earrings, necklaces, rings, bracelets and more. Water-resistant & tarnish-free.',
+  //   shipping: 'Ships island-wide',
+  //   payment: 'COD',
+  //   tags: ['Gold plated', 'Earrings', 'Necklaces', 'Rings'],
+  //   itemCount: 421,
+  // },
+  // {
+  //   slug: 'kingdom-of-rings',
+  //   name: 'Kingdom of Rings',
+  //   type: 'template',
+  //   logo: '/store-icon/potrait/kingdom-of-rings.png',
+  //   bannerStyle: { background: '#1a1400' },
+  //   category: 'Jewellery',
+  //   description: "Sri Lanka's most trusted gold plated jewellery store. Chains, bracelets, rings and bridal sets with a 1-year warranty.",
+  //   shipping: 'Ships island-wide',
+  //   payment: 'COD',
+  //   tags: ['Gold plated', 'Chains', 'Bridal', 'Rings'],
+  //   itemCount: 36,
+  // },
+  // {
+  //   slug: 'enzayn-ceylon',
+  //   name: 'Enzayn Ceylon',
+  //   type: 'template',
+  //   logo: '/store-icon/potrait/enzayn-ceylon.png',
+  //   bannerStyle: { background: '#faf5f0' },
+  //   category: 'Handmade',
+  //   description: 'Ethically made, timeless garments for conscious consumers.',
+  //   shipping: 'Ships island-wide',
+  //   payment: 'COD',
+  //   tags: ['Ethical fashion', 'Sustainable materials', 'Made in Sri Lanka'],
+  //   itemCount: 67,
+  // },
+  // {
+  //   slug: 'giva',
+  //   name: 'GIVA',
+  //   type: 'template',
+  //   isNew: true,
+  //   logo: '/store-icon/potrait/giva.png',
+  //   bannerStyle: { background: '#1a1400' },
+  //   category: 'Jewellery',
+  //   description: "Sri Lanka's most trusted gold plated jewellery store. Chains, bracelets, rings and bridal sets with a 1-year warranty.",
+  //   shipping: 'Ships island-wide',
+  //   payment: 'COD',
+  //   tags: ['Gold plated', 'Rose Gold', 'Bridal', 'Rings'],
+  //   itemCount: 36,
+  // },
+  // {
+  //   slug: 'buckley-london',
+  //   name: 'Buckley London',
+  //   type: 'template',
+  //   isNew: true,
+  //   logo: '/store-icon/potrait/buckley-london.png',
+  //   bannerStyle: { background: '#0f172a' },
+  //   category: 'Jewellery',
+  //   description: "Elegant British-designed jewellery brand known for crystal-studded pieces, timeless bracelets, necklaces, and gift-ready collections.",
+  //   shipping: 'Ships island-wide',
+  //   payment: 'COD',
+  //   tags: ['Crystal', 'Luxury', 'Bracelets', 'Necklaces', 'Gifts'],
+  //   itemCount: 28,
+  // },
 ];
+
 
 const newIn = [
   { collection: "Qalamkar | Chikankari Eid Edit '26",              brand: 'Qalamkar',          image: '/garments/product1.jpeg',  href: '/collections/qalamkar-eid',   discount: null },
@@ -278,6 +264,7 @@ function NewInCarousel() {
     <section className="mb-10 sm:mb-16">
       <div className="flex items-center justify-between mb-5 sm:mb-8">
         <h2 className="text-xl sm:text-2xl font-semibold text-foreground">New In - 2026</h2>
+        {/* Arrows: hidden on mobile, visible on sm+ */}
         <div className="hidden sm:flex items-center gap-2">
           <button
             type="button"
@@ -298,6 +285,7 @@ function NewInCarousel() {
         </div>
       </div>
 
+      {/* Mobile: native horizontal swipe with snap */}
       <div className="sm:hidden flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-3 pb-1">
         {newIn.map((item) => (
           <Link
@@ -306,34 +294,53 @@ function NewInCarousel() {
             className="group flex flex-col gap-2 shrink-0 w-[72vw] snap-start"
           >
             <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
-              <Image src={item.image} alt={item.collection} fill className="object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+              <Image
+                src={item.image}
+                alt={item.collection}
+                fill
+                className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+              />
               {item.discount && (
                 <div className="absolute bottom-3 left-3 z-10">
-                  <span className="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full">Upto {item.discount}% off</span>
+                  <span className="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                    Upto {item.discount}% off
+                  </span>
                 </div>
               )}
             </div>
             <div className="px-0.5">
-              <p className="text-sm font-medium text-foreground leading-snug line-clamp-2">{item.collection}</p>
+              <p className="text-sm font-medium text-foreground leading-snug line-clamp-2">
+                {item.collection}
+              </p>
               <p className="text-sm text-muted-foreground mt-0.5">{item.brand}</p>
             </div>
           </Link>
         ))}
       </div>
 
+      {/* sm+: arrow-controlled grid */}
       <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {newIn.slice(start, start + colCount).map((item) => (
           <Link key={item.collection} href={item.href} className="group flex flex-col gap-2 min-w-0">
             <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
-              <Image src={item.image} alt={item.collection} fill className="object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+              <Image
+                src={item.image}
+                alt={item.collection}
+                fill
+                className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+              />
               {item.discount && (
                 <div className="absolute bottom-3 left-3 z-10">
-                  <span className="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full">Upto {item.discount}% off</span>
+                  <span className="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                    Upto {item.discount}% off
+                  </span>
                 </div>
               )}
             </div>
             <div className="px-0.5">
-              <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">{item.collection}</p>
+              <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">
+                {item.collection}
+              </p>
               <p className="text-sm text-muted-foreground mt-0.5">{item.brand}</p>
             </div>
           </Link>
@@ -396,14 +403,21 @@ function StylingVideos() {
     setIsMuted((m) => !m);
   };
 
+  // Shared card renderer to avoid duplication
   const VideoCard = ({ item }: { item: typeof stylingVideos[0] }) => (
     <button
+      key={item.brand}
       type="button"
       onClick={() => setActiveVideo(item)}
       className="group relative flex flex-col text-left min-w-0 w-full"
     >
       <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
-        <Image src={item.image} alt={item.brand} fill className="object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+        <Image
+          src={item.image}
+          alt={item.brand}
+          fill
+          className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl" />
         <div className="absolute top-3 left-3 z-10 bg-white/20 backdrop-blur-sm rounded-full p-2">
           <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4"><path d="M8 5v14l11-7z" /></svg>
@@ -422,16 +436,30 @@ function StylingVideos() {
         <div className="flex items-center justify-between mb-5 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Styling Videos</h2>
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/videos" className="text-sm font-medium text-foreground hover:text-primary transition-colors hidden sm:block">View All</Link>
-            <button type="button" onClick={() => setStart((s) => Math.max(0, s - 1))} disabled={!canPrev} className="hidden sm:flex p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+            <Link href="/videos" className="text-sm font-medium text-foreground hover:text-primary transition-colors hidden sm:block">
+              View All
+            </Link>
+            {/* Arrows: hidden on mobile */}
+            <button
+              type="button"
+              onClick={() => setStart((s) => Math.max(0, s - 1))}
+              disabled={!canPrev}
+              className="hidden sm:flex p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
               <ChevronLeft size={18} />
             </button>
-            <button type="button" onClick={() => setStart((s) => Math.min(stylingVideos.length - colCount, s + 1))} disabled={!canNext} className="hidden sm:flex p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+            <button
+              type="button"
+              onClick={() => setStart((s) => Math.min(stylingVideos.length - colCount, s + 1))}
+              disabled={!canNext}
+              className="hidden sm:flex p-2 rounded-full border border-border hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
               <ChevronRight size={18} />
             </button>
           </div>
         </div>
 
+        {/* Mobile: native swipe */}
         <div className="sm:hidden flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-3 pb-1">
           {stylingVideos.map((item) => (
             <div key={item.brand} className="shrink-0 w-[48vw] snap-start">
@@ -440,6 +468,7 @@ function StylingVideos() {
           ))}
         </div>
 
+        {/* sm+: arrow-controlled grid */}
         <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
           {stylingVideos.slice(start, start + colCount).map((item) => (
             <VideoCard key={item.brand} item={item} />
@@ -459,20 +488,28 @@ function StylingVideos() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative flex-1 overflow-hidden" onClick={togglePause}>
-              <video ref={videoRef} src={activeVideo.video} autoPlay muted={isMuted} loop playsInline className="w-full h-full object-cover" />
+              <video
+                ref={videoRef}
+                src={activeVideo.video}
+                autoPlay
+                muted={isMuted}
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+              />
 
-              {/* Close — top right circular */}
+              {/* Close button — top right, same circular style as mute */}
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); closeVideo(); }}
-                className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm rounded-full p-2 z-10"
+                className="absolute top-4 right-4 bg-red-500/80 backdrop-blur-sm rounded-full p-2 z-10"
               >
                 <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
                   <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                 </svg>
               </button>
 
-              {/* Mute — below close */}
+              {/* Mute button — just below close */}
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); toggleMute(); }}
@@ -489,7 +526,7 @@ function StylingVideos() {
                 )}
               </button>
 
-              {/* Share */}
+              {/* Share button — unchanged */}
               <button
                 type="button"
                 onClick={async (e) => {
@@ -513,7 +550,7 @@ function StylingVideos() {
                 </svg>
               </button>
 
-              {/* Product card */}
+              {/* Product card — unchanged */}
               <div
                 className="absolute bottom-4 left-4 right-4 z-20 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl shadow-lg cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={(e) => {
@@ -701,8 +738,10 @@ function TrendingProducts() {
         <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Trending Products</h2>
       </div>
 
+      {/* Filter bar — scrollable, bleeds to edges on mobile */}
       <div className="flex items-center gap-2 mb-6 sm:mb-8 overflow-x-auto pb-2 scrollbar-hide px-3 sm:mx-0 sm:px-0">
         <FilterDropdown label="Category" options={FILTER_OPTIONS.category} value={filters.category} onChange={setFilter('category')} />
+
         <button
           type="button"
           className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border transition-colors shrink-0
@@ -715,7 +754,9 @@ function TrendingProducts() {
             <circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>
           </svg>
         </button>
+
         <FilterDropdown label="Sort By" options={FILTER_OPTIONS.sortBy} value={filters.sortBy} onChange={setFilter('sortBy')} />
+
         <button
           type="button"
           onClick={() => setFilter('inStock')(!filters.inStock)}
@@ -726,11 +767,13 @@ function TrendingProducts() {
             <div className={`absolute top-0.5 w-3 sm:w-4 h-3 sm:h-4 bg-white rounded-full shadow transition-transform ${filters.inStock ? 'translate-x-4' : 'translate-x-0.5'}`} />
           </div>
         </button>
+
         <FilterDropdown label="Fabric" options={FILTER_OPTIONS.fabric} value={filters.fabric} onChange={setFilter('fabric')} />
         <FilterDropdown label="Price"  options={FILTER_OPTIONS.price}  value={filters.price}  onChange={setFilter('price')}  />
         <FilterDropdown label="Size"   options={FILTER_OPTIONS.size}   value={filters.size}   onChange={setFilter('size')}   />
         <FilterDropdown label="Color"  options={FILTER_OPTIONS.color}  value={filters.color}  onChange={setFilter('color')}  />
         <FilterDropdown label="Brands" options={FILTER_OPTIONS.brand}  value={filters.brand}  onChange={setFilter('brand')}  />
+
         {activeFilterCount > 0 && (
           <button
             type="button"
@@ -749,11 +792,22 @@ function TrendingProducts() {
           {visible.map((product) => (
             <Link key={product.id} href={`/shop/${product.id}`} className="group flex flex-col gap-2 min-w-0">
               <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
-                <Image src={product.image} alt={product.name} fill className="object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                />
                 <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
-                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">-{product.discount}%</span>
+                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">
+                    -{product.discount}%
+                  </span>
                 </div>
-                <button type="button" onClick={(e) => e.preventDefault()} className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 bg-white/80 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  type="button"
+                  onClick={(e) => e.preventDefault()}
+                  className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 bg-white/80 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                   </svg>
@@ -764,23 +818,34 @@ function TrendingProducts() {
                   </div>
                 )}
               </div>
+
               <div className="flex items-start justify-between gap-1 sm:gap-2 px-0.5">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-1 sm:gap-2 flex-wrap">
                     <span className="text-sm sm:text-base font-bold text-foreground">$ {product.price.toFixed(2)}</span>
                     <span className="text-xs text-muted-foreground line-through hidden sm:inline">$ {product.originalPrice.toFixed(2)}</span>
                   </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate mt-0.5">{product.brand} • {product.name}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate mt-0.5">
+                    {product.brand} • {product.name}
+                  </p>
                   <div className="flex items-center gap-1 sm:gap-2 mt-1 sm:mt-1.5 flex-wrap">
                     {product.express ? (
-                      <span className="flex items-center gap-1 bg-blue-50 text-blue-600 text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full border border-blue-200">⚡ Express</span>
+                      <span className="flex items-center gap-1 bg-blue-50 text-blue-600 text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full border border-blue-200">
+                        ⚡ Express
+                      </span>
                     ) : (
-                      <span className="flex items-center gap-1 bg-gray-50 text-gray-500 text-xs font-medium px-1.5 sm:px-2 py-0.5 rounded-full border border-gray-200">➜ 7 Days</span>
+                      <span className="flex items-center gap-1 bg-gray-50 text-gray-500 text-xs font-medium px-1.5 sm:px-2 py-0.5 rounded-full border border-gray-200">
+                        ➜ 7 Days
+                      </span>
                     )}
                     <span className="text-xs text-muted-foreground hidden sm:inline">★ {product.rating} ({product.reviews})</span>
                   </div>
                 </div>
-                <button type="button" onClick={(e) => e.preventDefault()} className="shrink-0 p-1.5 sm:p-2 rounded-xl border border-border hover:bg-secondary transition-colors mt-0.5 hidden xs:flex">
+                <button
+                  type="button"
+                  onClick={(e) => e.preventDefault()}
+                  className="shrink-0 p-1.5 sm:p-2 rounded-xl border border-border hover:bg-secondary transition-colors mt-0.5 hidden xs:flex"
+                >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4">
                     <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
                     <line x1="3" y1="6" x2="21" y2="6"/>
@@ -840,9 +905,17 @@ export default function Home() {
         {heroSlides.map((slide, index) => (
           <div
             key={slide.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentSlide ? 'opacity-100' : 'opacity-0'
+            }`}
           >
-            <Image src={slide.image} alt={slide.title} fill className="object-cover object-center" priority={index === 0} />
+            <Image
+              src={slide.image}
+              alt={slide.title}
+              fill
+              className="object-cover object-center"
+              priority={index === 0}
+            />
           </div>
         ))}
         <button onClick={prevSlide} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-1.5 sm:p-2 rounded-full transition-all z-20">
@@ -856,7 +929,9 @@ export default function Home() {
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`h-1.5 rounded-full transition-all ${index === currentSlide ? 'bg-white w-6' : 'bg-white/50 w-1.5 hover:bg-white/75'}`}
+              className={`h-1.5 rounded-full transition-all ${
+                index === currentSlide ? 'bg-white w-6' : 'bg-white/50 w-1.5 hover:bg-white/75'
+              }`}
             />
           ))}
         </div>
@@ -866,71 +941,21 @@ export default function Home() {
 
         {/* ── Shop Our Stores ── */}
         <section className="mb-10 sm:mb-16">
-          <div className="flex items-center justify-between mb-5 sm:mb-8">
-            <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Shop Our Stores</h2>
-            <Link href="/stores" className="flex items-center text-primary hover:text-primary/80 font-medium text-sm shrink-0">
-              View All <ChevronRight size={18} className="ml-1" />
-            </Link>
-          </div>
-
-          {/* Mobile: 3 columns, first 12 */}
-          <div className="sm:hidden grid grid-cols-3 gap-3 mx-4">
-            {ALL_STORES.slice(0, 12).map((store) => (
-              <Link
-                key={store.slug}
-                href={`/stores/${store.slug}`}
-                className="group flex flex-col items-center gap-1.5"
-              >
-                <div
-                  className="relative w-full aspect-square overflow-hidden rounded-2xl"
-                  style={store.bannerStyle}
-                >
+          <h2 className="text-xl sm:text-2xl font-semibold mb-5 sm:mb-8 text-foreground">Shop Our famous Stores</h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4 lg:gap-5 mx-4">
+            {categories.map((cat, i) => (
+              <Link key={i} href={cat.logo} className="group flex flex-col items-center gap-1.5 sm:gap-2 min-w-0">
+                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xl sm:rounded-2xl bg-muted">
                   <Image
-                    src={store.logo}
-                    alt={store.name}
+                    src={cat.logo}
+                    alt={cat.name}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
                   />
-                  {store.isNew && (
-                    <span className="absolute top-1.5 left-1.5 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full z-10">
-                      NEW
-                    </span>
-                  )}
                 </div>
-                <p className="text-[11px] font-medium text-foreground text-center truncate w-full">{store.name}</p>
-                <p className="text-[10px] text-muted-foreground text-center -mt-1">{store.category}</p>
-              </Link>
-            ))}
-          </div>
-
-          {/* Desktop: 6 columns, first 12 = 2 rows */}
-          <div className="hidden sm:grid grid-cols-6 gap-4 mx-4">
-            {ALL_STORES.slice(0, 12).map((store) => (
-              <Link
-                key={store.slug}
-                href={`/stores/${store.slug}`}
-                className="group flex flex-col items-center gap-2 min-w-0"
-              >
-                <div
-                  className="relative w-full aspect-square overflow-hidden rounded-2xl"
-                  style={store.bannerStyle}
-                >
-                  <Image
-                    src={store.logo}
-                    alt={store.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {store.isNew && (
-                    <span className="absolute top-2 left-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10">
-                      NEW
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs font-medium text-foreground text-center truncate w-full group-hover:text-primary transition-colors">
-                  {store.name}
-                </p>
-                <p className="text-[11px] text-muted-foreground text-center -mt-1">{store.category}</p>
+                <span className="text-xs sm:text-sm font-medium text-foreground text-center leading-tight line-clamp-2">
+                  {cat.name}
+                </span>
               </Link>
             ))}
           </div>
@@ -951,13 +976,22 @@ export default function Home() {
             {mostPopular.map((brand) => (
               <Link key={brand.name} href={brand.href} className="group flex flex-col gap-2 min-w-0">
                 <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xl sm:rounded-2xl bg-muted">
-                  <Image src={brand.image} alt={brand.name} fill className="object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+                  <Image
+                    src={brand.image}
+                    alt={brand.name}
+                    fill
+                    className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                  />
                   <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 z-10">
-                    <span className="bg-red-500 text-white text-xs font-semibold px-2 sm:px-3 py-1 rounded-full">Upto {brand.discount}% off</span>
+                    <span className="bg-red-500 text-white text-xs font-semibold px-2 sm:px-3 py-1 rounded-full">
+                      Upto {brand.discount}% off
+                    </span>
                   </div>
                 </div>
                 <div className="px-0.5">
-                  <p className="text-sm font-normal text-foreground group-hover:text-primary transition-colors truncate">{brand.name}</p>
+                  <p className="text-sm font-normal text-foreground group-hover:text-primary transition-colors truncate">
+                    {brand.name}
+                  </p>
                   <p className="text-xs sm:text-sm text-muted-foreground">{brand.items} items</p>
                 </div>
               </Link>

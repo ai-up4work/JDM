@@ -185,7 +185,7 @@ export default function CatalogPage() {
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="shrink-0 h-px w-4 sm:w-6" style={{ background: 'rgba(16,185,129,0.6)' }} />
               <span className="text-[7px] sm:text-[8px] lg:text-[9px] text-white/20 tracking-widest uppercase font-medium">
-                Muslim Central College · Kandy
+                Muslim Central College · Akkaraipattu
               </span>
             </div>
             <div

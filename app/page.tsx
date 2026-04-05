@@ -1003,7 +1003,7 @@ export default function Home() {
         <StylingVideos />
 
         {/* ── Trending Products ── */}
-        <TrendingProducts />
+        {/* <TrendingProducts /> */}
 
       </div>
     </div>

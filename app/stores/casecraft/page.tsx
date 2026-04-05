@@ -14,18 +14,7 @@ export default function CustomCasePage() {
   return (
     <div className="min-h-screen bg-background">
 
-      {/* ── Sticky Nav — identical to original ── */}
-      <div className="sticky top-0 z-30 bg-background/80 mt-4">
-        <div className="max-w-7xl mx-auto h-14 flex items-center justify-between gap-4 px-4 sm:px-10 lg:px-40">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
-            <Link href="/" className="hover:text-foreground transition-colors font-medium">Home</Link>
-            <ChevronRight size={11} />
-            <Link href="/stores" className="hover:text-foreground transition-colors font-medium">Stores</Link>
-            <ChevronRight size={11} />
-            <span className="text-foreground font-medium">Cases</span>
-          </div>
-        </div>
-      </div>
+      
 
       {/* ── Main content — identical wrapper to original ── */}
       <div className="w-full min-w-0 px-4 sm:px-10 lg:px-40">

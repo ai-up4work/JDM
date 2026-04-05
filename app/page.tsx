@@ -11,9 +11,9 @@ import Image from 'next/image';
 // ── Data ────────────────────────────────────────────────────────────────────
 
 const heroSlides = [
-  { id: 1, title: 'WOMEN', subtitle: 'FESTIVE WEAR',       image: '/hero/hero1.jpg' },
-  { id: 2, title: 'MEN',   subtitle: 'PREMIUM COLLECTION', image: '/hero/hero2.jpg' },
-  { id: 3, title: 'KIDS',  subtitle: 'SUMMER WEAR',        image: '/hero/hero3.jpg' },
+  { id: 1, title: 'CASECRAFT', subtitle: 'Number one store for custom phone cases',       image: '/hero/hero1.jpg' },
+  { id: 2, title: 'MEN',       subtitle: 'PREMIUM COLLECTION',                            image: '/hero/hero2.jpg' },
+  { id: 3, title: 'KIDS',      subtitle: 'SUMMER WEAR',                                   image: '/hero/hero3.jpg' },
 ];
 
 const categories = [

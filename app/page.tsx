@@ -7,6 +7,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { featuredProducts, sellers } from '@/lib/mockData';
 import { ProductCard } from '@/components/ProductCard';
 import Image from 'next/image';
+import { Store, CalendarDays, BookOpen } from 'lucide-react';
+
 
 // ── Data ────────────────────────────────────────────────────────────────────
 
@@ -244,49 +246,53 @@ const mostPopular = [
 const pillars = [
   {
     href: '/stores',
-    accent: '#1D9E75',
-    accentLight: '#E1F5EE',
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
-        <path d="M2 7l8-5 8 5v10a1 1 0 01-1 1H3a1 1 0 01-1-1V7z"/>
-        <path d="M7 18V10h6v8"/>
-      </svg>
-    ),
+    bg: '#E1F5EE',
+    iconBg: '#5DCAA5',
+    iconStroke: '#04342C',
+    titleColor: '#085041',
+    subColor: '#0F6E56',
+    tagBg: '#9FE1CB',
+    tagColor: '#085041',
+    dotColor: '#0F6E56',
+    tag: '6 stores live',
     title: 'Local Stores',
-    sub: 'Shop from local sellers',
+    sub: "Shop Sri Lanka's best sellers",
+    icon: <Store size={20} />,
   },
   {
     href: '/booking',
-    accent: '#378ADD',
-    accentLight: '#E6F1FB',
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
-        <rect x="2" y="4" width="16" height="14" rx="2"/>
-        <path d="M14 2v4M6 2v4M2 9h16"/>
-        <path d="M6 13h2M10 13h2M6 16h2"/>
-      </svg>
-    ),
+    bg: '#E6F1FB',
+    iconBg: '#378ADD',
+    iconStroke: '#042C53',
+    titleColor: '#0C447C',
+    subColor: '#185FA5',
+    tagBg: '#B5D4F4',
+    tagColor: '#0C447C',
+    dotColor: '#185FA5',
+    tag: 'Book instantly',
     title: 'Booking',
     sub: 'Hospital & bus tickets',
+    icon: <CalendarDays size={20} />,
   },
   {
     href: '/library',
-    accent: '#BA7517',
-    accentLight: '#FAEEDA',
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
-        <path d="M4 2h9a1 1 0 011 1v13a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z"/>
-        <path d="M14 6l2 1v10l-2-1"/>
-        <path d="M6 6h5M6 9h5M6 12h3"/>
-      </svg>
-    ),
+    bg: '#FAEEDA',
+    iconBg: '#EF9F27',
+    iconStroke: '#412402',
+    titleColor: '#633806',
+    subColor: '#854F0B',
+    tagBg: '#FAC775',
+    tagColor: '#633806',
+    dotColor: '#854F0B',
+    tag: 'Free to borrow',
     title: 'Library',
     sub: 'Borrow books, free',
+    icon: <BookOpen size={20} />,
   },
 ];
 
-// ── Sub-components ───────────────────────────────────────────────────────────
 
+// ── Sub-components ───────────────────────────────────────────────────────────
 function NewInCarousel() {
   const [start, setStart] = useState(0);
   const [colCount, setColCount] = useState(4);
@@ -983,22 +989,54 @@ export default function Home() {
       </section>
 
       {/* ── Three Pillars Strip ── */}
-      <section className="grid grid-cols-3 gap-2 sm:gap-3 mb-6 sm:mb-8 px-0">
+      <section className="grid grid-cols-3 gap-2 sm:gap-3 mb-6 sm:mb-8">
         {pillars.map((p) => (
           <Link
             key={p.href}
             href={p.href}
-            className="group flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-2xl border border-transparent hover:border-gray-200 transition-all bg-secondary/50 hover:bg-background"
+            className="group relative rounded-2xl overflow-hidden border border-black/[0.06] flex flex-col"
+            style={{ background: p.bg }}
           >
-            <div
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
-              style={{ backgroundColor: p.accentLight, color: p.accent }}
-            >
-              {p.icon}
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm font-semibold text-foreground leading-tight">{p.title}</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate hidden sm:block">{p.sub}</p>
+            <div className="flex flex-col gap-3 p-3.5 sm:p-5 h-full">
+              {/* Top row: icon + arrow */}
+              <div className="flex items-start justify-between">
+                <div
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-[14px] flex items-center justify-center shrink-0"
+                  style={{ background: p.iconBg, color: p.iconStroke }}
+                >
+                  {p.icon}
+                </div>
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                  style={{ background: p.tagBg }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke={p.tagColor} strokeWidth={2}>
+                    <path d="M2.5 9.5l7-7M3 2.5h6.5v6.5"/>
+                  </svg>
+                </div>
+              </div>
+
+              {/* Title + sub */}
+              <div>
+                <p className="text-xs sm:text-sm font-semibold leading-tight" style={{ color: p.titleColor }}>
+                  {p.title}
+                </p>
+                <p className="text-[10px] sm:text-xs mt-0.5 leading-snug hidden sm:block" style={{ color: p.subColor }}>
+                  {p.sub}
+                </p>
+              </div>
+
+              {/* Divider + tag */}
+              <div className="mt-auto hidden sm:block">
+                <div className="h-px w-full mb-2.5" style={{ background: 'rgba(0,0,0,0.08)' }} />
+                <span
+                  className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full"
+                  style={{ background: p.tagBg, color: p.tagColor }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: p.dotColor }} />
+                  {p.tag}
+                </span>
+              </div>
             </div>
           </Link>
         ))}

@@ -240,6 +240,51 @@ const mostPopular = [
   { name: 'Cross Stitch',     items: 201, discount: 70, image: '/garments/product16.jpeg', href: '/brands/cross-stitch'      },
 ];
 
+// ── Three Pillars data ───────────────────────────────────────────────────────
+const pillars = [
+  {
+    href: '/stores',
+    accent: '#1D9E75',
+    accentLight: '#E1F5EE',
+    icon: (
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
+        <path d="M2 7l8-5 8 5v10a1 1 0 01-1 1H3a1 1 0 01-1-1V7z"/>
+        <path d="M7 18V10h6v8"/>
+      </svg>
+    ),
+    title: 'Local Stores',
+    sub: 'Shop from local sellers',
+  },
+  {
+    href: '/booking',
+    accent: '#378ADD',
+    accentLight: '#E6F1FB',
+    icon: (
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
+        <rect x="2" y="4" width="16" height="14" rx="2"/>
+        <path d="M14 2v4M6 2v4M2 9h16"/>
+        <path d="M6 13h2M10 13h2M6 16h2"/>
+      </svg>
+    ),
+    title: 'Booking',
+    sub: 'Hospital & bus tickets',
+  },
+  {
+    href: '/library',
+    accent: '#BA7517',
+    accentLight: '#FAEEDA',
+    icon: (
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
+        <path d="M4 2h9a1 1 0 011 1v13a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z"/>
+        <path d="M14 6l2 1v10l-2-1"/>
+        <path d="M6 6h5M6 9h5M6 12h3"/>
+      </svg>
+    ),
+    title: 'Library',
+    sub: 'Borrow books, free',
+  },
+];
+
 // ── Sub-components ───────────────────────────────────────────────────────────
 
 function NewInCarousel() {
@@ -935,6 +980,28 @@ export default function Home() {
             />
           ))}
         </div>
+      </section>
+
+      {/* ── Three Pillars Strip ── */}
+      <section className="grid grid-cols-3 gap-2 sm:gap-3 mb-6 sm:mb-8 px-0">
+        {pillars.map((p) => (
+          <Link
+            key={p.href}
+            href={p.href}
+            className="group flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-2xl border border-transparent hover:border-gray-200 transition-all bg-secondary/50 hover:bg-background"
+          >
+            <div
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
+              style={{ backgroundColor: p.accentLight, color: p.accent }}
+            >
+              {p.icon}
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm font-semibold text-foreground leading-tight">{p.title}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate hidden sm:block">{p.sub}</p>
+            </div>
+          </Link>
+        ))}
       </section>
 
       <div className="max-w-7xl mx-auto py-2 sm:py-4 min-w-0">

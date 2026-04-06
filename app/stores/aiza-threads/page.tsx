@@ -273,7 +273,7 @@ function FeaturedBrandsCarousel({ activeFilter }: { activeFilter: FilterKey }) {
           : brands.map(brand => (
               <Link
                 key={brand.slug}
-                href={`/brands/${brand.slug}`}
+                href={`/stores/aiza-threads/${brand.slug}`}
                 className="shrink-0 snap-start flex flex-col items-center gap-2.5 group w-[28vw] sm:w-[18vw] lg:w-32"
               >
                 <div className="relative w-full aspect-square overflow-hidden rounded-2xl border border-border group-hover:border-primary transition-colors">
@@ -420,7 +420,7 @@ function AllBrands({ activeFilter }: { activeFilter: FilterKey }) {
                 {grouped[letter].map(brand => (
                   <Link
                     key={brand.slug}
-                    href={`/brands/${brand.slug}`}
+                    href={`/stores/aiza-threads/${brand.slug}`}
                     className="flex items-center gap-3 sm:gap-4 py-3 sm:py-3.5 group hover:bg-secondary rounded-xl px-2 -mx-2 transition-colors"
                   >
                     {/* Logo tile */}
@@ -474,7 +474,7 @@ function AllBrands({ activeFilter }: { activeFilter: FilterKey }) {
       )}
 
       {/* Apply / list your brand CTA — mirrors stores page */}
-      <Link
+      {/* <Link
         href="/brands/apply"
         className="flex items-center gap-3 sm:gap-4 py-3 sm:py-3.5 group hover:bg-secondary rounded-xl px-2 -mx-2 transition-colors mt-0 border-t border-border"
       >
@@ -488,7 +488,7 @@ function AllBrands({ activeFilter }: { activeFilter: FilterKey }) {
           <p className="text-xs text-muted-foreground mt-0.5">Apply for a spot — we verify every seller</p>
         </div>
         <ChevronRight size={15} className="text-muted-foreground shrink-0" />
-      </Link>
+      </Link> */}
 
     </section>
   );

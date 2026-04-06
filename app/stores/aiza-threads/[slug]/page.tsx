@@ -233,7 +233,7 @@ function BrandHeader({ brand, productCount }: { brand: Brand; productCount: numb
         {!errored ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={brand.logo} alt={brand.name} onError={() => setErrored(true)}
-            className="w-full h-full object-contain p-1.5" />
+            className="w-full h-full object-cover" />
         ) : (
           <span style={{ color: palette.text, fontSize: '1.25rem', fontWeight: 700 }}>
             {getInitials(brand.name)}

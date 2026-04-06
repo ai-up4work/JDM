@@ -420,7 +420,7 @@ export default function BrandProductsPage() {
 
         {/* Back + bag button row */}
         <div className="flex items-center justify-between mb-5">
-          <Link href="/brands" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/stores/aiza-threads" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ChevronLeft size={15} /> All Brands
           </Link>
           {/* <StoreBagButton /> */}

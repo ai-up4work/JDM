@@ -311,7 +311,7 @@ export default function OtakuClothingPage() {
           </div>
 
           {/* Global bag button */}
-          <StoreBagButton />
+          {/* <StoreBagButton /> */}
         </div>
       </div>
 

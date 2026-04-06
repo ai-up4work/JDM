@@ -233,7 +233,7 @@ export default function OtakuProductPage() {
               className="p-2 rounded-xl hover:bg-secondary transition-colors">
               <Share2 size={14} className="text-muted-foreground" />
             </button>
-            <StoreBagButton />
+            {/* <StoreBagButton /> */}
           </div>
         </div>
       </div>

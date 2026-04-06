@@ -267,7 +267,7 @@ export default function OldMoneyPage() {
           </div>
 
           {/* Global bag button */}
-          <StoreBagButton />
+          {/* <StoreBagButton /> */}
         </div>
       </div>
 

@@ -172,7 +172,7 @@ export async function GET(
   try {
     const product = await fetchProductDetail(slug);
 
-    console.log('✅ Images found:', product.images.length);
+    // console.log('✅ Images found:', product.images.length);
 
     return NextResponse.json({ product });
   } catch (err) {

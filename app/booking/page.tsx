@@ -127,6 +127,7 @@ export default function ChooseOperatorPage() {
                   </div>
                   <button
                     type="button"
+                    onClick={() => router.push(`/booking/tickets/${r.id}`)}
                     className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-[10px] font-bold transition-all duration-150 shrink-0"
                   >
                     Buy seat

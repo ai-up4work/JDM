@@ -1,4 +1,3 @@
-// app/aiza-threads/product/[slug]/page.tsx
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -7,10 +6,9 @@ import Link from 'next/link';
 import {
   ChevronLeft, ChevronRight, Star, ShoppingBag,
   Heart, Share2, ZoomIn, Package, RefreshCw, Shield,
-  Tag, Loader2, X
+  Tag, X
 } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
-import { StoreBagButton } from '@/components/StoreBagButton';
 import type { Product as GlobalProduct } from '@/lib/mockData';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -53,6 +51,11 @@ function formatPrice(n: number) {
   return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
 }
 
+function proxyImg(url: string) {
+  if (!url) return url;
+  return `/api/aiza-threads/image-proxy?url=${encodeURIComponent(url)}`;
+}
+
 function toCartProduct(p: ProductDetail, qty: number): GlobalProduct {
   return {
     id:            p.id,
@@ -73,9 +76,9 @@ function toCartProduct(p: ProductDetail, qty: number): GlobalProduct {
 // ── Image Gallery ──────────────────────────────────────────────────────────────
 
 function ImageGallery({ images, name }: { images: string[]; name: string }) {
-  const [active, setActive]     = useState(0);
-  const [zoomed, setZoomed]     = useState(false);
-  const [errored, setErrored]   = useState<Set<number>>(new Set());
+  const [active, setActive]   = useState(0);
+  const [zoomed, setZoomed]   = useState(false);
+  const [errored, setErrored] = useState<Set<number>>(new Set());
 
   const good = images.filter((_, i) => !errored.has(i));
 
@@ -96,7 +99,7 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
       <div className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden bg-secondary group">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={good[active]}
+          src={proxyImg(good[active])}
           alt={`${name} - image ${active + 1}`}
           onError={() => setErrored(e => new Set([...e, active]))}
           className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
@@ -131,12 +134,6 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
           <ZoomIn size={15} />
         </button>
 
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
-          {/* isNew badge not available here easily, skip or pass it */}
-          {/* discount badge */}
-        </div>
-
         {/* Dot indicators */}
         {good.length > 1 && (
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
@@ -167,7 +164,11 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={`thumb ${i + 1}`} className="w-full h-full object-cover object-top" />
+              <img
+                src={proxyImg(src)}
+                alt={`thumb ${i + 1}`}
+                className="w-full h-full object-cover object-top"
+              />
             </button>
           ))}
         </div>
@@ -188,7 +189,7 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={good[active]}
+            src={proxyImg(good[active])}
             alt={name}
             className="max-w-full max-h-full object-contain"
             onClick={e => e.stopPropagation()}
@@ -232,7 +233,9 @@ function ReviewCard({ review }: { review: ReviewItem }) {
           {review.date && <span className="text-xs text-muted-foreground">{review.date}</span>}
         </div>
       </div>
-      {review.comment && <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>}
+      {review.comment && (
+        <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
+      )}
     </div>
   );
 }
@@ -325,7 +328,9 @@ export default function ProductDetailPage() {
               type="button"
               onClick={() => setWishlist(w => !w)}
               className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
-                wishlist ? 'bg-red-50 border-red-200 text-red-500' : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
+                wishlist
+                  ? 'bg-red-50 border-red-200 text-red-500'
+                  : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
               }`}
             >
               <Heart size={16} className={wishlist ? 'fill-red-500' : ''} />
@@ -337,7 +342,6 @@ export default function ProductDetailPage() {
             >
               <Share2 size={16} />
             </button>
-            {/* <StoreBagButton /> */}
           </div>
         </div>
 
@@ -505,9 +509,9 @@ export default function ProductDetailPage() {
             {/* Trust signals */}
             <div className="grid grid-cols-3 gap-3 mt-1">
               {[
-                { icon: Package, label: 'Fast delivery' },
+                { icon: Package,   label: 'Fast delivery' },
                 { icon: RefreshCw, label: 'Easy returns' },
-                { icon: Shield, label: 'Secure checkout' },
+                { icon: Shield,    label: 'Secure checkout' },
               ].map(({ icon: Icon, label }) => (
                 <div key={label} className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-secondary/30 border border-border text-center">
                   <Icon size={16} className="text-muted-foreground" />

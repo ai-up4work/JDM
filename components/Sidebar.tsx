@@ -158,7 +158,7 @@ const sidebarItems = [
   { label: 'Stores',        href: '/stores'                           },
   { label: 'Booking',       href: '/booking'                          },
   { label: 'Library',       href: '/library'                          },
-  { label: 'Orders',        href: '/orders'                           },
+  { label: 'Cart',          href: '/cart'                             },
   { label: 'Rewards',       href: '/rewards'                          },
   { label: 'Wishlist',      href: '/wishlist'                         },
 ];

@@ -1,3 +1,5 @@
+// app/stores/old-money/[handle]/page.tsx
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -6,27 +8,36 @@ import { useParams } from 'next/navigation';
 import {
   ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon,
   ShoppingBag, Heart, Check, Truck, RefreshCw, Shield,
-  ExternalLink, ArrowLeft, AlertCircle, Share2, ZoomIn,
+  ArrowLeft, AlertCircle, Share2, ZoomIn,
   Minus, Plus,
 } from 'lucide-react';
 import type { OMProduct } from '@/lib/oldmoney.types';
+import type { Product } from '@/lib/mockData';
+import { useCartStore } from '@/lib/store';
+import { StoreBagButton } from '@/components/StoreBagButton';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtPrice(cents: number) {
-  return `Rs ${(cents / 100).toFixed(2)}`;
+  return `$${(cents / 100).toFixed(2)}`;
 }
 
-const CART_KEY = 'om_cart';
-type CartItem = OMProduct & { selectedSize?: string | null; selectedColor?: string | null; qty: number };
-
-function readCart(): CartItem[] {
-  if (typeof window === 'undefined') return [];
-  try { return JSON.parse(sessionStorage.getItem(CART_KEY) ?? '[]'); } catch { return []; }
-}
-function writeCart(items: CartItem[]) {
-  sessionStorage.setItem(CART_KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event('om_cart_updated'));
+/** Maps an OMProduct to the global Product shape */
+function omToProduct(p: OMProduct): Product {
+  return {
+    id:            p.id,
+    name:          p.title,
+    price:         p.price / 100,
+    originalPrice: p.originalPrice ? p.originalPrice / 100 : undefined,
+    image:         p.image ?? '',
+    category:      p.category,
+    seller:        'old-money',
+    rating:        0,
+    reviews:       0,
+    inStock:       p.inStock,
+    sizes:         p.sizes  ?? [],
+    colors:        p.colors ?? [],
+  };
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -61,12 +72,6 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
   const prev = () => setActive(i => (i - 1 + images.length) % images.length);
   const next = () => setActive(i => (i + 1) % images.length);
 
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const r = ref.current.getBoundingClientRect();
-    setZoomPos({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
-  };
-
   if (!images.length) return (
     <div className="aspect-square rounded-2xl bg-secondary/40 flex items-center justify-center text-muted-foreground/20">
       <ShoppingBag size={48} />
@@ -75,13 +80,25 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
 
   return (
     <div className="flex flex-col gap-3 lg:sticky lg:top-24 self-start">
-      <div ref={ref} className="relative aspect-square rounded-2xl overflow-hidden bg-secondary/30 cursor-zoom-in group"
-        onMouseMove={onMouseMove} onMouseEnter={() => setZoomed(true)} onMouseLeave={() => setZoomed(false)}>
+      <div
+        ref={ref}
+        className="relative aspect-square rounded-2xl overflow-hidden bg-secondary/30 cursor-zoom-in group"
+        onMouseMove={e => {
+          if (!ref.current) return;
+          const r = ref.current.getBoundingClientRect();
+          setZoomPos({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
+        }}
+        onMouseEnter={() => setZoomed(true)}
+        onMouseLeave={() => setZoomed(false)}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={images[active]} alt={`${title} — ${active + 1}`}
+        <img
+          src={images[active]}
+          alt={`${title} — ${active + 1}`}
           className={`w-full h-full object-cover transition-transform duration-200 ${zoomed ? 'scale-[1.6]' : 'scale-100'}`}
           style={zoomed ? { transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` } : undefined}
-          draggable={false} />
+          draggable={false}
+        />
 
         <div className="absolute bottom-3 right-3 bg-background/70 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
           <ZoomIn size={11} className="text-muted-foreground" />
@@ -123,24 +140,18 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function OldMoneyProductPage() {
-  const { handle }                          = useParams<{ handle: string }>();
-  const [product,    setProduct]            = useState<OMProduct | null>(null);
-  const [loading,    setLoading]            = useState(true);
-  const [error,      setError]              = useState<string | null>(null);
+  const { handle }                        = useParams<{ handle: string }>();
+  const { addToCart }                     = useCartStore();
 
-  const [selectedSize,  setSelectedSize]    = useState<string | null>(null);
-  const [selectedColor, setSelectedColor]   = useState<string | null>(null);
-  const [qty,           setQty]             = useState(1);
-  const [wishlisted,    setWishlisted]      = useState(false);
-  const [added,         setAdded]           = useState(false);
-  const [cartCount,     setCartCount]       = useState(0);
+  const [product,      setProduct]        = useState<OMProduct | null>(null);
+  const [loading,      setLoading]        = useState(true);
+  const [error,        setError]          = useState<string | null>(null);
 
-  useEffect(() => {
-    setCartCount(readCart().reduce((s, i) => s + i.qty, 0));
-    const sync = () => setCartCount(readCart().reduce((s, i) => s + i.qty, 0));
-    window.addEventListener('om_cart_updated', sync);
-    return () => window.removeEventListener('om_cart_updated', sync);
-  }, []);
+  const [selectedSize,  setSelectedSize]  = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [qty,           setQty]           = useState(1);
+  const [wishlisted,    setWishlisted]    = useState(false);
+  const [added,         setAdded]         = useState(false);
 
   useEffect(() => {
     if (!handle) return;
@@ -158,9 +169,7 @@ export default function OldMoneyProductPage() {
   const handleAdd = () => {
     if (!product) return;
     if (product.sizes.length > 0 && !selectedSize) return;
-    const cart = readCart();
-    const items = [...cart, ...Array(qty).fill({ ...product, selectedSize, selectedColor, qty: 1 })];
-    writeCart(items);
+    addToCart(omToProduct(product), qty, selectedSize ?? undefined, selectedColor ?? undefined);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
   };
@@ -171,12 +180,10 @@ export default function OldMoneyProductPage() {
   };
 
   const needsSize = !!product && product.sizes.length > 0;
-  const canAdd    = !!product && (!needsSize || !!selectedSize);
+  const canAdd    = !!product && product.inStock !== false && (!needsSize || !!selectedSize);
   const discount  = product?.originalPrice && product.onSale
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : null;
-
-  // Defensive: ensure tags is always an array on the client side too
   const tags = Array.isArray(product?.tags) ? product.tags : [];
 
   return (
@@ -185,6 +192,8 @@ export default function OldMoneyProductPage() {
       {/* ── Sticky nav ── */}
       <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md mt-4">
         <div className="max-w-7xl mx-auto h-14 flex items-center justify-between gap-4 px-4 sm:px-10 lg:px-40">
+
+          {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0 min-w-0">
             <Link href="/" className="hover:text-foreground transition-colors font-medium shrink-0">Home</Link>
             <ChevronRight size={11} className="shrink-0" />
@@ -198,20 +207,14 @@ export default function OldMoneyProductPage() {
               </>
             )}
           </div>
+
+          {/* Share + global bag */}
           <div className="flex items-center gap-2 shrink-0">
-            <button type="button" onClick={handleShare} className="p-2 rounded-xl hover:bg-secondary transition-colors">
+            <button type="button" onClick={handleShare}
+              className="p-2 rounded-xl hover:bg-secondary transition-colors">
               <Share2 size={14} className="text-muted-foreground" />
             </button>
-            <Link href="/stores/old-money"
-              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border hover:bg-secondary transition-colors">
-              <ShoppingBag size={13} />
-              <span className="text-xs font-semibold text-foreground">Bag</span>
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-foreground text-background text-[9px] font-bold flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
+            <StoreBagButton />
           </div>
         </div>
       </div>
@@ -249,15 +252,23 @@ export default function OldMoneyProductPage() {
                   {/* Badges + title */}
                   <div>
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{product.category}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                        {product.category}
+                      </span>
                       {product.onSale && discount && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-foreground text-background uppercase">−{discount}% sale</span>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-foreground text-background uppercase">
+                          −{discount}% sale
+                        </span>
                       )}
                       {product.inStock === false && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-red-100 text-red-600 uppercase">Sold out</span>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-red-100 text-red-600 uppercase">
+                          Sold out
+                        </span>
                       )}
                     </div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-1">{product.title}</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-1">
+                      {product.title}
+                    </h1>
                     {product.vendor && product.vendor !== 'Old Money' && (
                       <p className="text-xs text-muted-foreground">{product.vendor}</p>
                     )}
@@ -284,7 +295,6 @@ export default function OldMoneyProductPage() {
                     const isColor = opt.name.toLowerCase() === 'color' || opt.name.toLowerCase() === 'colour';
                     const current = isSize ? selectedSize : isColor ? selectedColor : null;
                     const setter  = isSize ? setSelectedSize : isColor ? setSelectedColor : null;
-
                     if (!setter) return null;
 
                     return (
@@ -294,7 +304,9 @@ export default function OldMoneyProductPage() {
                           {isSize && needsSize && !selectedSize && (
                             <span className="text-red-400 font-normal normal-case tracking-normal ml-2">— please select</span>
                           )}
-                          {current && <span className="font-normal normal-case tracking-normal text-muted-foreground ml-2">— {current}</span>}
+                          {current && (
+                            <span className="font-normal normal-case tracking-normal text-muted-foreground ml-2">— {current}</span>
+                          )}
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {opt.values.map(v => (
@@ -335,10 +347,14 @@ export default function OldMoneyProductPage() {
                     <button type="button" onClick={handleAdd} disabled={!canAdd}
                       className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-bold
                         transition-all duration-300 active:scale-[0.98]
-                        ${added ? 'bg-emerald-500 text-white shadow-[0_4px_16px_rgba(16,185,129,0.35)]'
-                        : canAdd ? 'bg-foreground text-background hover:bg-foreground/90 shadow-[0_4px_16px_rgba(0,0,0,0.12)]'
-                        : 'bg-secondary text-muted-foreground cursor-not-allowed'}`}>
-                      {added ? <><Check size={16} /> Added to bag</> : <><ShoppingBag size={16} /> Add to bag{qty > 1 ? ` (${qty})` : ''}</>}
+                        ${added
+                          ? 'bg-emerald-500 text-white shadow-[0_4px_16px_rgba(16,185,129,0.35)]'
+                          : canAdd
+                            ? 'bg-foreground text-background hover:bg-foreground/90 shadow-[0_4px_16px_rgba(0,0,0,0.12)]'
+                            : 'bg-secondary text-muted-foreground cursor-not-allowed'}`}>
+                      {added
+                        ? <><Check size={16} /> Added to bag</>
+                        : <><ShoppingBag size={16} /> Add to bag{qty > 1 ? ` (${qty})` : ''}</>}
                     </button>
                     <button type="button" onClick={() => setWishlisted(v => !v)}
                       className={`w-14 h-14 rounded-2xl border flex items-center justify-center transition-all
@@ -350,9 +366,9 @@ export default function OldMoneyProductPage() {
                   {/* Trust bar */}
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { icon: <Truck size={14} />,    label: 'Island-wide', sub: '2–4 working days' },
-                      { icon: <RefreshCw size={14} />, label: 'Live stock',  sub: 'synched' },
-                      { icon: <Shield size={14} />,   label: 'Authentic',   sub: '100% original'    },
+                      { icon: <Truck size={14} />,     label: 'Island-wide', sub: '2–4 working days' },
+                      { icon: <RefreshCw size={14} />, label: 'Live stock',  sub: 'Real-time sync'   },
+                      { icon: <Shield size={14} />,    label: 'Authentic',   sub: '100% original'    },
                     ].map(b => (
                       <div key={b.label} className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary/30 border border-border">
                         <span className="text-foreground mb-1">{b.icon}</span>
@@ -361,13 +377,6 @@ export default function OldMoneyProductPage() {
                       </div>
                     ))}
                   </div>
-
-                  <a href={product.permalink} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    {/* <ExternalLink size={12} />
-                    View original listing on old-money.com */}
-                  </a>
-
                 </div>
               </div>
 
@@ -391,7 +400,7 @@ export default function OldMoneyProductPage() {
                 <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-3">How our reselling works</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {[
-                    { step: '01', title: 'You order here',      body: 'Add to bag and place your order via WhatsApp. We confirm availability with Old Money.' },
+                    { step: '01', title: 'You order here',      body: 'Add to bag and complete checkout. We confirm availability with Old Money.' },
                     { step: '02', title: 'We bulk-buy for you', body: 'We collect orders and purchase from Old Money in bulk — no international shipping costs passed on.' },
                     { step: '03', title: 'We deliver locally',  body: 'Your item arrives with us and we deliver to your door, same day or next day in your area.' },
                   ].map(s => (
@@ -405,7 +414,6 @@ export default function OldMoneyProductPage() {
                   ))}
                 </div>
               </div>
-
             </>
           )}
         </div>

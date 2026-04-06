@@ -8,6 +8,7 @@ import { featuredProducts, sellers } from '@/lib/mockData';
 import { ProductCard } from '@/components/ProductCard';
 import Image from 'next/image';
 import { Store, CalendarDays, BookOpen } from 'lucide-react';
+import { ta } from 'date-fns/locale';
 
 
 // ── Data ────────────────────────────────────────────────────────────────────
@@ -75,19 +76,33 @@ const categories = [
     itemCount: 12,
   },
   {
-    slug: 'be-dapper',
-    name: 'Be Dapper',
-    type: 'template',
+    slug: 'aiza-threads',
+    name: 'Aiza Threads',
+    type: 'custom',
     isNew: true,
-    logo: '/store-icon/potrait/be-dapper.png',
-    bannerStyle: { background: '#0f2027' },
+    logo: '/store-icon/potrait/aiza-threads.png',
+    bannerStyle: { background: '#d4af37' }, // gold
     category: 'Clothing',
-    description: 'Minimal streetwear made in Sri Lanka. Small-batch drops, direct from the designer.',
+    description: "The place where the luxury pakistani brands dwells",
+    payment: 'Bank transfer',
     shipping: 'Ships island-wide',
-    payment: 'COD',
-    tags: ['Streetwear', 'Unisex', 'Local brand'],
-    itemCount: 41,
+    tags: ['Luxury', 'Pakistani', 'Custom tailoring'],
+    itemCount: 1340,
   },
+  // {
+  //   slug: 'be-dapper',
+  //   name: 'Be Dapper',
+  //   type: 'template',
+  //   isNew: true,
+  //   logo: '/store-icon/potrait/be-dapper.png',
+  //   bannerStyle: { background: '#0f2027' },
+  //   category: 'Clothing',
+  //   description: 'Minimal streetwear made in Sri Lanka. Small-batch drops, direct from the designer.',
+  //   shipping: 'Ships island-wide',
+  //   payment: 'COD',
+  //   tags: ['Streetwear', 'Unisex', 'Local brand'],
+  //   itemCount: 41,
+  // },
   // {
   //   slug: 'old-money',
   //   name: 'Old Money',

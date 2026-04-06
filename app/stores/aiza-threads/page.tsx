@@ -1,4 +1,4 @@
-// app/brands/page.tsx
+// app/aiza-threads/page.tsx
 'use client';
 
 import { useState, useRef, useEffect } from 'react';

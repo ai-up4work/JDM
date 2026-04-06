@@ -1,10 +1,16 @@
-// app/brands/[slug]/page.tsx
+// app/aiza-threads/[slug]/page.tsx
+// CHANGE: ProductCardGrid now links to /aiza-threads/product/[slug] instead of product.url
+// CHANGE: ProductCardList "View" button also links internally
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, SlidersHorizontal, X, Search, GridIcon, LayoutList } from 'lucide-react';
+import type { Product as GlobalProduct } from '@/lib/mockData';
+import { useCartStore } from '@/lib/store';
+import { StoreBagButton } from '@/components/StoreBagButton';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -66,6 +72,24 @@ function getPalette(name: string) {
   return LOGO_PALETTES[Math.abs(hash) % LOGO_PALETTES.length];
 }
 
+/** Maps a brand Product to the global Product shape for the cart store */
+function brandToProduct(p: Product): GlobalProduct {
+  return {
+    id:            p.id,
+    name:          p.name,
+    price:         p.price / 10000,
+    originalPrice: p.originalPrice ? p.originalPrice / 10000 : undefined,
+    image:         p.image ?? '',
+    category:      p.category,
+    seller:        'aiza-threads',
+    rating:        p.rating ?? 0,
+    reviews:       p.reviews ?? 0,
+    inStock:       true,
+    sizes:         [],
+    colors:        p.color ? [p.color] : [],
+  };
+}
+
 // ── Filter Pill ───────────────────────────────────────────────────────────────
 
 function FilterPill({ label, options, value, onChange }: {
@@ -108,12 +132,14 @@ function FilterPill({ label, options, value, onChange }: {
 }
 
 // ── Product Card Grid ─────────────────────────────────────────────────────────
+// Now links to internal product page
 
 function ProductCardGrid({ product }: { product: Product }) {
   const [imgErr, setImgErr] = useState(false);
+  const internalUrl = `/stores/aiza-threads/product/${product.slug}`;
 
   return (
-    <a href={product.url} target="_blank" rel="noopener noreferrer" className="group flex flex-col gap-2 min-w-0">
+    <Link href={internalUrl} className="group flex flex-col gap-2 min-w-0">
       <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
         {!imgErr ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -156,19 +182,32 @@ function ProductCardGrid({ product }: { product: Product }) {
           </div>
         )}
       </div>
-    </a>
+    </Link>
   );
 }
 
 // ── Product Card List ─────────────────────────────────────────────────────────
 
 function ProductCardList({ product }: { product: Product }) {
+  const { addToCart } = useCartStore();
   const [imgErr, setImgErr] = useState(false);
+  const [added, setAdded] = useState(false);
+  const internalUrl = `/aiza-threads/product/${product.slug}`;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart(brandToProduct(product), 1);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
 
   return (
-    <a href={product.url} target="_blank" rel="noopener noreferrer"
-      className="group flex gap-4 p-3 rounded-2xl border border-border hover:border-foreground/20 hover:bg-secondary/30 transition-all">
-      <div className="relative w-24 h-32 shrink-0 overflow-hidden rounded-xl bg-muted">
+    <div className="group flex gap-4 p-3 rounded-2xl border border-border hover:border-foreground/20 hover:bg-secondary/30 transition-all">
+      {/* Thumbnail — clicking goes to internal product page */}
+      <Link
+        href={internalUrl}
+        className="relative w-24 h-32 shrink-0 overflow-hidden rounded-xl bg-muted"
+      >
         {!imgErr ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={product.image} alt={product.name} onError={() => setImgErr(true)}
@@ -179,7 +218,8 @@ function ProductCardList({ product }: { product: Product }) {
         {product.isNew && (
           <span className="absolute top-1.5 left-1.5 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">NEW</span>
         )}
-      </div>
+      </Link>
+
       <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
         <div>
           <p className="text-xs text-muted-foreground">{product.brand}</p>
@@ -193,7 +233,8 @@ function ProductCardList({ product }: { product: Product }) {
             )}
           </div>
         </div>
-        <div className="flex items-center justify-between mt-2">
+
+        <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
           <div>
             <div className="flex items-baseline gap-1.5 flex-wrap">
               <span className="text-sm font-bold text-foreground">${product.price.toFixed(2)}</span>
@@ -211,12 +252,34 @@ function ProductCardList({ product }: { product: Product }) {
               </div>
             )}
           </div>
-          <span className="text-xs font-medium px-3 py-1.5 rounded-full border border-foreground bg-foreground text-background">
-            View
-          </span>
+
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Add to bag */}
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-all duration-200
+                ${added
+                  ? 'bg-green-500 border-green-500 text-white'
+                  : 'border-border text-foreground hover:bg-secondary'
+                }`}
+            >
+              {added ? '✓ Added' : '+ Bag'}
+            </button>
+
+            {/* View product page (internal) */}
+            <Link
+              href={internalUrl}
+              className="text-xs font-medium px-3 py-1.5 rounded-full border border-foreground bg-foreground text-background hover:bg-foreground/90 transition-colors"
+              onClick={e => e.stopPropagation()}
+            >
+              View
+            </Link>
+          </div>
         </div>
       </div>
-    </a>
+    </div>
   );
 }
 
@@ -288,7 +351,6 @@ export default function BrandProductsPage() {
 
   const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
-  // Derive categories from real products
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
 
   const filtered = products.filter(p => {
@@ -356,10 +418,13 @@ export default function BrandProductsPage() {
     <div className="w-full min-w-0 overflow-x-hidden px-4 sm:px-10 lg:px-40">
       <div className="max-w-7xl mx-auto py-4 sm:py-8 min-w-0">
 
-        {/* Back */}
-        <Link href="/brands" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-5">
-          <ChevronLeft size={15} /> All Brands
-        </Link>
+        {/* Back + bag button row */}
+        <div className="flex items-center justify-between mb-5">
+          <Link href="/brands" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <ChevronLeft size={15} /> All Brands
+          </Link>
+          {/* <StoreBagButton /> */}
+        </div>
 
         {/* Brand header */}
         <BrandHeader brand={brand} productCount={filtered.length} />

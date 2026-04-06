@@ -1,194 +1,329 @@
 'use client';
-// app/booking/confirmed/page.tsx
+// app/booking/[operatorId]/[busId]/page.tsx
 
+import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBooking } from '@/lib/booking/context';
-import { useMemo, useRef } from 'react';
+import { getBus, getOperator } from '@/lib/booking/mock/operators';
 
-function randomRef(): string {
-  return Math.random().toString(36).slice(2, 10).toUpperCase();
-}
+// ─── Seat map types ───────────────────────────────────────────────
+type SeatRow = {
+  left: [number, number];
+  mid: number | null;
+  right: [number | null, number | null];
+};
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', {
-    weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+// Row 1  → left pair only, right slots empty        = 2 seats
+// Row 2–12 → left pair + right pair                 = 4 seats each
+// Row 13 → left pair + middle + right pair          = 5 seats
+// Total: 2 + (11 × 4) + 5 = 51
+function buildSeatMap(): SeatRow[] {
+  let n = 1;
+  return Array.from({ length: 13 }, (_, r) => {
+    if (r === 0)  return { left: [n++, n++], mid: null, right: [null, null] };
+    if (r === 12) return { left: [n++, n++], mid: n++,  right: [n++, n++]  };
+    return               { left: [n++, n++], mid: null, right: [n++, n++]  };
   });
 }
 
-function QRCode({ value, size = 200, downloadRef }: {
-  value: string;
-  size?: number;
-  downloadRef?: React.RefObject<HTMLImageElement>;
-}) {
-  const encoded = encodeURIComponent(value);
-  const src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}&margin=10`;
-  return (
-    <img
-      ref={downloadRef}
-      src={src}
-      width={size}
-      height={size}
-      alt="Booking QR code"
-      className="rounded-xl"
-      crossOrigin="anonymous"
-    />
-  );
+// ─── Mock booked seats (deterministic from busId) ─────────────────
+function getBookedSeats(busId: string): Set<number> {
+  const booked = new Set<number>();
+  let h = [...busId].reduce((a, c) => a + c.charCodeAt(0), 0);
+  for (let i = 1; i <= 51; i++) {
+    h = (h * 1103515245 + 12345) & 0x7fffffff;
+    if (h % 3 === 0) booked.add(i);
+  }
+  return booked;
 }
 
-export default function ConfirmedPage() {
+// ─── Ladies-only seats ────────────────────────────────────────────
+const LADIES_SEATS = new Set([1, 2, 3, 4, 19, 20, 21, 22]);
+
+const MAX_SEATS = 5;
+const BOARDING_POINTS = ['Colombo Fort', 'Pettah', 'Kadawatha', 'Ambepussa'];
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('en-GB', {
+    weekday: 'short', day: 'numeric', month: 'short',
+  });
+}
+
+// ─── Page ─────────────────────────────────────────────────────────
+export default function SeatSelectPage({
+  params,
+}: {
+  params: Promise<{ operatorId: string; busId: string }>;
+}) {
+  const { operatorId, busId } = use(params);
   const router = useRouter();
   const {
-    operator, bus, seatCount,
-    passengerName, passengerPhone, passengerGender,
-    clearBooking,
+    operator, bus: ctxBus,
+    setSeatCount, setBus, setOperator,
+    setPassengerName, setPassengerPhone, setPassengerGender,
   } = useBooking();
 
-  const ref = useMemo(() => randomRef(), []);
-  const totalFare = bus && seatCount ? seatCount * bus.fare : 0;
-  const qrImgRef = useRef<HTMLImageElement>(null);
+  const op  = operator ?? getOperator(operatorId);
+  const bus = ctxBus   ?? getBus(operatorId, busId);
 
-  const qrPayload = useMemo(() => {
-    const params = new URLSearchParams({
-      ref,
-      name: passengerName ?? '',
-      phone: passengerPhone ?? '',
-      from: bus?.from ?? '',
-      to: bus?.to ?? '',
-      date: bus?.date ?? '',
-      time: bus?.departureTime ?? '',
-      seats: String(seatCount),
-      fare: String(totalFare),
-    });
-    return `${typeof window !== 'undefined' ? window.location.origin : ''}/booking/ticket?${params.toString()}`;
-  }, [ref, passengerName, passengerPhone, bus, seatCount, totalFare]);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [gender, setGender]     = useState<'male' | 'female' | ''>('');
+  const [name, setName]         = useState('');
+  const [phone, setPhone]       = useState('');
+  const [error, setError]       = useState('');
 
-  const handleDownloadQR = async () => {
-    // Fetch via proxy to avoid CORS issues with canvas
-    const encoded = encodeURIComponent(qrPayload);
-    const src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encoded}&margin=10`;
+  if (!op || !bus) {
+    return (
+      <div className="py-20 text-center">
+        <p className="text-sm text-muted-foreground">Bus not found.</p>
+      </div>
+    );
+  }
 
-    try {
-      const response = await fetch(src);
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `ticket-${ref}.png`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      // Fallback: open in new tab
-      window.open(src, '_blank');
+  if (!operator) setOperator(op);
+  if (!ctxBus)   setBus(bus);
+
+  const seatMap = buildSeatMap();
+  const booked  = getBookedSeats(busId);
+
+  // ── Seat color helper ──────────────────────────────────────────
+  const seatCls = (n: number | null): string => {
+    if (n === null) return 'invisible';
+    if (booked.has(n))   return 'bg-[#f0f0f0] border-[#ddd] text-[#bbb] cursor-not-allowed';
+    if (selected.includes(n))
+      return LADIES_SEATS.has(n)
+        ? 'bg-blue-700 border-blue-800 text-white scale-105'
+        : 'bg-emerald-700 border-emerald-800 text-white scale-105';
+    if (LADIES_SEATS.has(n)) return 'bg-blue-100 border-blue-300 text-blue-900 hover:bg-blue-200 active:scale-95 cursor-pointer';
+    return 'bg-[#eef5d6] border-[#d4e89a] text-[#5a7a00] hover:bg-[#dff0a0] active:scale-95 cursor-pointer';
+  };
+
+  // ── Toggle seat ────────────────────────────────────────────────
+  const toggle = (n: number) => {
+    setError('');
+    if (booked.has(n)) return;
+    if (selected.includes(n)) {
+      setSelected(prev => prev.filter(s => s !== n));
+      return;
     }
+    if (LADIES_SEATS.has(n) && gender !== 'female') {
+      setError(`Seat ${n} is reserved for ladies only. Please select female gender first.`);
+      return;
+    }
+    if (selected.length >= MAX_SEATS) {
+      setError(`Maximum ${MAX_SEATS} seats per booking.`);
+      return;
+    }
+    setSelected(prev => [...prev, n]);
   };
 
-  const handleBookAnother = () => {
-    clearBooking();
-    router.push('/booking');
+  // ── Seat button ────────────────────────────────────────────────
+  const SeatBtn = ({ n }: { n: number | null }) => {
+    if (n === null) {
+      // Empty slot — same size as seat so row width stays fixed
+      return <div className="w-[34px] h-[34px] shrink-0" />;
+    }
+    return (
+      <button
+        type="button"
+        disabled={booked.has(n)}
+        onClick={() => toggle(n)}
+        className={`w-[34px] h-[34px] rounded-lg border text-[10px] font-semibold shrink-0 transition-all duration-100 ${seatCls(n)}`}
+      >
+        {n}
+      </button>
+    );
   };
 
-  const rows = [
-    { label: 'Passenger',           value: passengerName || '—' },
-    { label: 'Phone',               value: passengerPhone ? `+94 ${passengerPhone}` : '—' },
-    { label: 'Gender',              value: passengerGender === 'male' ? '♂ Male' : '♀ Female' },
-    { label: 'Seat(s)',             value: seatCount > 1 ? `${seatCount} seats` : '1 seat' },
-    { label: 'Route',               value: bus ? `${bus.from} → ${bus.to}` : '—' },
-    { label: 'Departure',           value: bus ? `${formatDate(bus.date)} at ${bus.departureTime}` : '—' },
-    { label: 'Total (on boarding)', value: `LKR ${totalFare.toLocaleString()}` },
-  ];
+  const totalFare  = selected.length * bus.fare;
+  const canProceed = selected.length > 0 && name.trim() && phone.trim() && gender;
 
+  const handleContinue = () => {
+    if (!canProceed) return;
+    setSeatCount(selected.length);
+    setPassengerName(name.trim());
+    setPassengerPhone(phone.trim());
+    setPassengerGender(gender as 'male' | 'female');
+    router.push('/booking/confirmed');
+  };
+
+  // ─────────────────────────────────────────────────────────────
   return (
-    <div className="max-w-3xl mx-auto py-10 -mb-30 px-2">
-
-      {/* Success header */}
-      <div className="text-center mb-8">
-        <div className="w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center mx-auto mb-4 shadow-[0_0_28px_rgba(16,185,129,0.3)]">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 6L9 17l-5-5" />
-          </svg>
+    <div>
+      {/* Header */}
+      <div className="mb-5">
+        <div className="flex items-center gap-2 mb-1.5">
+          <div
+            className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[9px] font-black shrink-0"
+            style={{ background: op.accentColor }}
+          >
+            {op.name.slice(0, 2).toUpperCase()}
+          </div>
+          <span className="text-xs font-medium text-muted-foreground">{op.name}</span>
         </div>
-        <h1 className="text-2xl font-bold text-foreground mb-1">Booking confirmed!</h1>
+        <h1 className="text-2xl font-bold tracking-tight mb-1">Select seats &amp; fill form</h1>
         <p className="text-sm text-muted-foreground">
-          {operator?.name} · {bus?.from} → {bus?.to}
-          {bus && <> · {formatDate(bus.date)} at {bus.departureTime}</>}
+          {bus.from} → {bus.to} · {formatDate(bus.date)} at {bus.departureTime}
         </p>
-
-        {/* Ref badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 mt-3">
-          <span className="text-[10px] text-emerald-600 font-medium uppercase tracking-wider">Ref</span>
-          <span className="text-xs font-bold text-emerald-700 font-mono">{ref}</span>
-        </div>
       </div>
 
-      {/* Main card — side by side on md+, stacked on mobile */}
-      <div className="rounded-2xl border border-border overflow-hidden mb-5 flex flex-col md:flex-row">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-        {/* Left: booking details */}
-        <div className="flex-1 min-w-0">
-          <div className="px-4 py-3 bg-secondary/30 border-b border-border">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Booking details</p>
+        {/* ── Seat map column ─────────────────────────────────── */}
+        <div className="w-full lg:w-auto flex flex-col items-center">
+
+          {/* Legend */}
+          <div className="flex flex-wrap gap-x-4 gap-y-2 mb-3 justify-center">
+            {[
+              { bg: 'bg-blue-100 border-blue-300',          label: 'Ladies only' },
+              { bg: 'bg-[#eef5d6] border-[#d4e89a]',        label: 'Available'   },
+              { bg: 'bg-[#f0f0f0] border-[#ddd]',           label: 'Already booked' },
+              { bg: 'bg-[#2a2a2a] border-[#111]',           label: 'In progress' },
+            ].map(({ bg, label }) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <div className={`w-3.5 h-3.5 rounded border ${bg} shrink-0`} />
+                <span className="text-[11px] text-muted-foreground">{label}</span>
+              </div>
+            ))}
           </div>
-          {rows.map((row, i) => (
-            <div
-              key={row.label}
-              className={`px-4 py-3 flex justify-between items-center gap-4 ${
-                i === rows.length - 1
-                  ? 'bg-secondary/10'
-                  : 'border-b border-border'
-              }`}
-            >
-              <span className={`text-xs shrink-0 ${i === rows.length - 1 ? 'font-bold text-foreground' : 'text-muted-foreground'}`}>
-                {row.label}
-              </span>
-              <span className={`font-semibold text-foreground text-right ${i === rows.length - 1 ? 'text-sm' : 'text-xs'}`}>
-                {row.value}
+
+          {/* Bus shell */}
+          <div className="rounded-2xl border border-border overflow-hidden bg-background">
+            {/* Front cab */}
+            <div className="text-center py-2 px-8 bg-secondary/40 border-b border-border">
+              <span className="text-[10px] font-semibold text-muted-foreground tracking-widest">Front</span>
+            </div>
+
+            {/* Seat grid */}
+            <div className="p-3 space-y-1">
+              {seatMap.map((row, ri) => (
+                <div key={ri} className="flex items-center gap-0">
+                  {/* Row number — fixed width */}
+                  <span className="w-[26px] text-[10px] text-muted-foreground/40 text-right shrink-0 pr-1.5">
+                    {ri + 1}
+                  </span>
+
+                  {/* Left seat A */}
+                  <SeatBtn n={row.left[0]} />
+                  <div className="w-1 shrink-0" />
+                  {/* Left seat B */}
+                  <SeatBtn n={row.left[1]} />
+
+                  {/* Aisle / middle seat — always exactly one seat-width (34px) + 2×4px gaps */}
+                  <div className="w-1 shrink-0" />
+                  {row.mid !== null
+                    ? <SeatBtn n={row.mid} />          /* last row: middle seat */
+                    : <div className="w-[34px] h-[34px] shrink-0" /> /* other rows: blank */
+                  }
+                  <div className="w-1 shrink-0" />
+
+                  {/* Right seat C */}
+                  <SeatBtn n={row.right[0]} />
+                  <div className="w-1 shrink-0" />
+                  {/* Right seat D */}
+                  <SeatBtn n={row.right[1]} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Error message */}
+          {error && (
+            <p className="text-[11px] text-red-500 mt-2 text-center max-w-[220px]">{error}</p>
+          )}
+        </div>
+
+        {/* ── Passenger form column ───────────────────────────── */}
+        <div className="flex-1 w-full min-w-0">
+
+          {/* Seat summary */}
+          <div className="rounded-xl border border-border bg-secondary/20 p-4 mb-4">
+            <p className="text-xs font-semibold text-foreground mb-2">Seat details</p>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-xs text-muted-foreground">Seats</span>
+              <span className={`text-xs font-semibold ${selected.length ? 'text-foreground' : 'text-red-500'}`}>
+                {selected.length
+                  ? [...selected].sort((a, b) => a - b).join(', ')
+                  : 'Please select your seats'}
               </span>
             </div>
-          ))}
-        </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-muted-foreground">Total</span>
+              <span className={`text-xs font-semibold ${selected.length ? 'text-foreground' : 'text-red-500'}`}>
+                {selected.length ? `LKR ${totalFare.toLocaleString()}` : '0 LKR'}
+              </span>
+            </div>
+          </div>
 
-        {/* Divider */}
-        <div className="hidden md:block w-px bg-border" />
-        <div className="block md:hidden h-px bg-border" />
+          {/* Form fields */}
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Passenger name</label>
+              <input
+                type="text"
+                placeholder="Enter passenger name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-foreground/40"
+              />
+            </div>
 
-        {/* Right: QR code + download */}
-        <div className="flex flex-col items-center justify-center gap-3 p-6 bg-secondary/5 md:w-56 shrink-0">
-          <QRCode value={qrPayload} size={160} downloadRef={qrImgRef} />
-          <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
-            Scan to view your ticket. Show this to the conductor.
-          </p>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Mobile number</label>
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background focus-within:border-foreground/40">
+                <span className="text-xs text-muted-foreground shrink-0">+94</span>
+                <input
+                  type="tel"
+                  placeholder="071 234 5678"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  className="flex-1 text-sm text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Gender</label>
+              <select
+                value={gender}
+                onChange={e => { setGender(e.target.value as 'male' | 'female'); setError(''); }}
+                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none focus:border-foreground/40"
+              >
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Boarding place</label>
+              <select className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none focus:border-foreground/40">
+                <option value="">Select boarding point</option>
+                {BOARDING_POINTS.map(p => <option key={p}>{p}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Destination place</label>
+              <select className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none focus:border-foreground/40">
+                <option value="">Select destination</option>
+                <option>{bus.to}</option>
+              </select>
+            </div>
+          </div>
+
           <button
             type="button"
-            onClick={handleDownloadQR}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-secondary/50 transition-colors text-[11px] font-semibold text-foreground"
+            disabled={!canProceed}
+            onClick={handleContinue}
+            className={`w-full mt-5 py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.98]
+              ${canProceed
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                : 'bg-secondary text-muted-foreground cursor-not-allowed'}`}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Download QR
+            Continue to pay
           </button>
         </div>
-      </div>
-
-      {/* Reminder */}
-      <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-left mb-6">
-        <span className="text-amber-600 shrink-0 mt-0.5 text-sm">⚠</span>
-        <p className="text-[11px] text-amber-700">
-          Please arrive at the bus stand at least 10 minutes before departure.
-        </p>
-      </div>
-
-      {/* CTA */}
-      <div className="text-center">
-        <button
-          type="button"
-          onClick={handleBookAnother}
-          className="px-8 py-3 rounded-xl bg-foreground text-background text-sm font-bold hover:bg-foreground/90 transition-colors active:scale-[0.98]"
-        >
-          Book another trip
-        </button>
       </div>
     </div>
   );

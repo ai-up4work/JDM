@@ -1,6 +1,6 @@
-// app/api/laam/brands/[slug]/route.ts
+// app/api/aiza-threads/[slug]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getLaamBrands, BRANDS_DATA, type Brand } from '@/lib/laam/brands-data';
+import { getLaamBrands, BRANDS_DATA, type Brand } from '@/lib/aiza-threads/brands-data';
 
 export interface LaamProduct {
   id: string;

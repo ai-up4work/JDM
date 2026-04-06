@@ -276,7 +276,7 @@ export default function BrandProductsPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/laam/brands/${slug}`)
+    fetch(`/api/aiza-threads/${slug}`)
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(({ brand, products }) => { setBrand(brand); setProducts(products); })
       .catch(() => setError(true))

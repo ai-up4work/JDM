@@ -1,4 +1,4 @@
-// lib/laam/brands-data.ts
+// lib/aiza-threads/brands-data.ts
 
 export interface Brand {
   id: string;

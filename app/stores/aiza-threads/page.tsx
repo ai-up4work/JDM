@@ -60,7 +60,7 @@ async function fetchBrands(params: {
   if (params.letter)             qs.set('letter',   params.letter);
   if (params.featured != null)   qs.set('featured', String(params.featured));
 
-  const res = await fetch(`/api/laam/brands?${qs.toString()}`);
+  const res = await fetch(`/api/aiza-threads?${qs.toString()}`);
   if (!res.ok) throw new Error('Failed to fetch brands');
   return res.json();
 }

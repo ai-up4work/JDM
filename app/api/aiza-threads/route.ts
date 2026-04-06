@@ -1,6 +1,6 @@
-// app/api/laam/brands/route.ts
+// app/api/aiza-threads/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { filterBrands, parseLaamBrands, BRANDS_DATA, getLaamBrands, isNewBrand, type Brand } from '@/lib/laam/brands-data';
+import { filterBrands, parseLaamBrands, BRANDS_DATA, getLaamBrands, isNewBrand, type Brand } from '@/lib/aiza-threads/brands-data';
 
 
 const LAAM_BRANDS_URL = 'https://laam.pk/brands';
